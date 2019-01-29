@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6D8340F15FA4F51544E2D89F /* Pods_ReactNativeDji.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F9705FE6A8DA1394B6045C5 /* Pods_ReactNativeDji.framework */; };
 		B3E7B58A1CC2AC0600A0062D /* ReactNativeDji.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* ReactNativeDji.m */; };
 /* End PBXBuildFile section */
 
@@ -24,8 +25,11 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libReactNativeDji.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeDji.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24E50E7BB16C3B2A64977428 /* Pods-ReactNativeDji.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeDji.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ReactNativeDji/Pods-ReactNativeDji.debug.xcconfig"; sourceTree = "<group>"; };
+		3F9705FE6A8DA1394B6045C5 /* Pods_ReactNativeDji.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ReactNativeDji.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3E7B5881CC2AC0600A0062D /* ReactNativeDji.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReactNativeDji.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* ReactNativeDji.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReactNativeDji.m; sourceTree = "<group>"; };
+		D7B2E407C7A951EF11432CF4 /* Pods-ReactNativeDji.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeDji.release.xcconfig"; path = "Pods/Target Support Files/Pods-ReactNativeDji/Pods-ReactNativeDji.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,6 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D8340F15FA4F51544E2D89F /* Pods_ReactNativeDji.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,7 +58,26 @@
 				B3E7B5881CC2AC0600A0062D /* ReactNativeDji.h */,
 				B3E7B5891CC2AC0600A0062D /* ReactNativeDji.m */,
 				134814211AA4EA7D00B7C361 /* Products */,
+				65357D5354AD772865E23451 /* Pods */,
+				DE3C7F77E32149D17AFD91F2 /* Frameworks */,
 			);
+			sourceTree = "<group>";
+		};
+		65357D5354AD772865E23451 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				24E50E7BB16C3B2A64977428 /* Pods-ReactNativeDji.debug.xcconfig */,
+				D7B2E407C7A951EF11432CF4 /* Pods-ReactNativeDji.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		DE3C7F77E32149D17AFD91F2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3F9705FE6A8DA1394B6045C5 /* Pods_ReactNativeDji.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -63,6 +87,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "ReactNativeDji" */;
 			buildPhases = (
+				364065CC19732D076D972419 /* [CP] Check Pods Manifest.lock */,
 				58B511D71A9E6C8500147676 /* Sources */,
 				58B511D81A9E6C8500147676 /* Frameworks */,
 				58B511D91A9E6C8500147676 /* CopyFiles */,
@@ -106,6 +131,27 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		364065CC19732D076D972419 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ReactNativeDji-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		58B511D71A9E6C8500147676 /* Sources */ = {
@@ -202,9 +248,10 @@
 		};
 		58B511F01A9E6C8500147676 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 24E50E7BB16C3B2A64977428 /* Pods-ReactNativeDji.debug.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
-				"$(inherited)",
+					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
@@ -218,6 +265,7 @@
 		};
 		58B511F11A9E6C8500147676 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D7B2E407C7A951EF11432CF4 /* Pods-ReactNativeDji.release.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
