@@ -137,7 +137,8 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-dji-mobile')
+    implementation project(':react-native-dji-mobile')
+
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     implementation "com.facebook.react:react-native:+"  // From node_modules

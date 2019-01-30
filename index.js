@@ -1,6 +1,11 @@
 
 import { NativeModules } from 'react-native';
 
-const { test } = NativeModules;
+const { Module, ToastExample } = NativeModules;
 
-export default test;
+console.log('here');
+console.log(Module);
+
+ToastExample.show('hello?', 2);
+
+export default Module;

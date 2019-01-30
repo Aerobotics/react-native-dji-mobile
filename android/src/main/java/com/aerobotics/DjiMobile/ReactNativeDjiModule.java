@@ -1,5 +1,5 @@
 
-package com.reactlibrary;
+package com.aerobotics.DjiMobile;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -15,8 +15,13 @@ public class ReactNativeDjiModule extends ReactContextBaseJavaModule {
     this.reactContext = reactContext;
   }
 
+  @ReactMethod
+  public void strange(String message, int duration) {
+    return;
+  }
+
   @Override
   public String getName() {
-    return "ReactNativeDji";
+    return "Module";
   }
 }
