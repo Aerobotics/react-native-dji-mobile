@@ -6,6 +6,10 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 
+import android.util.Log;
+
+import dji.sdk.sdkmanager.DJISDKManager;
+
 public class ReactNativeDjiModule extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
@@ -16,7 +20,8 @@ public class ReactNativeDjiModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void strange(String message, int duration) {
+  public void version() {
+    Log.i("TEST VERSION", DJISDKManager.getInstance().getSDKVersion());
     return;
   }
 

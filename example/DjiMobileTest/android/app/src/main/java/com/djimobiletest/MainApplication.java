@@ -1,6 +1,8 @@
 package com.djimobiletest;
 
 import android.app.Application;
+import android.content.Context;
+import android.util.Log;
 
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
@@ -12,6 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.aerobotics.DjiMobile.ReactNativeDjiPackage;
+import com.secneo.sdk.Helper;
+
+import dji.sdk.sdkmanager.DJISDKManager;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -44,5 +49,11 @@ public class MainApplication extends Application implements ReactApplication {
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
+  }
+
+  @Override
+  public void attachBaseContext(Context paramContext) {
+    super.attachBaseContext(paramContext);
+    Helper.install(MainApplication.this);
   }
 }

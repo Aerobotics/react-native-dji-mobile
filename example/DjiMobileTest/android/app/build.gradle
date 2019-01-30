@@ -134,14 +134,31 @@ android {
             }
         }
     }
+
+    // Dji Sdk requirements
+    packagingOptions{
+        doNotStrip "*/*/libdjivideo.so"
+        doNotStrip "*/*/libSDKRelativeJNI.so"
+        doNotStrip "*/*/libFlyForbid.so"
+        doNotStrip "*/*/libduml_vision_bokeh.so"
+        doNotStrip "*/*/libyuv2.so"
+        doNotStrip "*/*/libGroudStation.so"
+        doNotStrip "*/*/libFRCorkscrew.so"
+        doNotStrip "*/*/libUpgradeVerify.so"
+        doNotStrip "*/*/libFR.so"
+        exclude 'META-INF/rxjava.properties'
+    }
 }
 
 dependencies {
-    implementation project(':react-native-dji-mobile')
-
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     implementation "com.facebook.react:react-native:+"  // From node_modules
+
+    implementation project(':react-native-dji-mobile')
+
+    implementation 'com.dji:dji-sdk:4.9'
+    compileOnly 'com.dji:dji-sdk-provided:4.9'
 }
 
 // Run this once to be able to run the application with BUCK
