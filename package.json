@@ -1,11 +1,11 @@
-
 {
   "name": "react-native-dji-mobile",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node ./scripts/make.js"
   },
   "keywords": [
     "react-native"
@@ -14,5 +14,8 @@
   "license": "",
   "peerDependencies": {
     "react-native": "^0.41.2"
+  },
+  "devDependencies": {
+    "chokidar": "^2.0.4"
   }
 }

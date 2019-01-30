@@ -1,6 +1,6 @@
 
 import { NativeModules } from 'react-native';
 
-const { ReactNativeDji } = NativeModules;
+const { test } = NativeModules;
 
-export default ReactNativeDji;
+export default test;
