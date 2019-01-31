@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		665EE7802200A40F00753E42 /* test-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 665EE77F2200A40E00753E42 /* test-bridge.m */; };
-		66F25E2722008D2100F00255 /* test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66F25E2622008D2100F00255 /* test.swift */; };
+		665EE7802200A40F00753E42 /* DJISDKManagerWrapper-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 665EE77F2200A40E00753E42 /* DJISDKManagerWrapper-bridge.m */; };
+		66F25E2722008D2100F00255 /* DJISDKManagerWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66F25E2622008D2100F00255 /* DJISDKManagerWrapper.swift */; };
+		B4AB231466A44E6D0BDF9101 /* Pods_ReactNativeDjiMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87039789E08CC959383C6D6F /* Pods_ReactNativeDjiMobile.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,9 +26,10 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libReactNativeDjiMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeDjiMobile.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		665EE77F2200A40E00753E42 /* test-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "test-bridge.m"; sourceTree = "<group>"; };
+		665EE77F2200A40E00753E42 /* DJISDKManagerWrapper-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "DJISDKManagerWrapper-bridge.m"; sourceTree = "<group>"; };
 		66F25E2522008D2000F00255 /* ReactNativeDjiMobile-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ReactNativeDjiMobile-Bridging-Header.h"; sourceTree = "<group>"; };
-		66F25E2622008D2100F00255 /* test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = test.swift; sourceTree = "<group>"; };
+		66F25E2622008D2100F00255 /* DJISDKManagerWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DJISDKManagerWrapper.swift; sourceTree = "<group>"; };
+		87039789E08CC959383C6D6F /* Pods_ReactNativeDjiMobile.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ReactNativeDjiMobile.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D7A55877479F38A54D12890 /* Pods-ReactNativeDjiMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeDjiMobile.release.xcconfig"; path = "Pods/Target Support Files/Pods-ReactNativeDjiMobile/Pods-ReactNativeDjiMobile.release.xcconfig"; sourceTree = "<group>"; };
 		D90E6C31B959F24D3BC2A7A4 /* Pods-ReactNativeDjiMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeDjiMobile.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ReactNativeDjiMobile/Pods-ReactNativeDjiMobile.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -37,6 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4AB231466A44E6D0BDF9101 /* Pods_ReactNativeDjiMobile.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -54,11 +57,12 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-				665EE77F2200A40E00753E42 /* test-bridge.m */,
-				66F25E2622008D2100F00255 /* test.swift */,
+				665EE77F2200A40E00753E42 /* DJISDKManagerWrapper-bridge.m */,
+				66F25E2622008D2100F00255 /* DJISDKManagerWrapper.swift */,
 				134814211AA4EA7D00B7C361 /* Products */,
 				65357D5354AD772865E23451 /* Pods */,
 				66F25E2522008D2000F00255 /* ReactNativeDjiMobile-Bridging-Header.h */,
+				C68E9512B9A68F906F738430 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -69,6 +73,14 @@
 				9D7A55877479F38A54D12890 /* Pods-ReactNativeDjiMobile.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		C68E9512B9A68F906F738430 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				87039789E08CC959383C6D6F /* Pods_ReactNativeDjiMobile.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,7 +152,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "exit 0\ndiff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "# The podfile used is on the main application, so the library doesn't need to check its own podfile\nexit 0\n\ndiff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -150,8 +162,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				665EE7802200A40F00753E42 /* test-bridge.m in Sources */,
-				66F25E2722008D2100F00255 /* test.swift in Sources */,
+				665EE7802200A40F00753E42 /* DJISDKManagerWrapper-bridge.m in Sources */,
+				66F25E2722008D2100F00255 /* DJISDKManagerWrapper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -199,9 +211,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/Pods/**";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -242,9 +254,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/Pods/**";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;

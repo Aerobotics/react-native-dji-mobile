@@ -13,10 +13,8 @@ import com.facebook.soloader.SoLoader;
 import java.util.Arrays;
 import java.util.List;
 
-import com.aerobotics.DjiMobile.ReactNativeDjiPackage;
+import com.aerobotics.DjiMobile.DJISDKManagerPackage;
 import com.secneo.sdk.Helper;
-
-import dji.sdk.sdkmanager.DJISDKManager;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -30,7 +28,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
         new MainReactPackage(),
-        new ReactNativeDjiPackage()
+        new DJISDKManagerPackage()
       );
     }
 

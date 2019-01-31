@@ -17,5 +17,9 @@
   },
   "devDependencies": {
     "chokidar": "^2.0.4"
+  },
+  "dependencies": {
+    "eslint": "^5.12.1",
+    "flow-bin": "^0.91.0"
   }
 }

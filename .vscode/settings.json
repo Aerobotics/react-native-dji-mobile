@@ -1,0 +1,7 @@
+{
+  "javascript.validate.enable": false,
+  "typescript.validate.enable": false,
+  "flow.enabled": true,
+  "eslint.enable": true,
+  "flow.pathToFlow": "${workspaceRoot}/node_modules/.bin/flow"
+}

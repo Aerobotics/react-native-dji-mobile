@@ -1,6 +1,17 @@
+import {
+  Platform,
+} from 'react-native';
 
-import { NativeModules } from 'react-native';
+import DJISDKManager from './lib/DJISDKManager';
 
-const { Module } = NativeModules;
+if (Platform.OS === 'ios') {
+  console.log('ios');
+} else if (Platform.OS === 'android') {
+  console.log('android');
+} else {
+  throw new Error('Unsupported platform! Only iOS or Android is currently supported');
+}
 
-export default Module;
+export {
+  DJISDKManager,
+}
