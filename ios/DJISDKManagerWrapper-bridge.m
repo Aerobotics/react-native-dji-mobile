@@ -12,8 +12,18 @@
 @interface RCT_EXTERN_MODULE(DJISDKManagerWrapper, NSObject)
 
 RCT_EXTERN_METHOD(
-  getSDKVersion:  (RCTPromiseResolveBlock)resolve
-  reject:         (RCTPromiseRejectBlock)reject
+  getSDKVersion: (RCTPromiseResolveBlock)resolve
+  reject:        (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+  registerApp: (RCTPromiseResolveBlock)resolve
+  reject:      (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+  startConnectionToProduct: (RCTPromiseResolveBlock)resolve
+  reject:                   (RCTPromiseRejectBlock)reject
 )
 
 @end

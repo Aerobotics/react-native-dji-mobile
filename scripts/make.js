@@ -10,6 +10,7 @@ const DO_NOT_COPY_PATHS = [
   /(.*)(~\.swift)/,
   /ios\/Pods/,
   /example/,
+  /scripts/,
   /.DS_STORE/,
 ];
 
