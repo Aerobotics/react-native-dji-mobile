@@ -15,7 +15,7 @@ import com.facebook.react.bridge.JavaScriptModule;
 public class DJIMobilePackage implements ReactPackage {
   @Override
   public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-    return Arrays.<NativeModule>asList(new DJISDKManagerWrapper(reactContext));
+    return Arrays.<NativeModule>asList(new DJIMobile(reactContext));
   }
 
   @Override

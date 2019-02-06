@@ -1,17 +1,38 @@
 import {
   Platform,
+  NativeModules,
 } from 'react-native';
 
-import DJISDKManager from './lib/DJISDKManager';
+import PlatformEventEmitter from './platformEventEmitter';
 
-if (Platform.OS === 'ios') {
-  console.log('ios');
-} else if (Platform.OS === 'android') {
-  console.log('android');
-} else {
-  throw new Error('Unsupported platform! Only iOS or Android is currently supported');
-}
+import {
+  Subject,
+} from 'rxjs';
 
-export {
-  DJISDKManager,
-}
+import {
+  filter,
+} from 'rxjs/operators';
+
+const {
+  DJIMobile,
+} = NativeModules;
+
+const DJIEventSubject = new Subject();
+
+PlatformEventEmitter.addListener('DJIEvent', evt => {
+  DJIEventSubject.next(evt);
+});
+
+const DJIMobileWrapper = {
+  
+  registerApp: () => {
+    return DJIMobile.registerApp();
+  },
+
+  startProductConnectionListener: async () => {
+    DJIMobile.startProductConnectionListener();
+    return DJIEventSubject.pipe(filter(evt => evt.type === 'connectionStatus')).asObservable();
+  },
+};
+
+export default DJIMobileWrapper;
