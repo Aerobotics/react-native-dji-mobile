@@ -12,6 +12,7 @@ import {
 import {
   filter,
 } from 'rxjs/operators';
+import { async } from 'rxjs/internal/scheduler/async';
 
 const {
   DJIMobile,
@@ -30,8 +31,19 @@ const DJIMobileWrapper = {
   },
 
   startProductConnectionListener: async () => {
-    DJIMobile.startProductConnectionListener();
+    await DJIMobile.startProductConnectionListener();
     return DJIEventSubject.pipe(filter(evt => evt.type === 'connectionStatus')).asObservable();
+  },
+  stopProductConnectionListener: async () => {
+    await DJIMobile.stopProductConnectionListener();
+  },
+
+  startBatteryPercentChargeRemainingListener: async () => {
+    await DJIMobile.startBatteryPercentChargeRemainingListener();
+    return DJIEventSubject.pipe(filter(evt => evt.type === 'chargeRemaining')).asObservable();
+  },
+  stopBatteryPercentChargeRemainingListener: async () => {
+    await DJIMobile.stopBatteryPercentChargeRemainingListener();
   },
 };
 

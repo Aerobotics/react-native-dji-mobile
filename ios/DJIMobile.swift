@@ -25,11 +25,10 @@ class DJIMobile: RCTEventEmitter {
           sentRegistration = true
         } else if (registered == true) {
           sentRegistration = true
-          DispatchQueue.main.asyncAfter(deadline: .now(), execute: {
+          DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
             DJISDKManager.startConnectionToProduct()
+            resolve(nil)
           })
-          
-          resolve(nil)
         }
       }
     }
@@ -40,9 +39,7 @@ class DJIMobile: RCTEventEmitter {
   func startProductConnectionListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let key = DJIProductKey(param: DJIParamConnection)!
     self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
-      if (newValue != nil) {
-        let connected = (newValue != nil) as Bool
-        NSLog("KEYLISTENER: %@", newValue!.stringValue!)
+      if let connected = newValue?.boolValue {
         self.sendKeyEvent(type: "connectionStatus", value: connected ? "connected" : "disconnected")
       }
     }
@@ -55,10 +52,28 @@ class DJIMobile: RCTEventEmitter {
     resolve(nil)
   }
   
+  @objc(startBatteryPercentChargeRemainingListener:reject:)
+  func startBatteryPercentChargeRemainingListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    let key = DJIBatteryKey(param: DJIBatteryParamChargeRemainingInPercent)!
+    self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      if let chargePercent = newValue?.integerValue {
+        self.sendKeyEvent(type: "chargeRemaining", value: chargePercent)
+      }
+    }
+    resolve(nil)
+  }
+  
+  @objc(stopBatteryPercentChargeRemainingListener:reject:)
+  func stopBatteryPercentChargeRemainingListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    self.stopKeyListener(key: DJIBatteryKey(param: DJIBatteryParamChargeRemainingInPercent)!)
+    resolve(nil)
+  }
+  
   func startKeyListener(key: DJIKey, updateBlock: @escaping DJIKeyedListenerUpdateBlock) {
     let existingKeyIndex = self.keyListeners.firstIndex(of: key.param!)
     NSLog("KEYLISTENER INDEX: %d", existingKeyIndex ?? -1);
     if (existingKeyIndex == nil) {
+      NSLog("KEYLISTENER ADDING KEY!");
       self.keyListeners.append(key.param!)
       DJISDKManager.keyManager()?.startListeningForChanges(on: key, withListener: self, andUpdate: updateBlock)
     } else {

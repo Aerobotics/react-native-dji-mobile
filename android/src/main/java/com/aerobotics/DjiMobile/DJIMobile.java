@@ -24,6 +24,7 @@ import dji.common.error.DJISDKError;
 import dji.keysdk.DJIKey;
 import dji.keysdk.KeyManager;
 import dji.keysdk.ProductKey;
+import dji.keysdk.BatteryKey;
 import dji.keysdk.callback.KeyListener;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
@@ -76,6 +77,24 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   @ReactMethod
   public void stopProductConnectionListener(Promise promise) {
     stopKeyListener(ProductKey.create(ProductKey.CONNECTION));
+    promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void startBatteryPercentChargeRemainingListener(Promise promise) {
+    DJIKey key = BatteryKey.create(BatteryKey.CHARGE_REMAINING_IN_PERCENT);
+    startKeyListener(key, new KeyListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        sendEvent(reactContext, "chargeRemaining", (int)newValue);
+      }
+    });
+    promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void stopBatteryPercentChargeRemainingListener(Promise promise) {
+    stopKeyListener(BatteryKey.create(BatteryKey.CHARGE_REMAINING_IN_PERCENT));
     promise.resolve(null);
   }
 
