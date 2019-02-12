@@ -10,6 +10,7 @@ import com.aerobotics.DjiMobile.R;
 
 import dji.sdk.camera.VideoFeeder;
 import dji.sdk.codec.DJICodecManager;
+import dji.sdk.sdkmanager.DJISDKManager;
 
 public class DroneVideo extends RelativeLayout implements TextureView.SurfaceTextureListener {
 
@@ -24,14 +25,16 @@ public class DroneVideo extends RelativeLayout implements TextureView.SurfaceTex
     View.inflate(getContext(), R.layout.drone_video_layout, this);
     TextureView droneVideoTexture = findViewById(R.id.droneVideoTexture);
     droneVideoTexture.setSurfaceTextureListener(this);
-    VideoFeeder.getInstance().getPrimaryVideoFeed().addVideoDataListener(new VideoFeeder.VideoDataListener() {
-      @Override
-      public void onReceive(byte[] buffer, int size) {
-        if (codecManager != null) {
-          codecManager.sendDataToDecoder(buffer, size);
+    if (DJISDKManager.getInstance().hasSDKRegistered()) {
+      VideoFeeder.getInstance().getPrimaryVideoFeed().addVideoDataListener(new VideoFeeder.VideoDataListener() {
+        @Override
+        public void onReceive(byte[] buffer, int size) {
+          if (codecManager != null) {
+            codecManager.sendDataToDecoder(buffer, size);
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   @Override

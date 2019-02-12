@@ -24,10 +24,14 @@ PlatformEventEmitter.addListener('DJIEvent', evt => {
   DJIEventSubject.next(evt);
 });
 
+let SDKRegistered = false;
+
 const DJIMobileWrapper = {
   
   registerApp: () => {
-    return DJIMobile.registerApp();
+    const registerPromise = DJIMobile.registerApp();
+    registerPromise.then(() => SDKRegistered = true).catch(() => SDKRegistered = false);
+    return registerPromise
   },
 
   startProductConnectionListener: async () => {
