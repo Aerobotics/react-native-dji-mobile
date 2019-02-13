@@ -12,6 +12,8 @@ import Foundation
 class DroneVideoViewManager: RCTViewManager {
   
   override func view() -> UIView! {
+    DJIVideoPreviewer.instance()
+//    DJIVideoPreviewer.instance().setView();
     let label = UILabel()
     label.text = "Swift Counter"
     label.textAlignment = .center

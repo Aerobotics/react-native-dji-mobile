@@ -11,7 +11,6 @@
 		669F8EE1221459E700CE1373 /* DroneVideoViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669F8EE0221459E700CE1373 /* DroneVideoViewManager.swift */; };
 		669F8EE322145A9600CE1373 /* DroneVideoViewManager-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 669F8EE222145A9600CE1373 /* DroneVideoViewManager-bridge.m */; };
 		66F25E2722008D2100F00255 /* DJIMobile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66F25E2622008D2100F00255 /* DJIMobile.swift */; };
-		732857AAF6C2F75192082275 /* libPods-ReactNativeDjiMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 778EEA571AE6C2854B1AEF3C /* libPods-ReactNativeDjiMobile.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,7 +32,6 @@
 		669F8EE222145A9600CE1373 /* DroneVideoViewManager-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "DroneVideoViewManager-bridge.m"; sourceTree = "<group>"; };
 		66F25E2522008D2000F00255 /* ReactNativeDjiMobile-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ReactNativeDjiMobile-Bridging-Header.h"; sourceTree = "<group>"; };
 		66F25E2622008D2100F00255 /* DJIMobile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DJIMobile.swift; sourceTree = "<group>"; };
-		778EEA571AE6C2854B1AEF3C /* libPods-ReactNativeDjiMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ReactNativeDjiMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D7A55877479F38A54D12890 /* Pods-ReactNativeDjiMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeDjiMobile.release.xcconfig"; path = "Pods/Target Support Files/Pods-ReactNativeDjiMobile/Pods-ReactNativeDjiMobile.release.xcconfig"; sourceTree = "<group>"; };
 		D90E6C31B959F24D3BC2A7A4 /* Pods-ReactNativeDjiMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeDjiMobile.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ReactNativeDjiMobile/Pods-ReactNativeDjiMobile.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -43,7 +41,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				732857AAF6C2F75192082275 /* libPods-ReactNativeDjiMobile.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,7 +64,6 @@
 				134814211AA4EA7D00B7C361 /* Products */,
 				65357D5354AD772865E23451 /* Pods */,
 				66F25E2522008D2000F00255 /* ReactNativeDjiMobile-Bridging-Header.h */,
-				C68E9512B9A68F906F738430 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -87,14 +83,6 @@
 				669F8EE222145A9600CE1373 /* DroneVideoViewManager-bridge.m */,
 			);
 			name = DroneVideo;
-			sourceTree = "<group>";
-		};
-		C68E9512B9A68F906F738430 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				778EEA571AE6C2854B1AEF3C /* libPods-ReactNativeDjiMobile.a */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -208,10 +196,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SRCROOT)/../../../ios/Pods/**",
-					"$(SRCROOT)/Pods/**",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../../../ios/Pods/**";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -227,9 +212,14 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/**";
+				HEADER_SEARCH_PATHS = (
+					"\"${SRCROOT}/../../../ios/Pods/Headers/Private\"",
+					"\"${SRCROOT}/../../../ios/Pods/Headers/Private/DJIWidget\"",
+					"\"${SRCROOT}/../../../ios/Pods/Headers/Public\"",
+					"\"${SRCROOT}/../../../ios/Pods/Headers/Public/DJIWidget\"",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/Pods/**";
+				LIBRARY_SEARCH_PATHS = "";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -258,10 +248,7 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SRCROOT)/../../../ios/Pods/**",
-					"$(SRCROOT)/Pods/**",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../../../ios/Pods/**";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -270,9 +257,14 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/**";
+				HEADER_SEARCH_PATHS = (
+					"\"${SRCROOT}/../../../ios/Pods/Headers/Private\"",
+					"\"${SRCROOT}/../../../ios/Pods/Headers/Private/DJIWidget\"",
+					"\"${SRCROOT}/../../../ios/Pods/Headers/Public\"",
+					"\"${SRCROOT}/../../../ios/Pods/Headers/Public/DJIWidget\"",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/Pods/**";
+				LIBRARY_SEARCH_PATHS = "";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
