@@ -71,9 +71,7 @@ class DJIMobile: RCTEventEmitter {
   
   func startKeyListener(key: DJIKey, updateBlock: @escaping DJIKeyedListenerUpdateBlock) {
     let existingKeyIndex = self.keyListeners.firstIndex(of: key.param!)
-    NSLog("KEYLISTENER INDEX: %d", existingKeyIndex ?? -1);
     if (existingKeyIndex == nil) {
-      NSLog("KEYLISTENER ADDING KEY!");
       self.keyListeners.append(key.param!)
       DJISDKManager.keyManager()?.startListeningForChanges(on: key, withListener: self, andUpdate: updateBlock)
     } else {
@@ -89,7 +87,6 @@ class DJIMobile: RCTEventEmitter {
   }
   
   func sendKeyEvent(type: String, value: Any) {
-    NSLog("KEYLISTENER SEND EVENT: %@", type)
     self.sendEvent(withName: "DJIEvent", body: [
       "type": type,
       "value": value,
@@ -98,5 +95,9 @@ class DJIMobile: RCTEventEmitter {
   
   override func supportedEvents() -> [String]! {
     return ["DJIEvent"]
+  }
+  
+  override static func requiresMainQueueSetup() -> Bool {
+    return true
   }
 }
