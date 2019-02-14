@@ -13,10 +13,11 @@
   "author": "",
   "license": "",
   "peerDependencies": {
-    "react-native": "^0.41.2"
+    "react-native": "^0.57.8"
   },
   "devDependencies": {
-    "chokidar": "^2.0.4"
+    "chokidar": "^2.0.4",
+    "react-native": "^0.57.8"
   },
   "dependencies": {
     "eslint": "^5.12.1",
