@@ -24,18 +24,19 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
-                  stopProductConnectionListener:  (RCTPromiseResolveBlock)resolve
-                  reject:                         (RCTPromiseRejectBlock)reject
-                  )
-
-RCT_EXTERN_METHOD(
                   startBatteryPercentChargeRemainingListener: (RCTPromiseResolveBlock)resolve
                   reject:                                     (RCTPromiseRejectBlock)reject
                   )
 
 RCT_EXTERN_METHOD(
-                  stopBatteryPercentChargeRemainingListener: (RCTPromiseResolveBlock)resolve
-                  reject:                                    (RCTPromiseRejectBlock)reject
+                  startAircraftLocationListener: (RCTPromiseResolveBlock)resolve
+                  reject:                        (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  stopKeyListener: (String)keyString
+                  resolve:         (RCTPromiseResolveBlock)resolve
+                  reject:          (RCTPromiseRejectBlock)reject
                   )
 
 @end
