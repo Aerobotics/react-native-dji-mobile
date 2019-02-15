@@ -20,6 +20,8 @@ const {
 
 const DJIEventSubject = new Subject();
 
+// DJIEventSubject.subscribe(evt => console.log(evt));
+
 PlatformEventEmitter.addListener('DJIEvent', evt => {
   DJIEventSubject.next(evt);
 });
@@ -39,7 +41,8 @@ const DJIMobileWrapper = {
     return DJIEventSubject.pipe(filter(evt => evt.type === 'connectionStatus')).asObservable();
   },
   stopProductConnectionListener: async () => {
-    await DJIMobile.stopProductConnectionListener();
+    // TODO: (Adam) this key could potentially be used for different types (product, gimbal, etc.) so how to differentiate?
+    await DJIMobile.stopKeyListener('DJIParamConnection');
   },
 
   startBatteryPercentChargeRemainingListener: async () => {
@@ -47,8 +50,16 @@ const DJIMobileWrapper = {
     return DJIEventSubject.pipe(filter(evt => evt.type === 'chargeRemaining')).asObservable();
   },
   stopBatteryPercentChargeRemainingListener: async () => {
-    await DJIMobile.stopBatteryPercentChargeRemainingListener();
+    await DJIMobile.stopKeyListener('DJIBatteryParamChargeRemainingInPercent');
   },
+
+  startAircraftLocationListener: async () => {
+    await DJIMobile.startAircraftLocationListener();
+    return DJIEventSubject.pipe(filter(evt => evt.type === 'aircraftLocation')).asObservable();
+  },
+  stopAircraftLocationListener: async () => {
+    await DJIMobile.stopKeyListener('DJIFlightControllerParamAircraftLocation');
+  }
 };
 
 export default DJIMobileWrapper;
