@@ -34,7 +34,7 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
-                  stopKeyListener: (String)keyString
+                  stopKeyListener: (NSString)keyString
                   resolve:         (RCTPromiseResolveBlock)resolve
                   reject:          (RCTPromiseRejectBlock)reject
                   )

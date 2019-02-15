@@ -43,7 +43,7 @@ class ValidKeyInfo {
     this.keyParam = keyParam;
     this.keyClass = keyClass;
     try {
-      this.createMethod = keyClass.getMethod("create", null);
+      this.createMethod = keyClass.getMethod("create", String.class);
     } catch (NoSuchMethodException e) {
       e.printStackTrace();
     }
@@ -51,10 +51,13 @@ class ValidKeyInfo {
 
   public DJIKey createDJIKey() {
     try {
-      Object KeyClass = this.keyClass.newInstance();
-      DJIKey createdKey = (DJIKey)this.createMethod.invoke(KeyClass, this.keyParam);
+//      Object KeyClass = this.keyClass.newInstance();
+//      String args[] = {this.keyParam};
+      // As the .create() method is a static method, no object instance needs to be passed to .invoke(), hence the null value
+      DJIKey createdKey = (DJIKey)this.createMethod.invoke(null, this.keyParam);
       return createdKey;
     } catch (Exception e) {
+      Log.i("EXCEPTION", e.getLocalizedMessage());
       return null;
     }
   }
@@ -143,15 +146,20 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue != null) {
           LocationCoordinate3D location = (LocationCoordinate3D)newValue;
-          WritableMap params = Arguments.createMap();
-          params.putDouble("longitude", location.getLongitude());
-          params.putDouble("latitude", location.getLatitude());
-          params.putDouble("altitude", location.getAltitude());
-          sendEvent(reactContext, "aircraftLocation", params);
+          Double longitude = location.getLongitude();
+          Double latitude = location.getLatitude();
+          Double altitude = Double.valueOf(location.getAltitude());
+          if (!Double.isNaN(longitude) && !Double.isNaN(latitude)) {
+            WritableMap params = Arguments.createMap();
+            params.putDouble("longitude", longitude);
+            params.putDouble("latitude", latitude);
+            params.putDouble("altitude", altitude);
+            sendEvent(reactContext, "aircraftLocation", params);
+          }
         }
-
       }
     });
+    promise.resolve(null);
   }
 
   @ReactMethod

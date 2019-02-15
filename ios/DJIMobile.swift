@@ -12,10 +12,10 @@ import DJISDK
 class DJIMobile: RCTEventEmitter {
   
   // This allows us to use a single function to stop key listeners, as it can find the key string & key type from here
-  let implementedKeys: [String: Any] = [
-    "DJIParamConnection": [DJIParamConnection, DJIProductKey.self],
-    "DJIBatteryParamChargeRemainingInPercent": [DJIBatteryParamChargeRemainingInPercent, DJIBatteryKey.self],
-    "DJIFlightControllerParamAircraftLocation": [DJIFlightControllerParamAircraftLocation, DJIFlightControllerKey.self],
+  let implementedKeys: [String: [Any]] = [
+    "DJIParamConnection": [DJIParamConnection, DJIProductKey()],
+    "DJIBatteryParamChargeRemainingInPercent": [DJIBatteryParamChargeRemainingInPercent, DJIBatteryKey()],
+    "DJIFlightControllerParamAircraftLocation": [DJIFlightControllerParamAircraftLocation, DJIFlightControllerKey()],
     ]
   
   var keyListeners: [String] = []
@@ -53,12 +53,6 @@ class DJIMobile: RCTEventEmitter {
     resolve(nil)
   }
   
-  //  @objc(stopProductConnectionListener:reject:)
-  //  func stopProductConnectionListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-  //    self.stopKeyListener(key: DJIProductKey(param: DJIParamConnection)!)
-  //    resolve(nil)
-  //  }
-  
   @objc(startBatteryPercentChargeRemainingListener:reject:)
   func startBatteryPercentChargeRemainingListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let key = DJIBatteryKey(param: DJIBatteryParamChargeRemainingInPercent)!
@@ -69,12 +63,6 @@ class DJIMobile: RCTEventEmitter {
     }
     resolve(nil)
   }
-  
-  //  @objc(stopBatteryPercentChargeRemainingListener:reject:)
-  //  func stopBatteryPercentChargeRemainingListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-  //    self.stopKeyListener(key: DJIBatteryKey(param: DJIBatteryParamChargeRemainingInPercent)!)
-  //    resolve(nil)
-  //  }
   
   @objc(startAircraftLocationListener:reject:)
   func startAircraftLocationListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
@@ -94,20 +82,63 @@ class DJIMobile: RCTEventEmitter {
     resolve(nil)
   }
   
-  //  @objc(stopAircraftLocationListener:reject:)
-  //  func stopAircraftLocationListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-  //    self.stopKeyListener(key: DJIFlightControllerKey(param: DJIFlightControllerParamAircraftLocation)!)
-  //    resolve(nil)
-  //  }
-  
   @objc(stopKeyListener:resolve:reject:)
   func stopKeyListener(keyString: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let validKeyInfo = self.implementedKeys.first { $0.key == keyString }
     if (validKeyInfo != nil) {
-      let keyString = (validKeyInfo!.value as! [Any]).first as! String
-      let KeyType = type(of: (validKeyInfo!.value as! [Any]).last as! DJIKey)
-      DJISDKManager.keyManager()?.stopListening(on: KeyType.init(param: keyString)!, ofListener: self)
+      let validKeyValues = validKeyInfo!.value
+      let keyParamString = validKeyValues.first as! String
+      let keyType = String(describing: type(of: validKeyValues.last!))
+      
+      var key: DJIKey
+      
+      switch keyType {
+      case String(describing: type(of: DJIBatteryKey())) :
+        key = DJIBatteryKey.init(param: keyParamString)!
+        
+      case String(describing: type(of: DJICameraKey())):
+        key = DJICameraKey.init(param: keyParamString)!
+        
+      case String(describing: type(of: DJIFlightControllerKey())):
+        key = DJIFlightControllerKey.init(param: keyParamString)!
+        
+      case String(describing: type(of: DJIPayloadKey())):
+        key = DJIPayloadKey.init(param: keyParamString)!
+        
+      case String(describing: type(of: DJIGimbalKey())):
+        key = DJIGimbalKey.init(param: keyParamString)!
+        
+      case String(describing: type(of: DJIProductKey())):
+        key = DJIProductKey.init(param: keyParamString)!
+        
+      case String(describing: type(of: DJIRemoteControllerKey())):
+        key = DJIRemoteControllerKey.init(param: keyParamString)!
+        
+      case String(describing: type(of: DJIHandheldControllerKey())):
+        key = DJIHandheldControllerKey.init(param: keyParamString)!
+        
+      case String(describing: type(of: DJIMissionKey())):
+        key = DJIMissionKey.init(param: keyParamString)!
+        
+      case String(describing: type(of: DJIAirLinkKey())):
+        key = DJIAirLinkKey.init(param: keyParamString)!
+        
+      case String(describing: type(of: DJIAccessoryKey())):
+        key = DJIAccessoryKey.init(param: keyParamString)!
+        
+      case String(describing: type(of: DJIFlightControllerKey())):
+        key = DJIFlightControllerKey.init(param: keyParamString)!
+        
+      default:
+        reject("Invalid Key", nil, nil)
+        return
+      }
+      
+      
+      
+      DJISDKManager.keyManager()?.stopListening(on: key, ofListener: self)
       self.keyListeners.removeAll(where: { $0 == keyString })
+      resolve(nil)
     }
   }
   
@@ -139,13 +170,13 @@ class DJIMobile: RCTEventEmitter {
     return ["DJIEvent"]
   }
   
-//  override func constantsToExport() -> [AnyHashable : Any]! {
-//    var keyStrings: [String] = []
-//    for (key, _) in self.implementedKeys {
-//      keyStrings.append(key)
-//    }
-//    return ["keys": keyStrings]
-//  }
+  //  override func constantsToExport() -> [AnyHashable : Any]! {
+  //    var keyStrings: [String] = []
+  //    for (key, _) in self.implementedKeys {
+  //      keyStrings.append(key)
+  //    }
+  //    return ["keys": keyStrings]
+  //  }
   
   override static func requiresMainQueueSetup() -> Bool {
     return true
