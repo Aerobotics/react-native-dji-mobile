@@ -139,13 +139,13 @@ class DJIMobile: RCTEventEmitter {
     return ["DJIEvent"]
   }
   
-  override func constantsToExport() -> [AnyHashable : Any]! {
-    var keyStrings: [String] = []
-    for (key, _) in self.implementedKeys {
-      keyStrings.append(key)
-    }
-    return ["keys": keyStrings]
-  }
+//  override func constantsToExport() -> [AnyHashable : Any]! {
+//    var keyStrings: [String] = []
+//    for (key, _) in self.implementedKeys {
+//      keyStrings.append(key)
+//    }
+//    return ["keys": keyStrings]
+//  }
   
   override static func requiresMainQueueSetup() -> Bool {
     return true

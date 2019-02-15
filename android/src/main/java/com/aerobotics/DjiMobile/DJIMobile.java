@@ -15,13 +15,17 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.lang.reflect.Method;
 import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
+import dji.common.flightcontroller.LocationCoordinate3D;
 import dji.keysdk.DJIKey;
+import dji.keysdk.FlightControllerKey;
 import dji.keysdk.KeyManager;
 import dji.keysdk.ProductKey;
 import dji.keysdk.BatteryKey;
@@ -30,11 +34,52 @@ import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
 import dji.sdk.sdkmanager.DJISDKManager;
 
+class ValidKeyInfo {
+  String keyParam;
+  Class keyClass;
+  Method createMethod;
+
+  public ValidKeyInfo(String keyParam, Class keyClass) {
+    this.keyParam = keyParam;
+    this.keyClass = keyClass;
+    try {
+      this.createMethod = keyClass.getMethod("create", null);
+    } catch (NoSuchMethodException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public DJIKey createDJIKey() {
+    try {
+      Object KeyClass = this.keyClass.newInstance();
+      DJIKey createdKey = (DJIKey)this.createMethod.invoke(KeyClass, this.keyParam);
+      return createdKey;
+    } catch (Exception e) {
+      return null;
+    }
+  }
+}
+
 public class DJIMobile extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
 
   private HashMap keyListeners = new HashMap();
+
+  private HashMap implementedKeys = new HashMap<String, ValidKeyInfo>() {{
+    put(
+      "DJIParamConnection",
+      new ValidKeyInfo(ProductKey.CONNECTION, ProductKey.class)
+    );
+    put(
+      "DJIBatteryParamChargeRemainingInPercent",
+      new ValidKeyInfo(BatteryKey.CHARGE_REMAINING_IN_PERCENT, BatteryKey.class)
+    );
+    put(
+      "DJIFlightControllerParamAircraftLocation",
+      new ValidKeyInfo(FlightControllerKey.AIRCRAFT_LOCATION, FlightControllerKey.class)
+    );
+  }};
 
   public DJIMobile(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -68,15 +113,11 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     startKeyListener(key, new KeyListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        sendEvent(reactContext, "connectionStatus", (boolean)newValue ? "connected" : "disconnected");
+        if (newValue != null) {
+          sendEvent(reactContext, "connectionStatus", (boolean) newValue ? "connected" : "disconnected");
+        }
       }
     });
-    promise.resolve(null);
-  }
-
-  @ReactMethod
-  public void stopProductConnectionListener(Promise promise) {
-    stopKeyListener(ProductKey.create(ProductKey.CONNECTION));
     promise.resolve(null);
   }
 
@@ -86,16 +127,43 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     startKeyListener(key, new KeyListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        sendEvent(reactContext, "chargeRemaining", (int)newValue);
+        if (newValue != null) {
+          sendEvent(reactContext, "chargeRemaining", (int)newValue);
+        }
       }
     });
     promise.resolve(null);
   }
 
   @ReactMethod
-  public void stopBatteryPercentChargeRemainingListener(Promise promise) {
-    stopKeyListener(BatteryKey.create(BatteryKey.CHARGE_REMAINING_IN_PERCENT));
-    promise.resolve(null);
+  public void startAircraftLocationListener(Promise promise) {
+    DJIKey key = FlightControllerKey.create(FlightControllerKey.AIRCRAFT_LOCATION);
+    startKeyListener(key, new KeyListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue != null) {
+          LocationCoordinate3D location = (LocationCoordinate3D)newValue;
+          WritableMap params = Arguments.createMap();
+          params.putDouble("longitude", location.getLongitude());
+          params.putDouble("latitude", location.getLatitude());
+          params.putDouble("altitude", location.getAltitude());
+          sendEvent(reactContext, "aircraftLocation", params);
+        }
+
+      }
+    });
+  }
+
+  @ReactMethod
+  public void stopKeyListener(String keyString, Promise promise) {
+    ValidKeyInfo keyInfo = (ValidKeyInfo)implementedKeys.get(keyString);
+    if (keyInfo != null) {
+      DJIKey createdKey = keyInfo.createDJIKey();
+      KeyListener updateBlock = (KeyListener)keyListeners.remove(createdKey.toString());
+      if (updateBlock != null) {
+        KeyManager.getInstance().removeListener(updateBlock);
+      }
+    }
   }
 
   private void startKeyListener(DJIKey key, KeyListener updateBlock) {
@@ -108,13 +176,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       return;
     }
 
-  }
-
-  private void stopKeyListener(DJIKey key) {
-    KeyListener updateBlock = (KeyListener)keyListeners.remove(key.toString());
-    if (updateBlock != null) {
-      KeyManager.getInstance().removeListener(updateBlock);
-    }
   }
 
   private void sendEvent(ReactContext reactContext, String type, Object value) {
