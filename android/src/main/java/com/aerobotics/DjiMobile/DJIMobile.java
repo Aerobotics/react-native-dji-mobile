@@ -82,6 +82,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       "DJIFlightControllerParamAircraftLocation",
       new ValidKeyInfo(FlightControllerKey.AIRCRAFT_LOCATION, FlightControllerKey.class)
     );
+    put(
+      "DJIFlightControllerParamCompassHeading",
+      new ValidKeyInfo(FlightControllerKey.COMPASS_HEADING, FlightControllerKey.class)
+    );
   }};
 
   public DJIMobile(ReactApplicationContext reactContext) {
@@ -203,6 +207,23 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         KeyManager.getInstance().removeListener(updateBlock);
       }
     }
+  }
+
+  @ReactMethod
+  public void startAircraftCompassHeadingListener(Promise promise) {
+    DJIKey key = FlightControllerKey.create(FlightControllerKey.COMPASS_HEADING);
+    promise.resolve(null);
+    startKeyListener(key, new KeyListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue != null) {
+          Double heading = Double.valueOf((Float)newValue);
+          WritableMap params = Arguments.createMap();
+          params.putDouble("heading", heading);
+          sendEvent(reactContext, "aircraftCompassHeading", params);
+        }
+      }
+    });
   }
 
   @ReactMethod
