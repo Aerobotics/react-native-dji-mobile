@@ -25,20 +25,16 @@ if (typeof DEV_PATH === 'undefined') {
 chokidar
   .watch('.', { ignored: DO_NOT_COPY_PATHS })
   .on('all', (event, fullpath) => {
+    const filepath = fullpath.substring(0, fullpath.lastIndexOf('/'));
+    const filename = fullpath.substring(fullpath.lastIndexOf('/') + 1);
+    console.log(event, fullpath);
+    // console.log(filepath, filename);
 
-    if (event === 'unlink') {
-      fs.unlink(fullpath); // TODO: What about deleting directories?
+    fs.mkdirSync(`${DEV_PATH}/${filepath}`, { recursive: true }, err => {
+      // console.log(err);
+    });
 
-    } else if (event === 'add' || event === 'change') {
-      const filepath = fullpath.substring(0, fullpath.lastIndexOf('/'));
-      const filename = fullpath.substring(fullpath.lastIndexOf('/') + 1);
-      console.log(event, fullpath);
-      // console.log(filepath, filename);
-  
-      fs.mkdirSync(`${DEV_PATH}/${filepath}`, { recursive: true }, err => {
-        // console.log(err);
-      });
-  
-      fs.copyFileSync(fullpath, `${DEV_PATH}/${filepath}/${filename}`);
-    }
+    fs.copyFileSync(fullpath, `${DEV_PATH}/${filepath}/${filename}`);
+
+    // fs.writeFileSync(`${DEV_PATH}/test.txt`, 'hello world!');
 });
