@@ -3,7 +3,6 @@
 //  ReactNativeDjiMobile
 //
 //  Created by Adam Rosendorff on 2019/01/29.
-//  Copyright © 2019 Facebook. All rights reserved.
 
 import Foundation
 import DJISDK
@@ -16,6 +15,7 @@ class DJIMobile: RCTEventEmitter {
     "DJIParamConnection": [DJIParamConnection, DJIProductKey()],
     "DJIBatteryParamChargeRemainingInPercent": [DJIBatteryParamChargeRemainingInPercent, DJIBatteryKey()],
     "DJIFlightControllerParamAircraftLocation": [DJIFlightControllerParamAircraftLocation, DJIFlightControllerKey()],
+    "DJIFlightControllerParamVelocity": [DJIFlightControllerParamVelocity, DJIFlightControllerKey()],
     ]
   
   var keyListeners: [String] = []
@@ -45,28 +45,29 @@ class DJIMobile: RCTEventEmitter {
   @objc(startProductConnectionListener:reject:)
   func startProductConnectionListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let key = DJIProductKey(param: DJIParamConnection)!
+    resolve(nil)
     self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let connected = newValue?.boolValue {
         self.sendKeyEvent(type: "connectionStatus", value: connected ? "connected" : "disconnected")
       }
     }
-    resolve(nil)
   }
   
   @objc(startBatteryPercentChargeRemainingListener:reject:)
   func startBatteryPercentChargeRemainingListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let key = DJIBatteryKey(param: DJIBatteryParamChargeRemainingInPercent)!
+    resolve(nil)
     self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let chargePercent = newValue?.integerValue {
         self.sendKeyEvent(type: "chargeRemaining", value: chargePercent)
       }
     }
-    resolve(nil)
   }
   
   @objc(startAircraftLocationListener:reject:)
   func startAircraftLocationListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let key = DJIFlightControllerKey(param: DJIFlightControllerParamAircraftLocation)!
+    resolve(nil)
     self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let location = newValue?.value as? CLLocation {
         let longitude = location.coordinate.longitude
@@ -79,7 +80,24 @@ class DJIMobile: RCTEventEmitter {
           ])
       }
     }
+  }
+  
+  @objc(startAircraftVelocityListener:reject:)
+  func startAircraftVelocityListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    let key = DJIFlightControllerKey(param: DJIFlightControllerParamVelocity)!
     resolve(nil)
+    self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      if let velocity = newValue?.value as? DJISDKVector3D {
+        let x = velocity.x
+        let y = velocity.y
+        let z = velocity.z
+        self.sendKeyEvent(type: "aircraftVelocity", value: [
+          "x": x,
+          "y": y,
+          "z": z,
+          ])
+      }
+    }
   }
   
   @objc(stopKeyListener:resolve:reject:)
@@ -153,11 +171,6 @@ class DJIMobile: RCTEventEmitter {
     }
     
   }
-  
-  //  func stopKeyListener(key: DJIKey) {
-  //    self.keyListeners.removeAll(where: { $0 == key.param! })
-  //    DJISDKManager.keyManager()?.stopListening(on: key, ofListener: self)
-  //  }
   
   func sendKeyEvent(type: String, value: Any) {
     self.sendEvent(withName: "DJIEvent", body: [
