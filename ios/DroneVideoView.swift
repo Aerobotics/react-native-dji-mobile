@@ -3,7 +3,6 @@
 //  ReactNativeDjiMobile
 //
 //  Created by Adam Rosendorff on 2019/02/14.
-//  Copyright © 2019 Facebook. All rights reserved.
 //
 
 import Foundation

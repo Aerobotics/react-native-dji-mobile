@@ -113,6 +113,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   @ReactMethod
   public void startProductConnectionListener(Promise promise) {
     DJIKey key = ProductKey.create(ProductKey.CONNECTION);
+    promise.resolve(null);
     startKeyListener(key, new KeyListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
@@ -121,12 +122,12 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
-    promise.resolve(null);
   }
 
   @ReactMethod
   public void startBatteryPercentChargeRemainingListener(Promise promise) {
     DJIKey key = BatteryKey.create(BatteryKey.CHARGE_REMAINING_IN_PERCENT);
+    promise.resolve(null);
     startKeyListener(key, new KeyListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
@@ -135,12 +136,12 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
-    promise.resolve(null);
   }
 
   @ReactMethod
   public void startAircraftLocationListener(Promise promise) {
     DJIKey key = FlightControllerKey.create(FlightControllerKey.AIRCRAFT_LOCATION);
+    promise.resolve(null);
     startKeyListener(key, new KeyListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
@@ -159,7 +160,49 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
+  }
+
+  @ReactMethod
+  public void startAircraftVelocityListener(Promise promise) {
+    DJIKey[] velocityKeys = {
+      FlightControllerKey.create(FlightControllerKey.VELOCITY_X),
+      FlightControllerKey.create(FlightControllerKey.VELOCITY_Y),
+      FlightControllerKey.create(FlightControllerKey.VELOCITY_Z),
+    };
+    final Double[] velocity3D = {0.0, 0.0, 0.0};
+
     promise.resolve(null);
+    for (int i = 0; i < 3; i++) {
+      final int finalI = i;
+      startKeyListener(velocityKeys[i], new KeyListener() {
+        @Override
+        public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+          if (newValue != null) {
+            velocity3D[finalI] = Double.valueOf((Float)newValue);
+            WritableMap params = Arguments.createMap();
+            params.putDouble("x", velocity3D[0]);
+            params.putDouble("y", velocity3D[1]);
+            params.putDouble("z", velocity3D[2]);
+            sendEvent(reactContext, "aircraftVelocity", params);
+          }
+        }
+      });
+    }
+  }
+
+  @ReactMethod
+  public void stopAircraftVelocityListener(Promise promise) {
+    DJIKey[] velocityKeys = {
+      FlightControllerKey.create(FlightControllerKey.VELOCITY_X),
+      FlightControllerKey.create(FlightControllerKey.VELOCITY_Y),
+      FlightControllerKey.create(FlightControllerKey.VELOCITY_Z),
+    };
+    for (int i = 0; i < 3; i++) {
+      KeyListener updateBlock = (KeyListener) keyListeners.remove(velocityKeys[i].toString());
+      if (updateBlock != null) {
+        KeyManager.getInstance().removeListener(updateBlock);
+      }
+    }
   }
 
   @ReactMethod

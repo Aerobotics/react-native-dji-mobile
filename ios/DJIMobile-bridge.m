@@ -3,7 +3,6 @@
 //  ReactNativeDjiMobile
 //
 //  Created by Adam Rosendorff on 2019/01/29.
-//  Copyright © 2019 Facebook. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -30,6 +29,11 @@ RCT_EXTERN_METHOD(
 
 RCT_EXTERN_METHOD(
                   startAircraftLocationListener: (RCTPromiseResolveBlock)resolve
+                  reject:                        (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  startAircraftVelocityListener: (RCTPromiseResolveBlock)resolve
                   reject:                        (RCTPromiseRejectBlock)reject
                   )
 

@@ -59,6 +59,18 @@ const DJIMobileWrapper = {
   },
   stopAircraftLocationListener: async () => {
     await DJIMobile.stopKeyListener('DJIFlightControllerParamAircraftLocation');
+  },
+
+  startAircraftVelocityListener: async () => {
+    await DJIMobile.startAircraftVelocityListener();
+    return DJIEventSubject.pipe(filter(evt => evt.type === 'aircraftVelocity')).asObservable();
+  },
+  stopAircraftVelocityListener: async () => {
+    if (Platform.OS === 'android') {
+      await DJIMobile.stopAircraftVelocityListener();
+    } else {
+      await DJIMobile.stopKeyListener('DJIFlightControllerParamVelocity');
+    }
   }
 };
 
