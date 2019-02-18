@@ -38,6 +38,12 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  startAircraftCompassHeadingListener: (RCTPromiseResolveBlock)resolve
+                  reject:                              (RCTPromiseRejectBlock)reject
+                  )
+
+
+RCT_EXTERN_METHOD(
                   stopKeyListener: (NSString)keyString
                   resolve:         (RCTPromiseResolveBlock)resolve
                   reject:          (RCTPromiseRejectBlock)reject

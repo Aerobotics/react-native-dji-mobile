@@ -71,6 +71,14 @@ const DJIMobileWrapper = {
     } else {
       await DJIMobile.stopKeyListener('DJIFlightControllerParamVelocity');
     }
+  },
+
+  startAircraftCompassHeadingListener: async() => {
+    await DJIMobile.startAircraftCompassHeadingListener();
+    return DJIEventSubject.pipe(filter(evt => evt.type === 'aircraftCompassHeading')).asObservable();
+  },
+  stopAircraftCompassHeadingListener: async () => {
+    await DJIMobile.stopKeyListener('DJIFlightControllerParamCompassHeading');
   }
 };
 

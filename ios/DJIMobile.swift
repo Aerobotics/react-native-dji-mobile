@@ -16,6 +16,7 @@ class DJIMobile: RCTEventEmitter {
     "DJIBatteryParamChargeRemainingInPercent": [DJIBatteryParamChargeRemainingInPercent, DJIBatteryKey()],
     "DJIFlightControllerParamAircraftLocation": [DJIFlightControllerParamAircraftLocation, DJIFlightControllerKey()],
     "DJIFlightControllerParamVelocity": [DJIFlightControllerParamVelocity, DJIFlightControllerKey()],
+    "DJIFlightControllerParamCompassHeading": [DJIFlightControllerParamCompassHeading, DJIFlightControllerKey()],
     ]
   
   var keyListeners: [String] = []
@@ -100,6 +101,19 @@ class DJIMobile: RCTEventEmitter {
     }
   }
   
+  @objc(startAircraftCompassHeadingListener:reject:)
+  func startAircraftCompassHeadingListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    let key = DJIFlightControllerKey(param: DJIFlightControllerParamCompassHeading)!
+    resolve(nil)
+    self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      if let heading = newValue?.doubleValue {
+        self.sendKeyEvent(type: "aircraftCompassHeading", value: [
+          "heading": heading,
+          ])
+      }
+    }
+  }
+  
   @objc(stopKeyListener:resolve:reject:)
   func stopKeyListener(keyString: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let validKeyInfo = self.implementedKeys.first { $0.key == keyString }
@@ -173,10 +187,13 @@ class DJIMobile: RCTEventEmitter {
   }
   
   func sendKeyEvent(type: String, value: Any) {
-    self.sendEvent(withName: "DJIEvent", body: [
-      "type": type,
-      "value": value,
-      ])
+    // FIXME: (Adam) How do we get the new bridge (if the javascript side is reloaded)???
+    if (self.bridge != nil) {
+      self.sendEvent(withName: "DJIEvent", body: [
+        "type": type,
+        "value": value,
+        ])
+    }
   }
   
   override func supportedEvents() -> [String]! {
