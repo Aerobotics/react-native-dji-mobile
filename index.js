@@ -29,7 +29,7 @@ PlatformEventEmitter.addListener('DJIEvent', evt => {
 let SDKRegistered = false;
 
 const DJIMobileWrapper = {
-  
+
   registerApp: () => {
     const registerPromise = DJIMobile.registerApp();
     registerPromise.then(() => SDKRegistered = true).catch(() => SDKRegistered = false);
@@ -73,12 +73,16 @@ const DJIMobileWrapper = {
     }
   },
 
-  startAircraftCompassHeadingListener: async() => {
+  startAircraftCompassHeadingListener: async () => {
     await DJIMobile.startAircraftCompassHeadingListener();
     return DJIEventSubject.pipe(filter(evt => evt.type === 'aircraftCompassHeading')).asObservable();
   },
   stopAircraftCompassHeadingListener: async () => {
     await DJIMobile.stopKeyListener('DJIFlightControllerParamCompassHeading');
+  },
+
+  createWaypointMission: async (coordinates) => {
+    await DJIMobile.createWaypointMission(coordinates);
   }
 };
 
