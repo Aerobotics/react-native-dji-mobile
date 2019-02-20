@@ -14,6 +14,8 @@ import {
 } from 'rxjs/operators';
 import { async } from 'rxjs/internal/scheduler/async';
 
+import DJIMissionControl from './lib/DJIMissionControl';
+
 const {
   DJIMobile,
 } = NativeModules;
@@ -87,3 +89,7 @@ const DJIMobileWrapper = {
 };
 
 export default DJIMobileWrapper;
+
+export {
+  DJIMissionControl,
+}

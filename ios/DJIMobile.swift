@@ -43,41 +43,6 @@ class DJIMobile: RCTEventEmitter {
     DJISDKManager.beginAppRegistration()
   }
   
-  @objc(createWaypointMission:resolve:reject:)
-  func createWaypointMission(coordinates: NSArray, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    let waypointMission = DJIMutableWaypointMission.init()
-    var waypoints: [DJIWaypoint] = []
-    for case let item as [String: Double] in coordinates {
-      let waypointCoordinate = CLLocationCoordinate2D.init(latitude: item["latitude"]!, longitude: item["longitude"]!)
-      waypoints.append(DJIWaypoint.init(coordinate: waypointCoordinate))
-      //      let waypoint = DJIWaypoint.init(coordinate: waypointCoordinate)
-      //      print(item["latitude"])
-      //      print(item["longitude"])
-    }
-    waypointMission.addWaypoints(waypoints)
-    let error = waypointMission.checkParameters()
-    if (error != nil) {
-      reject("Waypoint invalid", (error! as NSError).localizedDescription, nil)
-      return
-    }
-    
-    print("START FLIGHT")
-    DJISDKManager.missionControl()?.scheduleElement(waypointMission)
-    DJISDKManager.missionControl()?.startTimeline()
-    
-    DJISDKManager.missionControl()?.addListener(self, toTimelineProgressWith: { (event: DJIMissionControlTimelineEvent, element: DJIMissionControlTimelineElement?, error: Error?, info: Any?) in
-      print("MISSION EVENT")
-      if (error != nil) {
-        print(error!.localizedDescription)
-      }
-      print(event.rawValue)
-    })
-    
-    //    DJIMissionControl.scheduleElement(waypointMission as DJIMissionControlTimelineElement)
-    
-    resolve(nil)
-  }
-  
   @objc(startProductConnectionListener:reject:)
   func startProductConnectionListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let key = DJIProductKey(param: DJIParamConnection)!

@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <React/RCTBridgeModule.h>
+//#import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
 
 
@@ -41,7 +41,6 @@ RCT_EXTERN_METHOD(
                   startAircraftCompassHeadingListener: (RCTPromiseResolveBlock)resolve
                   reject:                              (RCTPromiseRejectBlock)reject
                   )
-
 
 RCT_EXTERN_METHOD(
                   stopKeyListener: (NSString)keyString
