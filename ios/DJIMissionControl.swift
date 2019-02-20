@@ -11,8 +11,8 @@ import DJISDK
 @objc(DJIMissionControlWrapper)
 class DJIMissionControlWrapper: NSObject {
   
-  var missionIdIndex = 0
-  var waypointMissions: [Int: DJIWaypointMission] = [:]
+  var timelineElementIndex = 0
+  var timelineElements: [Int: DJIMissionControlTimelineElement] = [:]
   
   @objc(createWaypointMission:resolve:reject:)
   func createWaypointMission(coordinates: NSArray, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
@@ -23,24 +23,50 @@ class DJIMissionControlWrapper: NSObject {
       let waypoint = DJIWaypoint.init(coordinate: waypointCoordinate)
       waypoint.altitude = Float(item["altitude"]!)
       waypoints.append(waypoint)
-      waypointMission.addWaypoints(waypoints)
-      
-      let error = waypointMission.checkParameters()
-      if (error != nil) {
-        reject("Waypoint mission invalid", (error! as NSError).localizedDescription, nil)
-        return
-      } else {
-        waypointMissions[missionIdIndex] = waypointMission
-        resolve(missionIdIndex)
-        missionIdIndex += 1
-      }
     }
+    
+    waypointMission.addWaypoints(waypoints)
+    let error = waypointMission.checkParameters()
+    if (error != nil) {
+      reject("Waypoint mission invalid", (error! as NSError).localizedDescription, nil)
+      return
+    } else {
+      timelineElements[timelineElementIndex] = waypointMission
+      resolve(timelineElementIndex)
+      timelineElementIndex += 1
+    }
+    //    }
   }
   
   @objc(destroyWaypointMission:resolve:reject:)
   func destroyWaypointMission(missionId: NSNumber, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    let removedMission = waypointMissions.removeValue(forKey: missionId.intValue)
+    let removedMission = timelineElements.removeValue(forKey: missionId.intValue)
     // TODO: (Adam) Should this reject if no valid mission was found?
+    resolve(nil)
+  }
+  
+  @objc(scheduleElement:resolve:reject:)
+  func scheduleElement(elementId: NSNumber, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    let element = timelineElements.first { $0.key == elementId.intValue }
+    if (element != nil) {
+      DJISDKManager.missionControl()?.scheduleElement(element!.value)
+    }
+    resolve(nil)
+  }
+  
+  @objc(startTimeline:reject:)
+  func startTimeline(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    
+    DJISDKManager.missionControl()?.stopTimeline()
+    DJISDKManager.missionControl()?.startTimeline()
+    DJISDKManager.missionControl()?.addListener(self, toTimelineProgressWith: { (event: DJIMissionControlTimelineEvent, element: DJIMissionControlTimelineElement?, error: Error?, info: Any?) in
+      print("MISSION EVENT")
+      if (error != nil) {
+        print(error!.localizedDescription)
+      }
+      print(event.rawValue)
+    })
+    
     resolve(nil)
   }
   
