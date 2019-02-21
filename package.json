@@ -17,11 +17,11 @@
   },
   "devDependencies": {
     "chokidar": "^2.0.4",
+    "flow-bin": "^0.91.0",
     "react-native": "^0.57.8"
   },
   "dependencies": {
     "eslint": "^5.12.1",
-    "flow-bin": "^0.91.0",
     "rxjs": "^6.4.0"
   }
 }

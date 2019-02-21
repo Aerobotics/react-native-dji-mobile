@@ -12,13 +12,10 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.facebook.react.bridge.JavaScriptModule;
 
-public class DJIMobilePackage implements ReactPackage {
+public class DJIMissionControlWrapperPackage implements ReactPackage {
   @Override
   public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-    return Arrays.<NativeModule>asList(
-      new DJIMobile(reactContext),
-      new DJIMissionControlWrapper(reactContext)
-    );
+    return Arrays.<NativeModule>asList(new DJIMissionControlWrapper(reactContext));
   }
 
 //  @Override
