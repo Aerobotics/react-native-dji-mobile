@@ -1,32 +1,23 @@
+// @flow strict
+
 import {
   Platform,
   NativeModules,
 } from 'react-native';
 
-import PlatformEventEmitter from './platformEventEmitter';
-
-import {
-  Subject,
-} from 'rxjs';
-
 import {
   filter,
 } from 'rxjs/operators';
-import { async } from 'rxjs/internal/scheduler/async';
 
 import DJIMissionControl from './lib/DJIMissionControl';
+
+import {
+  DJIEventSubject,
+} from './lib/utilities';
 
 const {
   DJIMobile,
 } = NativeModules;
-
-const DJIEventSubject = new Subject();
-
-// DJIEventSubject.subscribe(evt => console.log(evt));
-
-PlatformEventEmitter.addListener('DJIEvent', evt => {
-  DJIEventSubject.next(evt);
-});
 
 let SDKRegistered = false;
 
@@ -35,7 +26,7 @@ const DJIMobileWrapper = {
   registerApp: () => {
     const registerPromise = DJIMobile.registerApp();
     registerPromise.then(() => SDKRegistered = true).catch(() => SDKRegistered = false);
-    return registerPromise
+    return registerPromise;
   },
 
   startProductConnectionListener: async () => {
@@ -83,13 +74,13 @@ const DJIMobileWrapper = {
     await DJIMobile.stopKeyListener('DJIFlightControllerParamCompassHeading');
   },
 
-  createWaypointMission: async (coordinates) => {
-    await DJIMobile.createWaypointMission(coordinates);
-  }
+  // createWaypointMission: async (coordinates) => {
+  //   await DJIMobile.createWaypointMission(coordinates);
+  // },
 };
 
 export default DJIMobileWrapper;
 
 export {
   DJIMissionControl,
-}
+};

@@ -78,6 +78,7 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
   private final ReactApplicationContext reactContext;
   private int timelineElementIndex = 0;
   private HashMap<Integer, TimelineElement> timelineElements = new HashMap<>();
+  private ArrayList<Integer> scheduledElementIndexOrder = new ArrayList<>();
 
   public DJIMissionControlWrapper(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -136,6 +137,7 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
     TimelineElement timelineElement = timelineElements.get(elementId);
     if (timelineElement != null) {
       DJISDKManager.getInstance().getMissionControl().scheduleElement(timelineElement);
+      scheduledElementIndexOrder.add(elementId);
     }
     promise.resolve(null);
   }
@@ -144,20 +146,58 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
   public void startTimeline(Promise promise) {
     MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
 
+    missionControl.stopTimeline();
+    missionControl.startTimeline();
+
+    promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void unscheduleEverything(Promise promise) {
+    DJISDKManager.getInstance().getMissionControl().unscheduleEverything();
+    scheduledElementIndexOrder.clear();
+    promise.resolve(null);
+
+  }
+
+  @ReactMethod
+  public void startListener(Promise promise) {
+    final MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
     missionControl.removeAllListeners();
     missionControl.addListener(new MissionControl.Listener() {
       @Override
       public void onEvent(@Nullable TimelineElement timelineElement, TimelineEvent timelineEvent, @Nullable DJIError djiError) {
-        Log.i("MISSIONEVENT", timelineEvent.name());
-        if (djiError != null) {
-          Log.i("MISSIONEVENT", djiError.getDescription());
+        WritableMap params = Arguments.createMap();
+        WritableMap eventInfo = Arguments.createMap();
+
+        int timelineIndex = missionControl.getCurrentTimelineMarker();
+        if (timelineElement == null) { // This is a general timeline event (timeline start/stop, etc.)
+          timelineIndex = -1;
+          eventInfo.putInt("elementId", -1);
+        } else {
+          eventInfo.putInt("elementId", scheduledElementIndexOrder.get(timelineIndex));
         }
+        eventInfo.putString("eventType", timelineEvent.name());
+        eventInfo.putInt("timelineIndex", timelineIndex);
+
+        if (djiError != null) {
+          eventInfo.putString("error", djiError.toString());
+        }
+        params.putMap("value", eventInfo);
+
+        params.putString("type", "missionControlEvent");
+        reactContext
+          .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+          .emit("DJIEvent", params);
       }
     });
 
-    missionControl.stopTimeline();
-    missionControl.startTimeline();
+    promise.resolve(null);
+  }
 
+  @ReactMethod
+  public void stopListener(Promise promise) {
+    DJISDKManager.getInstance().getMissionControl().removeAllListeners();
     promise.resolve(null);
   }
 
