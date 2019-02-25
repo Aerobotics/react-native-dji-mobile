@@ -8,7 +8,7 @@ import Foundation
 import DJISDK
 
 @objc(DJIMobile)
-class DJIMobile: RCTEventEmitter {
+class DJIMobile: NSObject {
   
   // This allows us to use a single function to stop key listeners, as it can find the key string & key type from here
   let implementedKeys: [String: [Any]] = [
@@ -49,7 +49,7 @@ class DJIMobile: RCTEventEmitter {
     resolve(nil)
     self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let connected = newValue?.boolValue {
-        self.sendKeyEvent(type: "connectionStatus", value: connected ? "connected" : "disconnected")
+        EventSender.sendReactEvent(type: "connectionStatus", value: connected ? "connected" : "disconnected")
       }
     }
   }
@@ -60,7 +60,7 @@ class DJIMobile: RCTEventEmitter {
     resolve(nil)
     self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let chargePercent = newValue?.integerValue {
-        self.sendKeyEvent(type: "chargeRemaining", value: chargePercent)
+        EventSender.sendReactEvent(type: "chargeRemaining", value: chargePercent)
       }
     }
   }
@@ -74,7 +74,7 @@ class DJIMobile: RCTEventEmitter {
         let longitude = location.coordinate.longitude
         let latitude = location.coordinate.latitude
         let altitude = location.altitude
-        self.sendKeyEvent(type: "aircraftLocation", value: [
+        EventSender.sendReactEvent(type: "aircraftLocation", value: [
           "longitude": longitude,
           "latitude": latitude,
           "altitude": altitude,
@@ -92,7 +92,7 @@ class DJIMobile: RCTEventEmitter {
         let x = velocity.x
         let y = velocity.y
         let z = velocity.z
-        self.sendKeyEvent(type: "aircraftVelocity", value: [
+        EventSender.sendReactEvent(type: "aircraftVelocity", value: [
           "x": x,
           "y": y,
           "z": z,
@@ -107,7 +107,7 @@ class DJIMobile: RCTEventEmitter {
     resolve(nil)
     self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let heading = newValue?.doubleValue {
-        self.sendKeyEvent(type: "aircraftCompassHeading", value: [
+        EventSender.sendReactEvent(type: "aircraftCompassHeading", value: [
           "heading": heading,
           ])
       }
@@ -186,29 +186,7 @@ class DJIMobile: RCTEventEmitter {
     
   }
   
-  func sendKeyEvent(type: String, value: Any) {
-    // FIXME: (Adam) How do we get the new bridge (if the javascript side is reloaded)???
-    if (self.bridge != nil) {
-      self.sendEvent(withName: "DJIEvent", body: [
-        "type": type,
-        "value": value,
-        ])
-    }
-  }
-  
-  override func supportedEvents() -> [String]! {
-    return ["DJIEvent"]
-  }
-  
-  //  override func constantsToExport() -> [AnyHashable : Any]! {
-  //    var keyStrings: [String] = []
-  //    for (key, _) in self.implementedKeys {
-  //      keyStrings.append(key)
-  //    }
-  //    return ["keys": keyStrings]
+  //  static func requiresMainQueueSetup() -> Bool {
+  //    return true
   //  }
-  
-  override static func requiresMainQueueSetup() -> Bool {
-    return true
-  }
 }

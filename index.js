@@ -73,10 +73,6 @@ const DJIMobileWrapper = {
   stopAircraftCompassHeadingListener: async () => {
     await DJIMobile.stopKeyListener('DJIFlightControllerParamCompassHeading');
   },
-
-  // createWaypointMission: async (coordinates) => {
-  //   await DJIMobile.createWaypointMission(coordinates);
-  // },
 };
 
 export default DJIMobileWrapper;

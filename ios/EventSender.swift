@@ -11,17 +11,28 @@ import DJISDK
 @objc(EventSender)
 class EventSender: RCTEventEmitter {
   
-  func sendReactEvent(type: String, value: Any) {
-    // FIXME: (Adam) How do we get the new bridge (if the javascript side is reloaded)???
+  override init() {
+    super.init()
+    NotificationCenter.default.addObserver(self, selector: #selector(sendEventToJS), name: NSNotification.Name("DJIEvent"), object: nil)
+  }
+
+  static func sendReactEvent(type: String, value: Any) {
+    NotificationCenter.default.post(name: Notification.Name("DJIEvent"), object: nil, userInfo: ["type": type, "value": value])
+  }
+  
+  @objc private func sendEventToJS(payload: NSNotification) {
+    // Only send events if the JS bridge has loaded
+    let type = payload.userInfo!["type"] as! String
+    let value = payload.userInfo!["value"]
+    print("SENDING EVENT")
     if (self.bridge != nil) {
-      print("SENDING EVENT: " + type)
+      print("2. SENDING EVENT: " + type)
       self.sendEvent(withName: "DJIEvent", body: [
         "type": type,
         "value": value,
         ])
     }
   }
-  
   
   override func supportedEvents() -> [String]! {
     return ["DJIEvent"]

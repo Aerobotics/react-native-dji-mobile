@@ -19,9 +19,7 @@ class DJIMissionControlWrapper: NSObject {
   func createWaypointMission(coordinates: NSArray, parameters: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     
     let waypointMission = DJIMutableWaypointMission.init()
-    //
-    //    let autoFlightSpeed = parameters["autoFlightSpeed"] ?? 2.0
-    //    let maxFlightSpeed = parameters["maxFlightSpeed"] ?? autoFlightSpeed
+    
     waypointMission.autoFlightSpeed = (parameters["autoFlightSpeed"] as? Float) ?? 2.0
     waypointMission.maxFlightSpeed = (parameters["maxFlightSpeed"] as? Float) ?? waypointMission.autoFlightSpeed
     
@@ -62,7 +60,7 @@ class DJIMissionControlWrapper: NSObject {
     
     let element = timelineElements.first { $0.key == elementId.intValue }
     if (element != nil) {
-      DJISDKManager.missionControl()?.scheduleElement(element!.value)
+      missionControl.scheduleElement(element!.value)
       scheduledElementIndexOrder.append(elementId.intValue)
     }
     resolve(nil)
@@ -89,14 +87,6 @@ class DJIMissionControlWrapper: NSObject {
     
     missionControl.stopTimeline()
     missionControl.startTimeline()
-//    missionControl.addListener(self, toTimelineProgressWith: { (event: DJIMissionControlTimelineEvent, element: DJIMissionControlTimelineElement?, error: Error?, info: Any?) in
-//      print("MISSION EVENT")
-//      if (error != nil) {
-//        print(error!.localizedDescription)
-//      }
-//      print(event.rawValue)
-//    })
-    
     resolve(nil)
   }
   
@@ -112,14 +102,13 @@ class DJIMissionControlWrapper: NSObject {
       var eventInfo: [String:Any] = [:]
       var timelineIndex = Int(missionControl.currentTimelineMarker)
       
-      print("MISSION EVENT")
+      print("MISSION EVENT: " + String(timelineIndex))
       
       if (timelineElement == nil) { // This is a general timeline event (timeline start/stop, etc.)
         timelineIndex = -1
         eventInfo["elementId"] = -1
       } else {
         eventInfo["elementId"] = self.scheduledElementIndexOrder[Int(timelineIndex)]
-        //        eventInfo["elementId"] = scheduledElementIndexOrder.first { $0.key == timelineIndex }
       }
       eventInfo["eventType"] = "\(timelineEvent)"
       eventInfo["timelineIndex"] = timelineIndex
@@ -128,12 +117,7 @@ class DJIMissionControlWrapper: NSObject {
         eventInfo["error"] = error!.localizedDescription
       }
       
-      EventSender().sendReactEvent(type: "missionControlEvent", value: eventInfo)
-      
-//      self.sendEvent(withName: "DJIEvent", body: [
-//        "type": "missionControlEvent",
-//        "value": eventInfo,
-//        ])
+      EventSender.sendReactEvent(type: "missionControlEvent", value: eventInfo)
       
     }
     
@@ -151,44 +135,5 @@ class DJIMissionControlWrapper: NSObject {
     resolve(nil)
     
   }
-  
-//  override func supportedEvents() -> [String]! {
-//    return ["DJIEvent"]
-//  }
-  
-  //  @objc(createWaypointMission:resolve:reject:)
-  //  func createWaypointMission(coordinates: NSArray, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-  //    let waypointMission = DJIMutableWaypointMission.init()
-  //    var waypoints: [DJIWaypoint] = []
-  //    for case let item as [String: Double] in coordinates {
-  //      let waypointCoordinate = CLLocationCoordinate2D.init(latitude: item["latitude"]!, longitude: item["longitude"]!)
-  //      waypoints.append(DJIWaypoint.init(coordinate: waypointCoordinate))
-  //      //      let waypoint = DJIWaypoint.init(coordinate: waypointCoordinate)
-  //      //      print(item["latitude"])
-  //      //      print(item["longitude"])
-  //    }
-  //    waypointMission.addWaypoints(waypoints)
-  //    let error = waypointMission.checkParameters()
-  //    if (error != nil) {
-  //      reject("Waypoint invalid", (error! as NSError).localizedDescription, nil)
-  //      return
-  //    }
-  //
-  //    print("START FLIGHT")
-  //    DJISDKManager.missionControl()?.scheduleElement(waypointMission)
-  //    DJISDKManager.missionControl()?.startTimeline()
-  //
-  //    DJISDKManager.missionControl()?.addListener(self, toTimelineProgressWith: { (event: DJIMissionControlTimelineEvent, element: DJIMissionControlTimelineElement?, error: Error?, info: Any?) in
-  //      print("MISSION EVENT")
-  //      if (error != nil) {
-  //        print(error!.localizedDescription)
-  //      }
-  //      print(event.rawValue)
-  //    })
-  //
-  //    //    DJIMissionControl.scheduleElement(waypointMission as DJIMissionControlTimelineElement)
-  //
-  //    resolve(nil)
-  //  }
   
 }
