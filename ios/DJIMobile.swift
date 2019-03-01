@@ -8,7 +8,14 @@ import Foundation
 import DJISDK
 
 @objc(DJIMobile)
-class DJIMobile: NSObject {
+class DJIMobile: NSObject, RCTInvalidating {
+  
+  func invalidate() {
+    // For debugging, when the Javascript side reloads, we want to remove all DJI event listeners
+    if (DJISDKManager.hasSDKRegistered()) {
+      DJISDKManager.keyManager()?.stopAllListening(ofListeners: self)
+    }
+  }
   
   // This allows us to use a single function to stop key listeners, as it can find the key string & key type from here
   let implementedKeys: [String: [Any]] = [
@@ -29,7 +36,9 @@ class DJIMobile: NSObject {
         DJISDKManager.stopListening(onRegistrationUpdatesOfListener: self)
       } else {
         if (registrationError != nil) {
-          reject("Registration Error", registrationError.localizedDescription, nil)
+          // FIXME: (Adam) registrationError.localizedDescription does not exist!
+          //          reject("Registration Error", registrationError.localizedDescription, nil)
+          reject("Registration Error", nil, nil)
           sentRegistration = true
         } else if (registered == true) {
           sentRegistration = true

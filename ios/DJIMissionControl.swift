@@ -102,15 +102,13 @@ class DJIMissionControlWrapper: NSObject {
       var eventInfo: [String:Any] = [:]
       var timelineIndex = Int(missionControl.currentTimelineMarker)
       
-      print("MISSION EVENT: " + String(timelineIndex))
-      
       if (timelineElement == nil) { // This is a general timeline event (timeline start/stop, etc.)
         timelineIndex = -1
         eventInfo["elementId"] = -1
       } else {
         eventInfo["elementId"] = self.scheduledElementIndexOrder[Int(timelineIndex)]
       }
-      eventInfo["eventType"] = "\(timelineEvent)"
+      eventInfo["eventType"] = timelineEvent.rawValue
       eventInfo["timelineIndex"] = timelineIndex
       
       if (error != nil) {

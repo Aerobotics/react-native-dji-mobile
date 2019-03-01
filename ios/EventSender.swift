@@ -24,9 +24,7 @@ class EventSender: RCTEventEmitter {
     // Only send events if the JS bridge has loaded
     let type = payload.userInfo!["type"] as! String
     let value = payload.userInfo!["value"]
-    print("SENDING EVENT")
     if (self.bridge != nil) {
-      print("2. SENDING EVENT: " + type)
       self.sendEvent(withName: "DJIEvent", body: [
         "type": type,
         "value": value,
