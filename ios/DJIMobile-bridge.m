@@ -7,10 +7,10 @@
 
 #import <Foundation/Foundation.h>
 #import <React/RCTBridgeModule.h>
-#import <React/RCTEventEmitter.h>
+//#import <React/RCTEventEmitter.h>
 
 
-@interface RCT_EXTERN_MODULE(DJIMobile, RCTEventEmitter)
+@interface RCT_EXTERN_MODULE(DJIMobile, NSObject)
 
 RCT_EXTERN_METHOD(
                   registerApp: (RCTPromiseResolveBlock)resolve
@@ -41,7 +41,6 @@ RCT_EXTERN_METHOD(
                   startAircraftCompassHeadingListener: (RCTPromiseResolveBlock)resolve
                   reject:                              (RCTPromiseRejectBlock)reject
                   )
-
 
 RCT_EXTERN_METHOD(
                   stopKeyListener: (NSString)keyString

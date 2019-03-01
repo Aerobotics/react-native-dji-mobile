@@ -136,7 +136,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue != null) {
-          sendEvent(reactContext, "chargeRemaining", (int)newValue);
+          sendEvent(reactContext, "chargeRemaining", newValue);
         }
       }
     });
@@ -151,9 +151,9 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue != null) {
           LocationCoordinate3D location = (LocationCoordinate3D)newValue;
-          Double longitude = location.getLongitude();
-          Double latitude = location.getLatitude();
-          Double altitude = Double.valueOf(location.getAltitude());
+          double longitude = location.getLongitude();
+          double latitude = location.getLatitude();
+          double altitude = location.getAltitude();
           if (!Double.isNaN(longitude) && !Double.isNaN(latitude)) {
             WritableMap params = Arguments.createMap();
             params.putDouble("longitude", longitude);
@@ -173,7 +173,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       FlightControllerKey.create(FlightControllerKey.VELOCITY_Y),
       FlightControllerKey.create(FlightControllerKey.VELOCITY_Z),
     };
-    final Double[] velocity3D = {0.0, 0.0, 0.0};
+    final double[] velocity3D = {0.0, 0.0, 0.0};
 
     promise.resolve(null);
     for (int i = 0; i < 3; i++) {
@@ -182,7 +182,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         @Override
         public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
           if (newValue != null) {
-            velocity3D[finalI] = Double.valueOf((Float)newValue);
+            velocity3D[finalI] = (float)newValue;
             WritableMap params = Arguments.createMap();
             params.putDouble("x", velocity3D[0]);
             params.putDouble("y", velocity3D[1]);
@@ -217,7 +217,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue != null) {
-          Double heading = Double.valueOf((Float)newValue);
+          double heading = (float)newValue;
           WritableMap params = Arguments.createMap();
           params.putDouble("heading", heading);
           sendEvent(reactContext, "aircraftCompassHeading", params);

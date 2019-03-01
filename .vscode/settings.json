@@ -3,5 +3,5 @@
   "typescript.validate.enable": false,
   "flow.enabled": true,
   "eslint.enable": true,
-  "flow.pathToFlow": "${workspaceRoot}/node_modules/.bin/flow"
+  "flow.pathToFlow": "${workspaceFolder}/node_modules/.bin/flow"
 }
