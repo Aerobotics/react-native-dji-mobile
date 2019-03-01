@@ -9,13 +9,13 @@ import Foundation
 import DJISDK
 
 @objc(EventSender)
-class EventSender: RCTEventEmitter {
+public class EventSender: RCTEventEmitter {
   
   override init() {
     super.init()
     NotificationCenter.default.addObserver(self, selector: #selector(sendEventToJS), name: NSNotification.Name("DJIEvent"), object: nil)
   }
-
+  
   static func sendReactEvent(type: String, value: Any) {
     NotificationCenter.default.post(name: Notification.Name("DJIEvent"), object: nil, userInfo: ["type": type, "value": value])
   }
@@ -32,11 +32,11 @@ class EventSender: RCTEventEmitter {
     }
   }
   
-  override func supportedEvents() -> [String]! {
+  override public func supportedEvents() -> [String]! {
     return ["DJIEvent"]
   }
   
-  override static func requiresMainQueueSetup() -> Bool {
+  override public static func requiresMainQueueSetup() -> Bool {
     return true
   }
 }
