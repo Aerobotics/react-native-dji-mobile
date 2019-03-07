@@ -12,17 +12,18 @@
 @interface RCT_EXTERN_MODULE(DJIMissionControlWrapper, NSObject)
 
 RCT_EXTERN_METHOD(
-                  createWaypointMission: (NSArray)coordinates
-                  parameters:            (NSDictionary)parameters
-                  resolve:               (RCTPromiseResolveBlock)resolve
-                  reject:                (RCTPromiseRejectBlock)reject
-                  )
-
-RCT_EXTERN_METHOD(
-                  scheduleElement: (nonnull NSNumber)elementId
+                  scheduleElement: (NSString)timelineElementType
+                  parameters:      (NSDictionary)parameters
                   resolve:         (RCTPromiseResolveBlock)resolve
                   reject:          (RCTPromiseRejectBlock)reject
                   )
+
+//RCT_EXTERN_METHOD(
+//                  createWaypointMission: (NSArray)coordinates
+//                  parameters:            (NSDictionary)parameters
+//                  resolve:               (RCTPromiseResolveBlock)resolve
+//                  reject:                (RCTPromiseRejectBlock)reject
+//                  )
 
 RCT_EXTERN_METHOD(
                   unscheduleEverything: (RCTPromiseResolveBlock)resolve
@@ -35,13 +36,24 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
-                  startListener: (RCTPromiseResolveBlock)resolve
-                  reject:        (RCTPromiseRejectBlock)reject
+                  stopTimeline: (RCTPromiseResolveBlock)resolve
+                  reject:       (RCTPromiseRejectBlock)reject
                   )
 
 RCT_EXTERN_METHOD(
-                  stopListener: (RCTPromiseResolveBlock)resolve
-                  reject:       (RCTPromiseRejectBlock)reject
+                  startTimelineListener: (RCTPromiseResolveBlock)resolve
+                  reject:                (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  stopTimelineListener: (RCTPromiseResolveBlock)resolve
+                  reject:               (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  checkWaypointMissionValidity: (NSDictionary)parameters
+                  resolve:                      (RCTPromiseResolveBlock)resolve
+                  reject:                       (RCTPromiseRejectBlock)reject
                   )
 
 @end

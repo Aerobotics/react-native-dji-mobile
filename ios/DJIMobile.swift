@@ -195,7 +195,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     
   }
   
-  //  static func requiresMainQueueSetup() -> Bool {
-  //    return true
-  //  }
+  @objc static func requiresMainQueueSetup() -> Bool {
+    return true
+  }
 }

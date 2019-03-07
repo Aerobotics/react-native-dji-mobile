@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		66035A91222E9E17002E474D /* CapturePictureTimelineElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66035A90222E9E17002E474D /* CapturePictureTimelineElement.swift */; };
 		665EE7802200A40F00753E42 /* DJIMobile-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 665EE77F2200A40E00753E42 /* DJIMobile-bridge.m */; };
 		66610ECE2215513E00146F86 /* DroneVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66610ECD2215513E00146F86 /* DroneVideoView.swift */; };
 		669B3B142220345400010E70 /* EventSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669B3B132220345400010E70 /* EventSender.swift */; };
 		669B3B162220347F00010E70 /* EventSender-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B3B152220347F00010E70 /* EventSender-bridge.m */; };
+		669DFE34222FF24100BF901A /* WaypointMissionTimelineElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669DFE33222FF24100BF901A /* WaypointMissionTimelineElement.swift */; };
 		669F8EE1221459E700CE1373 /* DroneVideoViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669F8EE0221459E700CE1373 /* DroneVideoViewManager.swift */; };
 		669F8EE322145A9600CE1373 /* DroneVideoViewManager-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 669F8EE222145A9600CE1373 /* DroneVideoViewManager-bridge.m */; };
 		66CDD8D4221D38730024AA39 /* DJIMissionControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CDD8D3221D38730024AA39 /* DJIMissionControl.swift */; };
@@ -32,6 +34,7 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libReactNativeDjiMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeDjiMobile.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		66035A90222E9E17002E474D /* CapturePictureTimelineElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePictureTimelineElement.swift; sourceTree = "<group>"; };
 		665EE77F2200A40E00753E42 /* DJIMobile-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "DJIMobile-bridge.m"; sourceTree = "<group>"; };
 		66610ECD2215513E00146F86 /* DroneVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DroneVideoView.swift; sourceTree = "<group>"; };
 		66610EEB2215819700146F86 /* ReactNativeDJIMobile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactNativeDJIMobile.h; sourceTree = "<group>"; };
@@ -41,6 +44,7 @@
 		66610F072215835500146F86 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		669B3B132220345400010E70 /* EventSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSender.swift; sourceTree = "<group>"; };
 		669B3B152220347F00010E70 /* EventSender-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "EventSender-bridge.m"; sourceTree = "<group>"; };
+		669DFE33222FF24100BF901A /* WaypointMissionTimelineElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaypointMissionTimelineElement.swift; sourceTree = "<group>"; };
 		669F8EE0221459E700CE1373 /* DroneVideoViewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DroneVideoViewManager.swift; sourceTree = "<group>"; };
 		669F8EE222145A9600CE1373 /* DroneVideoViewManager-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "DroneVideoViewManager-bridge.m"; sourceTree = "<group>"; };
 		66CDD8D3221D38730024AA39 /* DJIMissionControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DJIMissionControl.swift; sourceTree = "<group>"; };
@@ -73,6 +77,7 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				66035A8F222E9DFE002E474D /* DJITimelineElements */,
 				669B3B152220347F00010E70 /* EventSender-bridge.m */,
 				669B3B132220345400010E70 /* EventSender.swift */,
 				66CDD8D5221D39490024AA39 /* DJIMissionControl-bridge.m */,
@@ -96,6 +101,15 @@
 				9D7A55877479F38A54D12890 /* Pods-ReactNativeDjiMobile.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		66035A8F222E9DFE002E474D /* DJITimelineElements */ = {
+			isa = PBXGroup;
+			children = (
+				66035A90222E9E17002E474D /* CapturePictureTimelineElement.swift */,
+				669DFE33222FF24100BF901A /* WaypointMissionTimelineElement.swift */,
+			);
+			path = DJITimelineElements;
 			sourceTree = "<group>";
 		};
 		66610EEA2215819700146F86 /* ReactNativeDJIMobile */ = {
@@ -216,10 +230,12 @@
 			files = (
 				66CDD8D4221D38730024AA39 /* DJIMissionControl.swift in Sources */,
 				669F8EE322145A9600CE1373 /* DroneVideoViewManager-bridge.m in Sources */,
+				669DFE34222FF24100BF901A /* WaypointMissionTimelineElement.swift in Sources */,
 				669B3B162220347F00010E70 /* EventSender-bridge.m in Sources */,
 				669F8EE1221459E700CE1373 /* DroneVideoViewManager.swift in Sources */,
 				665EE7802200A40F00753E42 /* DJIMobile-bridge.m in Sources */,
 				66CDD8D6221D39490024AA39 /* DJIMissionControl-bridge.m in Sources */,
+				66035A91222E9E17002E474D /* CapturePictureTimelineElement.swift in Sources */,
 				66F25E2722008D2100F00255 /* DJIMobile.swift in Sources */,
 				66610ECE2215513E00146F86 /* DroneVideoView.swift in Sources */,
 				669B3B142220345400010E70 /* EventSender.swift in Sources */,
