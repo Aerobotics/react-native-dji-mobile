@@ -189,7 +189,6 @@ class DJIMissionControlWrapper: NSObject {
   func checkWaypointMissionValidity(parameters: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let waypointMission = WaypointMissionTimelineElement(parameters: parameters)
     let error = DJIWaypointMission.init(mission: waypointMission).checkParameters()
-    print(error)
     if (error != nil) {
       reject("Waypoint Mission Invalid", error!.localizedDescription, nil)
       return
