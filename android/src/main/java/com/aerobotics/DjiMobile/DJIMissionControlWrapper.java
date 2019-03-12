@@ -1,6 +1,7 @@
 
 package com.aerobotics.DjiMobile;
 
+import com.aerobotics.DjiMobile.DJITimelineElements.WaypointMissionTimelineElement;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.NoSuchKeyException;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -76,92 +77,121 @@ import dji.sdk.sdkmanager.DJISDKManager;
 public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
-  private int timelineElementIndex = 0;
-  private HashMap<Integer, TimelineElement> timelineElements = new HashMap<>();
-  private ArrayList<Integer> scheduledElementIndexOrder = new ArrayList<>();
+//  private int timelineElementIndex = 0;
+//  private HashMap<Integer, TimelineElement> timelineElements = new HashMap<>();
+//  private ArrayList<Integer> scheduledElementIndexOrder = new ArrayList<>();
+
+  private Map<String, String> timelineElements = new HashMap<String, String>() {{
+    put("WaypointMissionTimelineElement", "WaypointMissionTimelineElement");
+    put("CapturePictureTimelineElement", "CapturePictureTimelineElement");
+  }};
+
 
   public DJIMissionControlWrapper(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
   }
 
+//  @ReactMethod
+//  public void createWaypointMission(ReadableArray coordinatesArray, ReadableMap parameters, Promise promise) {
+//    WaypointMission.Builder waypointMissionBuilder = new WaypointMission.Builder();
+//
+//    Double autoFlightSpeed;
+//    Double maxFlightSpeed;
+//
+//    try {
+//      autoFlightSpeed = parameters.getDouble("autoFlightSpeed");
+//    } catch (NoSuchKeyException e) {
+//      autoFlightSpeed = 2.0;
+//    }
+//
+//    try {
+//      maxFlightSpeed = parameters.getDouble("maxFlightSpeed");
+//    } catch (NoSuchKeyException e) {
+//      maxFlightSpeed = autoFlightSpeed; // maxFlightSpeed must be >= autoFlightSpeed or else the mission will be invalid
+//    }
+//
+//    waypointMissionBuilder.autoFlightSpeed(autoFlightSpeed.floatValue());
+//    waypointMissionBuilder.maxFlightSpeed(maxFlightSpeed.floatValue());
+//
+//    for (int i = 0; i < coordinatesArray.size(); i++) {
+//      ReadableMap coordinate = coordinatesArray.getMap(i);
+//      double longitude = coordinate.getDouble("longitude");
+//      double latitude = coordinate.getDouble("latitude");
+//      double altitude = coordinate.getDouble("altitude");
+//      Waypoint waypoint = new Waypoint(latitude, longitude, (float)altitude);
+//      waypointMissionBuilder.addWaypoint(waypoint);
+//    }
+//
+//    DJIError paramError = waypointMissionBuilder.checkParameters();
+//    if (paramError != null) {
+//      promise.reject(paramError.toString(), paramError.getDescription());
+//      return;
+//    }
+//    timelineElements.put(
+//      timelineElementIndex,
+//      TimelineMission.elementFromWaypointMission(
+//        waypointMissionBuilder.build()
+//      )
+//    );
+//    promise.resolve(timelineElementIndex);
+//    timelineElementIndex++;
+//    return;
+//  }
   @ReactMethod
-  public void createWaypointMission(ReadableArray coordinatesArray, ReadableMap parameters, Promise promise) {
-    WaypointMission.Builder waypointMissionBuilder = new WaypointMission.Builder();
+  public void scheduleElement(String timelineElementType, ReadableMap parameters, Promise promise) {
 
-    Double autoFlightSpeed;
-    Double maxFlightSpeed;
+    MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
 
-    try {
-      autoFlightSpeed = parameters.getDouble("autoFlightSpeed");
-    } catch (NoSuchKeyException e) {
-      autoFlightSpeed = 2.0;
+    TimelineElement newElement = null;
+
+    switch (timelineElementType) {
+      case "WaypointMissionTimelineElement":
+        WaypointMissionTimelineElement waypointMissionTimelineElement = new WaypointMissionTimelineElement(parameters);
+        newElement = TimelineMission.elementFromWaypointMission(
+          waypointMissionTimelineElement.build()
+        );
+        break;
+
+      default:
+        break;
     }
 
-    try {
-      maxFlightSpeed = parameters.getDouble("maxFlightSpeed");
-    } catch (NoSuchKeyException e) {
-      maxFlightSpeed = autoFlightSpeed; // maxFlightSpeed must be >= autoFlightSpeed or else the mission will be invalid
+    if (newElement != null) {
+      Log.i("ReactNativeJS", "CHECKING VALIDITY");
+      DJIError validError = newElement.checkValidity();
+      if (validError != null) {
+        Log.i("ReactNativeJS", validError.getDescription());
+      }
+      DJIError scheduleError = missionControl.scheduleElement(newElement);
+      if (scheduleError != null) {
+        Log.i("ReactNativeJS", scheduleError.getDescription());
+      }
     }
 
-    waypointMissionBuilder.autoFlightSpeed(autoFlightSpeed.floatValue());
-    waypointMissionBuilder.maxFlightSpeed(maxFlightSpeed.floatValue());
-
-    for (int i = 0; i < coordinatesArray.size(); i++) {
-      ReadableMap coordinate = coordinatesArray.getMap(i);
-      double longitude = coordinate.getDouble("longitude");
-      double latitude = coordinate.getDouble("latitude");
-      double altitude = coordinate.getDouble("altitude");
-      Waypoint waypoint = new Waypoint(latitude, longitude, (float)altitude);
-      waypointMissionBuilder.addWaypoint(waypoint);
-    }
-
-    DJIError paramError = waypointMissionBuilder.checkParameters();
-    if (paramError != null) {
-      promise.reject(paramError.toString(), paramError.getDescription());
-      return;
-    }
-    timelineElements.put(
-      timelineElementIndex,
-      TimelineMission.elementFromWaypointMission(
-        waypointMissionBuilder.build()
-      )
-    );
-    promise.resolve(timelineElementIndex);
-    timelineElementIndex++;
-    return;
-  }
-
-  @ReactMethod
-  public void scheduleElement(Integer elementId, Promise promise) {
-    TimelineElement timelineElement = timelineElements.get(elementId);
-    if (timelineElement != null) {
-      DJISDKManager.getInstance().getMissionControl().scheduleElement(timelineElement);
-      scheduledElementIndexOrder.add(elementId);
-    }
-    promise.resolve(null);
+    promise.resolve("DJI Mission Control: Schedule Element");
   }
 
   @ReactMethod
   public void startTimeline(Promise promise) {
-    MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
+    DJISDKManager.getInstance().getMissionControl().startTimeline();
+    promise.resolve("DJI Mission Control: Start Timeline");
+  }
 
-    missionControl.stopTimeline();
-    missionControl.startTimeline();
-
-    promise.resolve(null);
+  @ReactMethod
+  public void stopTimeline(Promise promise) {
+    DJISDKManager.getInstance().getMissionControl().stopTimeline();
+    promise.resolve("DJI Mission Control: Stop Timeline");
   }
 
   @ReactMethod
   public void unscheduleEverything(Promise promise) {
     DJISDKManager.getInstance().getMissionControl().unscheduleEverything();
-    scheduledElementIndexOrder.clear();
-    promise.resolve(null);
-
+    promise.resolve("DJI Mission Control: Unschedule Everything");
   }
 
   @ReactMethod
-  public void startListener(Promise promise) {
+  public void startTimelineListener(Promise promise) {
     final MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
     missionControl.removeAllListeners();
     missionControl.addListener(new MissionControl.Listener() {
@@ -175,7 +205,7 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
           timelineIndex = -1;
           eventInfo.putInt("elementId", -1);
         } else {
-          eventInfo.putInt("elementId", scheduledElementIndexOrder.get(timelineIndex));
+//          eventInfo.putInt("elementId", scheduledElementIndexOrder.get(timelineIndex));
         }
         eventInfo.putString("eventType", timelineEvent.name());
         eventInfo.putInt("timelineIndex", timelineIndex);
@@ -196,13 +226,32 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void stopListener(Promise promise) {
+  public void stopTimelineListener(Promise promise) {
     DJISDKManager.getInstance().getMissionControl().removeAllListeners();
     promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void checkWaypointMissionValidity(ReadableMap parameters, Promise promise) {
+    WaypointMissionTimelineElement waypointMissionTimelineElement = new WaypointMissionTimelineElement(parameters);
+    DJIError paramError = waypointMissionTimelineElement.checkParameters();
+    if (paramError != null) {
+      promise.reject(paramError.toString(), paramError.getDescription());
+    } else {
+      promise.resolve("Waypoint Mission Valid");
+    }
+
   }
 
   @Override
   public String getName() {
     return "DJIMissionControlWrapper";
+  }
+
+  @Override
+  public Map<String, Object> getConstants() {
+    final Map<String, Object> constants = new HashMap<>();
+    constants.putAll(timelineElements);
+    return constants;
   }
 }

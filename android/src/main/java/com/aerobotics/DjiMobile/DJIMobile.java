@@ -99,7 +99,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onRegister(DJIError djiError) {
         if (djiError == DJISDKError.REGISTRATION_SUCCESS) {
-          promise.resolve(null);
+          promise.resolve("DJI SDK: Registration Successful");
         } else {
           promise.reject(djiError.toString(), djiError.getDescription());
         }

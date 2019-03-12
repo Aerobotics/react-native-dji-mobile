@@ -13,4 +13,9 @@ class DroneVideoViewManager: RCTViewManager {
   override func view() -> UIView! {
     return DroneVideoView()
   }
+  
+  @objc override static func requiresMainQueueSetup() -> Bool {
+    return true
+  }
+  
 }

@@ -44,7 +44,7 @@ class DJIMobile: NSObject, RCTInvalidating {
           sentRegistration = true
           DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
             DJISDKManager.startConnectionToProduct()
-            resolve(nil)
+            resolve("DJI SDK: Registration Successful")
           })
         }
       }
@@ -195,7 +195,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     
   }
   
-  //  static func requiresMainQueueSetup() -> Bool {
-  //    return true
-  //  }
+  @objc static func requiresMainQueueSetup() -> Bool {
+    return true
+  }
 }
