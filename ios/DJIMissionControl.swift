@@ -9,6 +9,8 @@ import Foundation
 import DJISDK
 
 let timelineElements = [
+  "GimbalAction": "GimbalAction",
+  
   "WaypointMissionTimelineElement": "WaypointMissionTimelineElement",
   "CapturePictureTimelineElement": "CapturePictureTimelineElement",
 ]
@@ -34,6 +36,10 @@ class DJIMissionControlWrapper: NSObject {
     case timelineElements["WaypointMissionTimelineElement"]:
       let waypointMission = WaypointMissionTimelineElement(parameters: parameters)
       newElement = DJIWaypointMission(mission: waypointMission)
+      
+    case timelineElements["GimbalAction"]:
+      newElement = buildGimbalAttitudeAction(parameters: parameters)
+      
     default:
       break
     }
@@ -41,15 +47,25 @@ class DJIMissionControlWrapper: NSObject {
     if newElement != nil {
       let validError: Error? = newElement?.checkValidity()
       if (validError != nil) {
-        print(validError!.localizedDescription)
+        reject("Schedule Element Error", validError!.localizedDescription, validError!)
+        return
       }
       let error: Error? = missionControl.scheduleElement(newElement!)
       if (error != nil) {
-        print(error!.localizedDescription)
+        reject("Schedule Element Error", error!.localizedDescription, error!)
+        return
       }
       resolve("DJI Mission Control: Schedule Element")
       return
     }
+  }
+  
+  func buildGimbalAttitudeAction(parameters: NSDictionary) -> DJIGimbalAttitudeAction? {
+    let pitch = parameters["pitch"] as! Float
+    let roll = parameters["roll"] as! Float
+    let yaw = parameters["yaw"] as! Float
+    let attitude = DJIGimbalAttitude(pitch: pitch, roll: roll, yaw: yaw)
+    return DJIGimbalAttitudeAction(attitude: attitude)
   }
   
   //  @objc(createWaypointMission:parameters:resolve:reject:)
