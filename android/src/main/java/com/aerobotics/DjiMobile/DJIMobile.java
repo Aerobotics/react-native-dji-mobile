@@ -99,6 +99,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onRegister(DJIError djiError) {
         if (djiError == DJISDKError.REGISTRATION_SUCCESS) {
+//          DJISDKManager.getInstance().enableBridgeModeWithBridgeAppIP("192.168.100.154");
           promise.resolve("DJI SDK: Registration Successful");
         } else {
           promise.reject(djiError.toString(), djiError.getDescription());
