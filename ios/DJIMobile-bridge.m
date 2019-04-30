@@ -18,6 +18,12 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  registerAppAndUseBridge:  (NSString)bridgeIp
+                  resolve:                  (RCTPromiseResolveBlock)resolve
+                  reject:                   (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
                   startProductConnectionListener: (RCTPromiseResolveBlock)resolve
                   reject:                         (RCTPromiseRejectBlock)reject
                   )

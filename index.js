@@ -23,10 +23,19 @@ let SDKRegistered = false;
 
 const DJIMobileWrapper = {
 
-  registerApp: () => {
-    const registerPromise = DJIMobile.registerApp();
-    registerPromise.then(() => SDKRegistered = true).catch(() => SDKRegistered = false);
-    return registerPromise;
+  registerApp: async (bridgeIp?: string) => {
+    let registerSDKPromise;
+    if (bridgeIp !== undefined) {
+      registerSDKPromise = DJIMobile.registerAppAndUseBridge(bridgeIp);
+    } else {
+      registerSDKPromise = DJIMobile.registerApp();
+    }
+    registerSDKPromise.then(() => {
+      SDKRegistered = true;
+    }).catch(err => {
+      SDKRegistered = false;
+    });
+    return registerSDKPromise;
   },
 
   startProductConnectionListener: async () => {

@@ -24,30 +24,38 @@ class DJIMobile: NSObject, RCTInvalidating {
     "DJIFlightControllerParamAircraftLocation": [DJIFlightControllerParamAircraftLocation, DJIFlightControllerKey()],
     "DJIFlightControllerParamVelocity": [DJIFlightControllerParamVelocity, DJIFlightControllerKey()],
     "DJIFlightControllerParamCompassHeading": [DJIFlightControllerParamCompassHeading, DJIFlightControllerKey()],
-    ]
+  ]
   
   var keyListeners: [String] = []
   
   @objc(registerApp:reject:)
   func registerApp(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    registerAppInternal(nil, resolve, reject)
+  }
+  
+  @objc(registerAppAndUseBridge:resolve:reject:)
+  func registerAppAndUseBridge(bridgeIp: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    registerAppInternal(bridgeIp, resolve, reject)
+  }
+  
+  func registerAppInternal(_ bridgeIp: String?, _ resolve: @escaping RCTPromiseResolveBlock, _ reject: @escaping RCTPromiseRejectBlock) {
     var sentRegistration = false
-    DJISDKManager.startListeningOnRegistrationUpdates(withListener: self) { (registered, registrationError) in
-      if (sentRegistration) {
-        DJISDKManager.stopListening(onRegistrationUpdatesOfListener: self)
+    DJISDKManager.startListeningOnRegistrationUpdates(withListener: self) { (registered: Bool, registrationError: Error) in
+      if (registered == true) {
+        if (bridgeIp != nil) {
+          DJISDKManager.enableBridgeMode(withBridgeAppIP: bridgeIp!)
+        } else {
+          DJISDKManager.startConnectionToProduct()
+        }
+        if (!sentRegistration) {
+          resolve("DJI SDK: Registration Successful")
+        }
       } else {
-        if (registrationError != nil) {
-          // FIXME: (Adam) registrationError.localizedDescription does not exist!
-          //          reject("Registration Error", registrationError.localizedDescription, nil)
-          reject("Registration Error", nil, nil)
-          sentRegistration = true
-        } else if (registered == true) {
-          sentRegistration = true
-          DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-            DJISDKManager.startConnectionToProduct()
-            resolve("DJI SDK: Registration Successful")
-          })
+        if (!sentRegistration) {
+          self.sendReject(reject, "Registration Error", registrationError as NSError)
         }
       }
+      sentRegistration = true
     }
     DJISDKManager.beginAppRegistration()
   }
@@ -193,6 +201,17 @@ class DJIMobile: NSObject, RCTInvalidating {
       return
     }
     
+  }
+  
+  func sendReject(_ reject: RCTPromiseRejectBlock,
+                  _ code: String,
+                  _ error: NSError
+    ) {
+    reject(
+      code,
+      error.localizedDescription,
+      error
+    )
   }
   
   @objc static func requiresMainQueueSetup() -> Bool {
