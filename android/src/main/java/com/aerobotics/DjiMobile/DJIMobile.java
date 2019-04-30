@@ -95,23 +95,45 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void registerApp(final Promise promise) {
-    DJISDKManager.getInstance().registerApp(this.reactContext, new DJISDKManager.SDKManagerCallback() {
+    registerAppInternal(null, promise);
+  }
+
+  @ReactMethod
+  public void registerAppAndUseBridge(final String bridgeIp, final Promise promise) {
+    registerAppInternal(bridgeIp, promise);
+  }
+
+  public void registerAppInternal(final String bridgeIp, final Promise promise) {
+    final DJISDKManager djisdkManager = DJISDKManager.getInstance();
+    djisdkManager.registerApp(this.reactContext, new DJISDKManager.SDKManagerCallback() {
       @Override
       public void onRegister(DJIError djiError) {
         if (djiError == DJISDKError.REGISTRATION_SUCCESS) {
-//          DJISDKManager.getInstance().enableBridgeModeWithBridgeAppIP("192.168.100.154");
           promise.resolve("DJI SDK: Registration Successful");
+          if (bridgeIp != null) {
+            djisdkManager.enableBridgeModeWithBridgeAppIP(bridgeIp);
+          } else {
+            djisdkManager.startConnectionToProduct();
+          }
         } else {
           promise.reject(djiError.toString(), djiError.getDescription());
         }
       }
 
       @Override
-      public void onProductDisconnect() {}
+      public void onProductDisconnect() {
+        // TODO:
+      }
+
       @Override
-      public void onProductConnect(BaseProduct baseProduct) {}
+      public void onProductConnect(BaseProduct baseProduct) {
+        // TODO:
+      }
+
       @Override
-      public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent baseComponent, BaseComponent baseComponent1) {}
+      public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent baseComponent, BaseComponent baseComponent1) {
+
+      }
     });
   }
 
