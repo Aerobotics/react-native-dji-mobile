@@ -29,6 +29,7 @@ import java.util.function.Function;
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.LocationCoordinate3D;
+import dji.common.gimbal.Attitude;
 import dji.common.mission.waypoint.Waypoint;
 import dji.common.mission.waypoint.WaypointMission;
 import dji.keysdk.DJIKey;
@@ -43,36 +44,9 @@ import dji.sdk.mission.MissionControl;
 import dji.sdk.mission.timeline.TimelineElement;
 import dji.sdk.mission.timeline.TimelineEvent;
 import dji.sdk.mission.timeline.TimelineMission;
+import dji.sdk.mission.timeline.actions.GimbalAttitudeAction;
 import dji.sdk.sdkmanager.DJISDKManager;
 
-//class ValidKeyInfo {
-//  String keyParam;
-//  Class keyClass;
-//  Method createMethod;
-//
-//  public ValidKeyInfo(String keyParam, Class keyClass) {
-//    this.keyParam = keyParam;
-//    this.keyClass = keyClass;
-//    try {
-//      this.createMethod = keyClass.getMethod("create", String.class);
-//    } catch (NoSuchMethodException e) {
-//      e.printStackTrace();
-//    }
-//  }
-//
-//  public DJIKey createDJIKey() {
-//    try {
-////      Object KeyClass = this.keyClass.newInstance();
-////      String args[] = {this.keyParam};
-//      // As the .create() method is a static method, no object instance needs to be passed to .invoke(), hence the null value
-//      DJIKey createdKey = (DJIKey)this.createMethod.invoke(null, this.keyParam);
-//      return createdKey;
-//    } catch (Exception e) {
-//      Log.i("EXCEPTION", e.getLocalizedMessage());
-//      return null;
-//    }
-//  }
-//}
 
 public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
@@ -83,6 +57,7 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
   private Map<String, String> timelineElements = new HashMap<String, String>() {{
     put("WaypointMissionTimelineElement", "WaypointMissionTimelineElement");
+    put("GimbalAttitudeAction", "GimbalAttitudeAction");
     put("CapturePictureTimelineElement", "CapturePictureTimelineElement");
   }};
 
@@ -92,52 +67,6 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
     this.reactContext = reactContext;
   }
 
-//  @ReactMethod
-//  public void createWaypointMission(ReadableArray coordinatesArray, ReadableMap parameters, Promise promise) {
-//    WaypointMission.Builder waypointMissionBuilder = new WaypointMission.Builder();
-//
-//    Double autoFlightSpeed;
-//    Double maxFlightSpeed;
-//
-//    try {
-//      autoFlightSpeed = parameters.getDouble("autoFlightSpeed");
-//    } catch (NoSuchKeyException e) {
-//      autoFlightSpeed = 2.0;
-//    }
-//
-//    try {
-//      maxFlightSpeed = parameters.getDouble("maxFlightSpeed");
-//    } catch (NoSuchKeyException e) {
-//      maxFlightSpeed = autoFlightSpeed; // maxFlightSpeed must be >= autoFlightSpeed or else the mission will be invalid
-//    }
-//
-//    waypointMissionBuilder.autoFlightSpeed(autoFlightSpeed.floatValue());
-//    waypointMissionBuilder.maxFlightSpeed(maxFlightSpeed.floatValue());
-//
-//    for (int i = 0; i < coordinatesArray.size(); i++) {
-//      ReadableMap coordinate = coordinatesArray.getMap(i);
-//      double longitude = coordinate.getDouble("longitude");
-//      double latitude = coordinate.getDouble("latitude");
-//      double altitude = coordinate.getDouble("altitude");
-//      Waypoint waypoint = new Waypoint(latitude, longitude, (float)altitude);
-//      waypointMissionBuilder.addWaypoint(waypoint);
-//    }
-//
-//    DJIError paramError = waypointMissionBuilder.checkParameters();
-//    if (paramError != null) {
-//      promise.reject(paramError.toString(), paramError.getDescription());
-//      return;
-//    }
-//    timelineElements.put(
-//      timelineElementIndex,
-//      TimelineMission.elementFromWaypointMission(
-//        waypointMissionBuilder.build()
-//      )
-//    );
-//    promise.resolve(timelineElementIndex);
-//    timelineElementIndex++;
-//    return;
-//  }
   @ReactMethod
   public void scheduleElement(String timelineElementType, ReadableMap parameters, Promise promise) {
 
@@ -151,6 +80,10 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
         newElement = TimelineMission.elementFromWaypointMission(
           waypointMissionTimelineElement.build()
         );
+        break;
+
+      case "GimbalAttitudeAction":
+        newElement = buildGimbalAttitudeAction(parameters);
         break;
 
       default:
@@ -169,7 +102,25 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
       }
     }
 
-    promise.resolve("DJI Mission Control: Schedule Element");
+    promise.resolve("DJI Mission Control: Scheduled Element");
+  }
+
+  public GimbalAttitudeAction buildGimbalAttitudeAction(ReadableMap parameters) {
+    float pitch = (float) parameters.getDouble("pitch");
+    float roll = (float) parameters.getDouble("roll");
+    float yaw = (float) parameters.getDouble("yaw");
+
+    // TODO: adding a yaw & roll appears to break the action, is this because the gimbal mode must be changed?
+    Attitude attitude = new Attitude(pitch, Attitude.NO_ROTATION, Attitude.NO_ROTATION);
+    GimbalAttitudeAction gimbalAttitudeAction = new GimbalAttitudeAction(attitude);
+
+    if (parameters.hasKey("completionTime")) {
+      double completionTime = parameters.getDouble("completionTime");
+      Log.i("ReactNativeJS", String.valueOf(completionTime));
+      gimbalAttitudeAction.setCompletionTime(completionTime);
+    }
+
+    return gimbalAttitudeAction;
   }
 
   @ReactMethod
