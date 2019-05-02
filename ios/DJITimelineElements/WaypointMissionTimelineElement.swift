@@ -13,6 +13,8 @@ public class WaypointMissionTimelineElement: DJIMutableWaypointMission {
   init(parameters: NSDictionary) {
     super.init()
     
+    self.finishedAction = DJIWaypointMissionFinishedAction.noAction
+    
     guard let autoFlightSpeedParameter = parameters["autoFlightSpeed"] as? Float else {
       // TODO: (Adam) Throw an error here!
       return
@@ -28,12 +30,7 @@ public class WaypointMissionTimelineElement: DJIMutableWaypointMission {
       return
     }
     
-    //    guard let
-    //      autoFlightSpeed = parameters["autoFlightSpeed"] as? Float
-    //      maxFlightSpeed = parameters["maxFlightSpeed"] as? Float
-    //      else {
-    //      // TODO: (Adam) Throw an error here!
-    //    }
+    
     
     self.autoFlightSpeed = autoFlightSpeedParameter
     self.maxFlightSpeed = maxFlightSpeedParameter

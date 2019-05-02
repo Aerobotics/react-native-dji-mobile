@@ -9,6 +9,8 @@ import Foundation
 import DJISDK
 
 let timelineElements = [
+  "GimbalAttitudeAction": "GimbalAttitudeAction",
+  
   "WaypointMissionTimelineElement": "WaypointMissionTimelineElement",
   "CapturePictureTimelineElement": "CapturePictureTimelineElement",
 ]
@@ -34,6 +36,10 @@ class DJIMissionControlWrapper: NSObject {
     case timelineElements["WaypointMissionTimelineElement"]:
       let waypointMission = WaypointMissionTimelineElement(parameters: parameters)
       newElement = DJIWaypointMission(mission: waypointMission)
+      
+    case timelineElements["GimbalAttitudeAction"]:
+      newElement = buildGimbalAttitudeAction(parameters: parameters)
+      
     default:
       break
     }
@@ -41,15 +47,32 @@ class DJIMissionControlWrapper: NSObject {
     if newElement != nil {
       let validError: Error? = newElement?.checkValidity()
       if (validError != nil) {
-        print(validError!.localizedDescription)
+        reject("Schedule Element Error", validError!.localizedDescription, validError!)
+        return
       }
       let error: Error? = missionControl.scheduleElement(newElement!)
       if (error != nil) {
-        print(error!.localizedDescription)
+        reject("Schedule Element Error", error!.localizedDescription, error!)
+        return
       }
-      resolve("DJI Mission Control: Schedule Element")
+      resolve("DJI Mission Control: Scheduled Element")
       return
     }
+  }
+  
+  func buildGimbalAttitudeAction(parameters: NSDictionary) -> DJIGimbalAttitudeAction? {
+    let pitch = parameters["pitch"] as! Float
+    let roll = parameters["roll"] as! Float
+    let yaw = parameters["yaw"] as! Float
+    let completionTime = parameters["completionTime"] as? Double
+    
+    let attitude = DJIGimbalAttitude(pitch: pitch, roll: roll, yaw: yaw)
+    let gimbalAttitudeAction = DJIGimbalAttitudeAction(attitude: attitude)
+    if (completionTime != nil) {
+      gimbalAttitudeAction?.completionTime = completionTime!
+    }
+    
+    return gimbalAttitudeAction
   }
   
   //  @objc(createWaypointMission:parameters:resolve:reject:)
