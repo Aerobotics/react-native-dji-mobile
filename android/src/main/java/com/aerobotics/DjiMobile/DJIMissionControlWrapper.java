@@ -45,6 +45,7 @@ import dji.sdk.mission.timeline.TimelineElement;
 import dji.sdk.mission.timeline.TimelineEvent;
 import dji.sdk.mission.timeline.TimelineMission;
 import dji.sdk.mission.timeline.actions.GimbalAttitudeAction;
+import dji.sdk.mission.timeline.actions.ShootPhotoAction;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 
@@ -58,7 +59,8 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
   private Map<String, String> timelineElements = new HashMap<String, String>() {{
     put("WaypointMissionTimelineElement", "WaypointMissionTimelineElement");
     put("GimbalAttitudeAction", "GimbalAttitudeAction");
-    put("CapturePictureTimelineElement", "CapturePictureTimelineElement");
+    put("ShootPhotoAction", "ShootPhotoAction");
+//    put("CapturePictureTimelineElement", "CapturePictureTimelineElement");
   }};
 
 
@@ -85,6 +87,9 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
       case "GimbalAttitudeAction":
         newElement = buildGimbalAttitudeAction(parameters);
         break;
+
+      case "ShootPhotoAction":
+        newElement = buildShootPhotoAction(parameters);
 
       default:
         break;
@@ -116,11 +121,46 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
     if (parameters.hasKey("completionTime")) {
       double completionTime = parameters.getDouble("completionTime");
-      Log.i("ReactNativeJS", String.valueOf(completionTime));
       gimbalAttitudeAction.setCompletionTime(completionTime);
     }
 
     return gimbalAttitudeAction;
+  }
+
+  public ShootPhotoAction buildShootPhotoAction(ReadableMap parameters) {
+    Integer count = null;
+    Integer interval = null;
+    Boolean wait = null;
+    Boolean stopShoot = null;
+
+    try {
+      count = parameters.getInt("count");
+    } catch (Exception e) {}
+
+    try {
+      interval = parameters.getInt("interval");
+    } catch (Exception e) {}
+
+    try {
+      wait = parameters.getBoolean("wait");
+    } catch (Exception e) {}
+
+    try {
+      stopShoot = parameters.getBoolean("stopShoot");
+    } catch (Exception e) {}
+
+    ShootPhotoAction shootPhotoAction;
+
+    if (stopShoot != null && stopShoot == true) {
+      shootPhotoAction = ShootPhotoAction.newStopIntervalPhotoAction();
+    } else if (count != null && interval != null && wait != null) {
+      shootPhotoAction = ShootPhotoAction.newShootIntervalPhotoAction(count, interval);
+    } else {
+      shootPhotoAction = ShootPhotoAction.newShootSinglePhotoAction();
+    }
+
+    return shootPhotoAction;
+
   }
 
   @ReactMethod
