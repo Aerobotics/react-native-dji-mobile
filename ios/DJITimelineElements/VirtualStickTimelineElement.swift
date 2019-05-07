@@ -13,7 +13,21 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   var test = 0
   var timer: Timer
   
+  var parameters: NSDictionary
+  
+  var sendVirtualStickDataTimer: Timer
+  var endTriggerTimer: Timer
+  
+  var pitchAdjustmentStick = 0
+  var rollAdjustmentStick = 0
+  var verticalAdjustmentStick = 0
+  
   init(_ parameters: NSDictionary) {
+    
+    self.parameters = parameters
+    
+    self.sendVirtualStickDataTimer = Timer.init()
+    self.endTriggerTimer = Timer.init()
     self.timer = Timer.init() // Create an empty timer for now
     super.init()
   }
@@ -23,6 +37,11 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     
     let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
     let missionControl = DJISDKManager.missionControl()
+    
+    // Using velocity and body for controlMode and coordinateSystem respectively means that a positive pitch corresponds to a roll to the right,
+    // and a positive roll corresponds to a pitch forwards, THIS IS THE CRAZY DJI SDK AND WE HAVE TO LIVE WITH IT
+    flightController?.rollPitchControlMode = DJIVirtualStickRollPitchControlMode.velocity
+    flightController?.rollPitchCoordinateSystem = DJIVirtualStickFlightCoordinateSystem.body
     
     flightController?.setVirtualStickModeEnabled(true, withCompletion: { (error: Error?) in
       if (error != nil) {
@@ -37,28 +56,37 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
         return
       }
       
-      missionControl?.elementDidStartRunning(self)
+      self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
       
-      self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.timerBlock), userInfo: nil, repeats: true)
+      let endTrigger = self.parameters["endTrigger"] as! String
+      print(endTrigger)
       
-//      missionControl?.element(self, didFinishRunningWithError: nil)
+      if (endTrigger == "timer") {
+        let timerEndTime = self.parameters["timerEndTime"] as! Double
+        self.endTriggerTimer = Timer.scheduledTimer(timeInterval: timerEndTime, target: self, selector: #selector(self.endTriggerTimerDidTrigger), userInfo: nil, repeats: false)
+      }
+      
+      
+      
+      
+//      DJISDKManager.keyManager()?.startListeningForChanges(on: DJIRemoteControllerKey(param: DJIRemoteControllerParamRightHorizontalValue)!, withListener: self, andUpdate: { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+//        if (newValue != nil) {
+//          self.rollAdjustmentStick = newValue!.integerValue
+//        }
+//      })
+//
+//      DJISDKManager.keyManager()?.startListeningForChanges(on: DJIRemoteControllerKey(param: DJIRemoteControllerParamRightVerticalValue)!, withListener: self, andUpdate: { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+//        if (newValue != nil) {
+//          self.pitchAdjustmentStick = newValue!.integerValue
+//        }
+//      })
+//
+//      missionControl?.elementDidStartRunning(self)
+//
+//      self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.timerBlock), userInfo: nil, repeats: true)
+      
     })
-
-  }
-  
-  @objc
-  private func timerBlock() {
-//    print("timerBlock!")
     
-    let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
-    
-    flightController?.send(DJIVirtualStickFlightControlData(pitch: 0, roll: 0, yaw: 0, verticalThrottle: 5), withCompletion: nil)
-    
-    test += 1
-    if (test == 50) {
-      timer.invalidate()
-      DJISDKManager.missionControl()?.element(self, didFinishRunningWithError: nil)
-    }
   }
   
   public func isPausable() -> Bool {
@@ -74,12 +102,48 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   }
   
   public func stopRun() {
-    print("stopRun")
+//    print("stopRun")
+    let missionControl = DJISDKManager.missionControl()
+    self.cleanUp { (error: Error?) in
+      if (error != nil) {
+        missionControl?.element(self, failedStoppingWithError: error!)
+      } else {
+        missionControl?.elementDidStopRunning(self)
+      }
+      
+    }
   }
   
   public func checkValidity() -> Error? {
     return nil
   }
+  
+  private func cleanUp(withCompletion: (Error?) -> ()) {
+    self.sendVirtualStickDataTimer.invalidate()
+    self.endTriggerTimer.invalidate()
+    let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
+    let missionControl = DJISDKManager.missionControl()
+    flightController?.setVirtualStickModeEnabled(false, withCompletion: { (error: Error?) in
+      missionControl?.element(self, didFinishRunningWithError: error)
+    })
+  }
+  
+  @objc
+  private func sendVirtualStickData() {
+    let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
+    
+    flightController?.send(DJIVirtualStickFlightControlData(pitch: Float(self.rollAdjustmentStick) / 330, roll: Float(self.pitchAdjustmentStick) / 330, yaw: 0, verticalThrottle: 1), withCompletion: nil)
+    
+  }
+  
+  @objc
+  private func endTriggerTimerDidTrigger() {
+    self.sendVirtualStickDataTimer.invalidate()
+    self.cleanUp { (erorr: Error?) in
+      DJISDKManager.missionControl()?.element(self, didFinishRunningWithError: erorr)
+    }
+  }
+  
 }
 
 //public class WaypointMissionTimelineElement: DJIMutableWaypointMission {
