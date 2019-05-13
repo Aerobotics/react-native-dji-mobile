@@ -33,3 +33,14 @@ const shootPhotoAction = new DJIMissionControl.ShootPhotoAction({
 - interval: A number indicating the number of seconds to wait between photo captures
 - wait: (iOS Only) A boolean indicating if the action should finish if all the photos are shot (true) or immediately after starting the action (false).
 - stopShoot: A boolean indicating whether the action should stop any currently running photo interval actions.
+
+---
+
+## VirtualStickTimelineElement
+
+### Parameters
+- endTrigger: [`string`] This can be a string of value `none`, `timer`, or `ultrasonic`.
+- timerEndTime: [`number`] When endTrigger is `timer`, this specifies how many seconds the element should run for.
+- ultrasonicEndDistance: [`number`] When endTrigger is `ultrasonic`, this specifies how many metres above an obstacle the element should end at.
+- ultrasonicDecreaseVerticalThrottleWithDistance: [`boolean`] (**NOT YET IMPLEMENTED**) When endTrigger is `ultrasonic` and this value is `true`, the drone's vertical throttle velocity will decrease as the ultrasonic sensor distance measurement decreases.
+- enableObstacleAvoidance [`boolean`]: Optional

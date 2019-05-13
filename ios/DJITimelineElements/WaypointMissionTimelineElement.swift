@@ -10,7 +10,7 @@ import DJISDK
 
 public class WaypointMissionTimelineElement: DJIMutableWaypointMission {
   
-  init(parameters: NSDictionary) {
+  init(_ parameters: NSDictionary) {
     super.init()
     
     self.finishedAction = DJIWaypointMissionFinishedAction.noAction

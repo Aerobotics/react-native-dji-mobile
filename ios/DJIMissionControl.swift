@@ -13,7 +13,7 @@ let timelineElements = [
   "ShootPhotoAction": "ShootPhotoAction",
   
   "WaypointMissionTimelineElement": "WaypointMissionTimelineElement",
-  "CapturePictureTimelineElement": "CapturePictureTimelineElement",
+  "VirtualStickTimelineElement": "VirtualStickTimelineElement",
 ]
 
 @objc(DJIMissionControlWrapper)
@@ -35,7 +35,7 @@ class DJIMissionControlWrapper: NSObject {
     
     switch timelineElementType {
     case timelineElements["WaypointMissionTimelineElement"]:
-      let waypointMission = WaypointMissionTimelineElement(parameters: parameters)
+      let waypointMission = WaypointMissionTimelineElement(parameters)
       newElement = DJIWaypointMission(mission: waypointMission)
       
     case timelineElements["GimbalAttitudeAction"]:
@@ -43,6 +43,9 @@ class DJIMissionControlWrapper: NSObject {
     
     case timelineElements["ShootPhotoAction"]:
       newElement = buildShootPhotoAction(parameters)
+      
+    case timelineElements["VirtualStickTimelineElement"]:
+      newElement = VirtualStickTimelineElement(parameters)
       
     default:
       break
@@ -235,7 +238,7 @@ class DJIMissionControlWrapper: NSObject {
   
   @objc(checkWaypointMissionValidity:resolve:reject:)
   func checkWaypointMissionValidity(parameters: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    let waypointMission = WaypointMissionTimelineElement(parameters: parameters)
+    let waypointMission = WaypointMissionTimelineElement(parameters)
     let error = DJIWaypointMission.init(mission: waypointMission).checkParameters()
     if (error != nil) {
       reject("Waypoint Mission Invalid", error!.localizedDescription, nil)
