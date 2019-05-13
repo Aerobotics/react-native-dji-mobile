@@ -8,6 +8,29 @@
 import Foundation
 import DJISDK
 
+enum ControllerStickAxis: String {
+  case leftHorizontal
+  case leftVertical
+  case rightHorizontal
+  case rightVertical
+}
+
+enum AdjustmentStickMode: String {
+  case pitchControllerStickAdjustment
+  case rollControllerStickAdjustment
+  case verticalThrottleControllerStickAdjustment
+  case yawControllerStickAdjustment
+}
+
+let adjustmentStickModeNames: [AdjustmentStickMode] = [
+  .pitchControllerStickAdjustment,
+  .rollControllerStickAdjustment,
+  .verticalThrottleControllerStickAdjustment,
+  .yawControllerStickAdjustment,
+]
+
+let CONTROLLER_STICK_LIMIT = 660.0
+
 public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineElement {
   
   var test = 0
@@ -18,18 +41,39 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   var sendVirtualStickDataTimer: Timer
   var endTriggerTimer: Timer
   
-  var pitchAdjustmentStick = 0
-  var rollAdjustmentStick = 0
-  var verticalAdjustmentStick = 0
+  var adjustmentStickValues = [
+    AdjustmentStickMode.pitchControllerStickAdjustment: 0.0,
+    AdjustmentStickMode.rollControllerStickAdjustment: 0.0,
+    AdjustmentStickMode.yawControllerStickAdjustment: 0.0,
+    AdjustmentStickMode.verticalThrottleControllerStickAdjustment: 0.0,
+  ]
   
   init(_ parameters: NSDictionary) {
     
     self.parameters = parameters
-    
     self.sendVirtualStickDataTimer = Timer.init()
     self.endTriggerTimer = Timer.init()
     self.timer = Timer.init() // Create an empty timer for now
     super.init()
+    
+    for adjustmentStick in adjustmentStickModeNames {
+      if let adjustmentStickParameters = parameters[adjustmentStick.rawValue] as? [String: Any] {
+        print(adjustmentStickParameters)
+        let axis = adjustmentStickParameters["axis"] as! String
+        var maxValue: Double
+        var minValue: Double
+        
+        if (adjustmentStick == .yawControllerStickAdjustment) { // For yaw the max rotation speed is defined, instead of a min max value
+          maxValue = adjustmentStickParameters["maxYawSpeed"] as! Double
+          minValue = -maxValue // Opposite direction rotation
+        } else {
+          maxValue = adjustmentStickParameters["maxValue"] as! Double
+          minValue = adjustmentStickParameters["minValue"] as! Double
+        }
+        self.implementControllerStickAdjustment(mode: adjustmentStick, stick: ControllerStickAxis(rawValue: axis)!, minValue: minValue, maxValue: maxValue)
+      }
+    }
+    
   }
   
   public func run() {
@@ -39,8 +83,9 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     let missionControl = DJISDKManager.missionControl()
     
     // Using velocity and body for controlMode and coordinateSystem respectively means that a positive pitch corresponds to a roll to the right,
-    // and a positive roll corresponds to a pitch forwards, THIS IS THE CRAZY DJI SDK AND WE HAVE TO LIVE WITH IT
+    // and a positive roll corresponds to a pitch forwards, THIS IS THE DJI SDK AND WE HAVE TO LIVE WITH IT
     flightController?.rollPitchControlMode = DJIVirtualStickRollPitchControlMode.velocity
+    flightController?.yawControlMode = DJIVirtualStickYawControlMode.angularVelocity
     flightController?.rollPitchCoordinateSystem = DJIVirtualStickFlightCoordinateSystem.body
     
     flightController?.setVirtualStickModeEnabled(true, withCompletion: { (error: Error?) in
@@ -66,25 +111,6 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
         self.endTriggerTimer = Timer.scheduledTimer(timeInterval: timerEndTime, target: self, selector: #selector(self.endTriggerTimerDidTrigger), userInfo: nil, repeats: false)
       }
       
-      
-      
-      
-//      DJISDKManager.keyManager()?.startListeningForChanges(on: DJIRemoteControllerKey(param: DJIRemoteControllerParamRightHorizontalValue)!, withListener: self, andUpdate: { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
-//        if (newValue != nil) {
-//          self.rollAdjustmentStick = newValue!.integerValue
-//        }
-//      })
-//
-//      DJISDKManager.keyManager()?.startListeningForChanges(on: DJIRemoteControllerKey(param: DJIRemoteControllerParamRightVerticalValue)!, withListener: self, andUpdate: { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
-//        if (newValue != nil) {
-//          self.pitchAdjustmentStick = newValue!.integerValue
-//        }
-//      })
-//
-//      missionControl?.elementDidStartRunning(self)
-//
-//      self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.timerBlock), userInfo: nil, repeats: true)
-      
     })
     
   }
@@ -102,7 +128,7 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   }
   
   public func stopRun() {
-//    print("stopRun")
+    //    print("stopRun")
     let missionControl = DJISDKManager.missionControl()
     self.cleanUp { (error: Error?) in
       if (error != nil) {
@@ -118,6 +144,45 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     return nil
   }
   
+  private func implementControllerStickAdjustment(mode: AdjustmentStickMode, stick: ControllerStickAxis, minValue: Double, maxValue: Double) {
+    
+    print(mode)
+    print(stick)
+    print(minValue)
+    print(maxValue)
+    
+    var adjustmentStickKey: String
+    
+    switch stick {
+    case .leftHorizontal:
+      adjustmentStickKey = DJIRemoteControllerParamLeftHorizontalValue
+    case .leftVertical:
+      adjustmentStickKey = DJIRemoteControllerParamLeftVerticalValue
+    case .rightHorizontal:
+      adjustmentStickKey = DJIRemoteControllerParamRightHorizontalValue
+    case .rightVertical:
+      adjustmentStickKey = DJIRemoteControllerParamRightVerticalValue
+    default:
+      break
+    }
+    
+    DJISDKManager.keyManager()?.startListeningForChanges(on: DJIRemoteControllerKey(param: adjustmentStickKey)!, withListener: self, andUpdate: { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      if (newValue != nil) {
+        var stickValue = Double(newValue!.integerValue)
+        if (stickValue < 0) {
+          stickValue = Double(stickValue) / (-CONTROLLER_STICK_LIMIT / minValue)
+        } else if (stickValue > 0) {
+          stickValue = Double(stickValue) / (CONTROLLER_STICK_LIMIT / maxValue)
+        }
+        
+        print(stickValue)
+        
+        self.adjustmentStickValues[mode] = stickValue
+      }
+    })
+    
+  }
+  
   private func cleanUp(withCompletion: (Error?) -> ()) {
     self.sendVirtualStickDataTimer.invalidate()
     self.endTriggerTimer.invalidate()
@@ -126,13 +191,22 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     flightController?.setVirtualStickModeEnabled(false, withCompletion: { (error: Error?) in
       missionControl?.element(self, didFinishRunningWithError: error)
     })
+    
+    DJISDKManager.keyManager()?.stopAllListening(ofListeners: self)
   }
   
   @objc
   private func sendVirtualStickData() {
     let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
     
-    flightController?.send(DJIVirtualStickFlightControlData(pitch: Float(self.rollAdjustmentStick) / 330, roll: Float(self.pitchAdjustmentStick) / 330, yaw: 0, verticalThrottle: 1), withCompletion: nil)
+    flightController?.send(
+      DJIVirtualStickFlightControlData(
+        pitch: Float(self.adjustmentStickValues[.rollControllerStickAdjustment]!),
+        roll: Float(self.adjustmentStickValues[.pitchControllerStickAdjustment]!) + 1,
+        yaw: Float(self.adjustmentStickValues[.yawControllerStickAdjustment]!),
+        verticalThrottle: Float(self.adjustmentStickValues[.verticalThrottleControllerStickAdjustment]!)
+      ),
+      withCompletion: nil)
     
   }
   
@@ -145,41 +219,3 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   }
   
 }
-
-//public class WaypointMissionTimelineElement: DJIMutableWaypointMission {
-//
-//  init(parameters: NSDictionary) {
-//    super.init()
-//
-//    self.finishedAction = DJIWaypointMissionFinishedAction.noAction
-//
-//    guard let autoFlightSpeedParameter = parameters["autoFlightSpeed"] as? Float else {
-//      // TODO: (Adam) Throw an error here!
-//      return
-//    }
-//
-//    guard let maxFlightSpeedParameter = parameters["maxFlightSpeed"] as? Float else {
-//      // TODO: (Adam) Throw an error here!
-//      return
-//    }
-//
-//    guard let waypointsParameter = parameters["waypoints"] as? [Any] else {
-//      // TODO: (Adam) Throw an error here!
-//      return
-//    }
-//
-//
-//
-//    self.autoFlightSpeed = autoFlightSpeedParameter
-//    self.maxFlightSpeed = maxFlightSpeedParameter
-//
-//    // TODO: (Adam) Validate each waypoint!
-//    for case let waypointData as [String: Double] in waypointsParameter {
-//      let waypointCoordinate = CLLocationCoordinate2D.init(latitude: waypointData["latitude"]!, longitude: waypointData["longitude"]!)
-//      let waypoint = DJIWaypoint.init(coordinate: waypointCoordinate)
-//      waypoint.altitude = Float(waypointData["altitude"]!)
-//      self.add(waypoint)
-//    }
-//
-//  }
-//}
