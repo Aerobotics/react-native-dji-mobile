@@ -24,6 +24,16 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  startRecordRealTimeData: (RCTPromiseResolveBlock)resolve
+                  reject:                  (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  stopRecordRealTimeData: (RCTPromiseResolveBlock)resolve
+                  reject:                 (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
                   startProductConnectionListener: (RCTPromiseResolveBlock)resolve
                   reject:                         (RCTPromiseRejectBlock)reject
                   )
