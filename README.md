@@ -2,6 +2,13 @@
 
 **A React Native wrapper for the [DJI Mobile SDK](https://developer.dji.com/mobile-sdk/).**
 
+<p align='center'>
+    <img src='https://img.shields.io/badge/licence-MIT-blue.svg?style=flat-square'>
+  <a href='https://www.npmjs.com/package/react-native-dji-mobile'>
+    <img src='https://img.shields.io/npm/v/react-native-dji-mobile.svg?style=flat-square'>
+  </a>
+</p>
+
 *Please note that this project is still in its infancy. Many SDK features are not yet available, and the implementation of available features may still change. Use in your production application at your own risk!*
 
 ## Installation
