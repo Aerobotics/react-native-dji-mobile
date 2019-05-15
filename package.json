@@ -1,10 +1,9 @@
 {
-  "name": "@aerobotics/react-native-dji-mobile",
-  "version": "0.0.2",
+  "name": "react-native-dji-mobile",
+  "version": "0.0.5",
   "description": "A React Native wrapper for DJI's Mobile SDK.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node ./scripts/make.js"
   },
   "keywords": [
