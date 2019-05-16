@@ -42,8 +42,9 @@ class DJIMobile: NSObject, RCTInvalidating {
   
   func registerAppInternal(_ bridgeIp: String?, _ resolve: @escaping RCTPromiseResolveBlock, _ reject: @escaping RCTPromiseRejectBlock) {
     var sentRegistration = false
+    
     DJISDKManager.startListeningOnRegistrationUpdates(withListener: self) { (registered: Bool, registrationError: Error) in
-      if (registered == true) {
+      if (DJISDKManager.hasSDKRegistered() == true) {
         if (bridgeIp != nil) {
           DJISDKManager.enableBridgeMode(withBridgeAppIP: bridgeIp!)
         } else {
@@ -51,14 +52,16 @@ class DJIMobile: NSObject, RCTInvalidating {
         }
         if (!sentRegistration) {
           resolve("DJI SDK: Registration Successful")
+          sentRegistration = true
         }
-      } else {
+      } else if (registrationError != nil) {
         if (!sentRegistration) {
           self.sendReject(reject, "Registration Error", registrationError as NSError)
+          sentRegistration = true
         }
       }
-      sentRegistration = true
     }
+    
     DJISDKManager.beginAppRegistration()
   }
   
