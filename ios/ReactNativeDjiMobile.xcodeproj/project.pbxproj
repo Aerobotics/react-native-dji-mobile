@@ -79,12 +79,12 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-				66DEB61E228BF8B90041EE40 /* DJIRealTimeDataLogger.swift */,
 				66035A8F222E9DFE002E474D /* DJITimelineElements */,
 				669B3B152220347F00010E70 /* EventSender-bridge.m */,
 				669B3B132220345400010E70 /* EventSender.swift */,
 				66CDD8D5221D39490024AA39 /* DJIMissionControl-bridge.m */,
 				66CDD8D3221D38730024AA39 /* DJIMissionControl.swift */,
+				66DEB61E228BF8B90041EE40 /* DJIRealTimeDataLogger.swift */,
 				669F8EDF221459D500CE1373 /* DroneVideo */,
 				665EE77F2200A40E00753E42 /* DJIMobile-bridge.m */,
 				66F25E2622008D2100F00255 /* DJIMobile.swift */,

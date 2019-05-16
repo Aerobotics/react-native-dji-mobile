@@ -10,7 +10,7 @@ import DJISDK
 @objc(DJIMobile)
 class DJIMobile: NSObject, RCTInvalidating {
   
-  let realTimeDataRecorder = RealTimeDataRecorder()
+  let realTimeDataLogger = DJIRealTimeDataLogger()
   
   func invalidate() {
     // For debugging, when the Javascript side reloads, we want to remove all DJI event listeners
@@ -67,113 +67,27 @@ class DJIMobile: NSObject, RCTInvalidating {
   
   @objc(startRecordRealTimeData:reject:)
   func startRecordRealTimeData(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    //    DJISDKManager.keyManager()?.startListeningForChanges(on: key, withListener: self, andUpdate: updateBlock)
-    guard let keyManager = DJISDKManager.keyManager() else {
-      // TODO: Could not get the keyManager
-      self.sendReject(reject, "startRecordRealTimeData Error", nil)
-      return
-    }
-    
-    let fileName = "testfile"
-    
-//    self.writeDataToLogFile(fileName: fileName, data: [
-//      "START RECORD": "TRUE",
-//      ])
-    
-    keyManager.startListeningForChanges(on: DJIFlightControllerKey(param: DJIFlightControllerParamAircraftLocation)!, withListener: self.realTimeDataRecorder) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
-      if let location = newValue?.value as? CLLocation {
-        let longitude = location.coordinate.longitude
-        let latitude = location.coordinate.latitude
-        let altitude = location.altitude
-        self.writeDataToLogFile(fileName: fileName, data: [
-          "longitude": longitude,
-          "latitude": latitude,
-          "altitude": altitude,
-          ])
+    self.realTimeDataLogger.startLogging(fileName: "testfile") { (error: Error?) in
+      if (error != nil) {
+        self.sendReject(reject, "startRecordRealTimeData Error", nil)
+        return
+      } else {
+        resolve("startRecordRealTimeData Successful")
+        return
       }
     }
-    
-    keyManager.startListeningForChanges(on: DJIFlightControllerKey(param: DJIFlightControllerParamAttitude)!, withListener: self.realTimeDataRecorder) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
-      if let attitude = newValue?.value as? DJIAttitude {
-        self.writeDataToLogFile(fileName: fileName, data: [
-          "drone_pitch": attitude.pitch,
-          "drone_roll": attitude.roll,
-          "drone_yaw": attitude.yaw,
-          ])
-      }
-    }
-    
-    keyManager.startListeningForChanges(on: DJIFlightControllerKey(param: DJIFlightControllerParamVelocity)!, withListener: self.realTimeDataRecorder) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
-      if let velocity = newValue?.value as? DJISDKVector3D {
-        self.writeDataToLogFile(fileName: fileName, data: [
-          "velocity_x": velocity.x,
-          "velocity_y": velocity.y,
-          "velocity_z": velocity.z,
-          ])
-      }
-    }
-    
-    keyManager.startListeningForChanges(on: DJIGimbalKey(param: DJIGimbalParamAttitudeInDegrees)!, withListener: self.realTimeDataRecorder) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
-      if let gimbalAttitude = newValue?.value as? DJIGimbalAttitude {
-        self.writeDataToLogFile(fileName: fileName, data: [
-          "gimbal_pitch": gimbalAttitude.pitch,
-          "gimbal_roll": gimbalAttitude.roll,
-          "gimbal_yaw": gimbalAttitude.yaw,
-          ])
-      }
-    }
-    
-    resolve("startRecordRealTimeData Successful")
-    return
-    
   }
   
   @objc(stopRecordRealTimeData:reject:)
   func stopRecordRealTimeData(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    guard let keyManager = DJISDKManager.keyManager() else {
-      // TODO: Could not get the keyManager
-      self.sendReject(reject, "stopRecordRealTimeData Error", nil)
-      return
-    }
-    keyManager.stopAllListening(ofListeners: self.realTimeDataRecorder)
-    resolve("stopRecordRealTimeData Successful")
-    return
-  }
-  
-  private func writeDataToLogFile(fileName: String, data: [String: Any]) {
-    let fileManager = FileManager.default
-    
-    let documentUrl = try! fileManager.url(
-      for: .documentDirectory,
-      in: .userDomainMask,
-      appropriateFor: nil,
-      create: true
-    )
-    
-    let fileUrl = documentUrl.appendingPathComponent(fileName).appendingPathExtension("txt")
-    
-    do {
-      
-      let fileExists = try? fileUrl.checkResourceIsReachable()
-      if (fileExists != true) {
-        try "".write(to: fileUrl, atomically: true, encoding: .utf8)
+    self.realTimeDataLogger.stopLogging { (error: Error?) in
+      if (error != nil) {
+        self.sendReject(reject, "stopRecordRealTimeData Error", nil)
+        return
+      } else {
+        resolve("stopRecordRealTimeData Successful")
+        return
       }
-      let file = try FileHandle(forUpdating: fileUrl)
-      file.seekToEndOfFile()
-      
-      let currentDate = Date()
-      let df = DateFormatter()
-      df.dateFormat =  "yyyy-MM-dd'T'HH:mm:ss.SSSS"
-      
-      for (key, value) in data {
-        var fileEntry = "\n"
-        fileEntry += df.string(from: currentDate)
-        fileEntry += " " + key + ":" + String(describing: value)
-        file.write(fileEntry.data(using: .utf8)!)
-      }
-      file.closeFile()
-    } catch {
-      print(error)
     }
   }
   
