@@ -11,15 +11,34 @@ import DJISDK
 
 enum ErrorsToThrow: Error {
   case noKeyManager
+  case noCamera
 }
 
-class DJIRealTimeDataLogger {
+struct PreviousCameraState {
+  var isShootingSinglePhoto = false
+  var isRecording = false
+}
+
+class DJIRealTimeDataLogger: NSObject, DJICameraDelegate {
+  
+  var previousCameraState = PreviousCameraState()
+  var fileName = ""
+  var isLogging = false
   
   public func startLogging(fileName: String, withCompletion: (Error?) -> ()) {
     guard let keyManager = DJISDKManager.keyManager() else {
       withCompletion(ErrorsToThrow.noKeyManager)
       return
     }
+    
+    guard let camera = DJISDKManager.product()?.camera else {
+      withCompletion(ErrorsToThrow.noCamera)
+      return
+    }
+    camera.delegate = self
+    
+    self.fileName = fileName
+    self.isLogging = true
     
     keyManager.startListeningForChanges(on: DJIFlightControllerKey(param: DJIFlightControllerParamAircraftLocation)!, withListener: self) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let location = newValue?.value as? CLLocation {
@@ -100,13 +119,58 @@ class DJIRealTimeDataLogger {
   }
   
   public func stopLogging(withCompletion: (Error?) -> ()) {
+    self.isLogging = false
+    
     if let keyManager = DJISDKManager.keyManager() {
       keyManager.stopAllListening(ofListeners: self)
-      withCompletion(nil)
     } else {
       withCompletion(ErrorsToThrow.noKeyManager)
+      return
     }
+    
+    if let camera = DJISDKManager.product()?.camera {
+      camera.delegate = nil
+    } else {
+      withCompletion(ErrorsToThrow.noCamera)
+      return
+    }
+    
+    withCompletion(nil)
   }
+  
+  public func camera(_ camera: DJICamera, didUpdate systemState: DJICameraSystemState) {
+    
+    let isShootingSinglePhoto = systemState.isShootingSinglePhoto
+    let isRecording = systemState.isRecording
+    
+    
+    if (isShootingSinglePhoto != self.previousCameraState.isShootingSinglePhoto) {
+      self.previousCameraState.isShootingSinglePhoto = isShootingSinglePhoto
+      if (isShootingSinglePhoto == true && self.isLogging) {
+        self.writeDataToLogFile(fileName: self.fileName, data: [
+          "camera": "startCapturingPhoto"
+          ])
+      }
+    }
+    
+    if (isRecording != self.previousCameraState.isRecording) {
+      self.previousCameraState.isRecording = isRecording
+      if (self.isLogging) {
+        if (isRecording == true) {
+          self.writeDataToLogFile(fileName: self.fileName, data: [
+            "camera": "startCapturingVideo"
+            ])
+        } else {
+          self.writeDataToLogFile(fileName: self.fileName, data: [
+            "camera": "stopCapturingVideo"
+            ])
+        }
+      }
+    }
+    
+    print(systemState.isShootingSinglePhoto)
+  }
+  
   
   private func roundDecimalPlaces(number: Double, decimalPlaces: Int) -> Double {
     let multiple = pow(Double(10), Double(decimalPlaces))
