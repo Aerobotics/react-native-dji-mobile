@@ -23,7 +23,7 @@ npm i --save react-native-dji-mobile
 
 First link the library
 ```bash
-react-native link @aerobotics/react-native-dji-mobile
+react-native link react-native-dji-mobile
 ```
 
 ### iOS
@@ -35,7 +35,7 @@ react-native link @aerobotics/react-native-dji-mobile
     2. Add the following dependency to your podfile:
     ```diff
     + pod 'DJIWidget', '~> 1.5', :modular_headers => false
-      pod 'react-native-dji-mobile', :path => '../node_modules/@aerobotics/react-native-dji-mobile'
+      pod 'react-native-dji-mobile', :path => '../node_modules/react-native-dji-mobile'
     ```
 
     1. Add `:modular_headers => false` to the pod dependencies for `DoubleConversion`, `glog`, and `Folly` in your podfile.
@@ -68,14 +68,16 @@ react-native link @aerobotics/react-native-dji-mobile
       pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec', :modular_headers => false
 
       pod 'DJIWidget', '~> 1.5', :modular_headers => false
-      pod 'react-native-dji-mobile', :path => '../node_modules/@aerobotics/react-native-dji-mobile'
+      pod 'react-native-dji-mobile', :path => '../node_modules/react-native-dji-mobile'
       
       ...
 
     end
     ```
 
-2. To ensure that the library will build, you must add Swift support to your Xcode project:
+2. run `pod install` to ensure the required dependencies are installed
+
+3. To ensure that the library will build, you must add Swift support to your Xcode project:
    1. Open `ios/YourAppName.xcworkspace
    2. Select `File > New > File...` in Xcode's menu bar or press <kbd>CMD</kbd>+<kbd>N</kbd>.
    3. Add a new Swift file to your project, and when asked by Xcode, press **Create Bridging Header**. **Do not delete the empty swift file**.
