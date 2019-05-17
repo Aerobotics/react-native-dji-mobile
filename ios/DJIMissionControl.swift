@@ -8,9 +8,11 @@
 import Foundation
 import DJISDK
 
+// TODO: (Adam) Replace this with an enum
 let timelineElements = [
   "GimbalAttitudeAction": "GimbalAttitudeAction",
   "ShootPhotoAction": "ShootPhotoAction",
+  "RecordVideoAction": "RecordVideoAction",
   
   "WaypointMissionTimelineElement": "WaypointMissionTimelineElement",
   "VirtualStickTimelineElement": "VirtualStickTimelineElement",
@@ -40,9 +42,12 @@ class DJIMissionControlWrapper: NSObject {
       
     case timelineElements["GimbalAttitudeAction"]:
       newElement = buildGimbalAttitudeAction(parameters)
-    
+      
     case timelineElements["ShootPhotoAction"]:
       newElement = buildShootPhotoAction(parameters)
+      
+    case timelineElements["RecordVideoAction"]:
+      newElement = buildRecordVideoAction(parameters)
       
     case timelineElements["VirtualStickTimelineElement"]:
       newElement = VirtualStickTimelineElement(parameters)
@@ -83,7 +88,6 @@ class DJIMissionControlWrapper: NSObject {
   }
   
   func buildShootPhotoAction(_ parameters: NSDictionary) -> DJIShootPhotoAction? {
-    
     let count = parameters["count"] as? Int32
     let interval = parameters["interval"] as? Double
     let wait = parameters["wait"] as? Bool
@@ -103,56 +107,20 @@ class DJIMissionControlWrapper: NSObject {
     
   }
   
-  //  @objc(createWaypointMission:parameters:resolve:reject:)
-  //  func createWaypointMission(coordinates: NSArray, parameters: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-  //
-  //    let waypointMission = DJIMutableWaypointMission.init()
-  //
-  //    waypointMission.autoFlightSpeed = (parameters["autoFlightSpeed"] as? Float) ?? 2.0
-  //    waypointMission.maxFlightSpeed = (parameters["maxFlightSpeed"] as? Float) ?? waypointMission.autoFlightSpeed
-  //
-  //    var waypoints: [DJIWaypoint] = []
-  //    for case let item as [String: Double] in coordinates {
-  //      let waypointCoordinate = CLLocationCoordinate2D.init(latitude: item["latitude"]!, longitude: item["longitude"]!)
-  //      let waypoint = DJIWaypoint.init(coordinate: waypointCoordinate)
-  //      waypoint.altitude = Float(item["altitude"]!)
-  //      waypoints.append(waypoint)
-  //    }
-  //
-  //    waypointMission.addWaypoints(waypoints)
-  //    let error = waypointMission.checkParameters()
-  //    if (error != nil) {
-  //      reject("Waypoint mission invalid", (error! as NSError).localizedDescription, error! as NSError)
-  //      return
-  //    } else {
-  //      timelineElements[timelineElementIndex] = waypointMission
-  //      resolve(timelineElementIndex)
-  //      timelineElementIndex += 1
-  //    }
-  //
-  //  }
-  
-  //  @objc(destroyWaypointMission:resolve:reject:)
-  //  func destroyWaypointMission(missionId: NSNumber, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-  //    let removedMission = timelineElements.removeValue(forKey: missionId.intValue)
-  //    // TODO: (Adam) Should this reject if no valid mission was found?
-  //    resolve(nil)
-  //  }
-  
-  //  @objc(scheduleElement:resolve:reject:)
-  //  func scheduleElement(elementId: NSNumber, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-  //    guard let missionControl = DJISDKManager.missionControl() else {
-  //      reject("Schedule Element Error", "Could not schedule element as mission control could not be loaded", nil);
-  //      return;
-  //    }
-  //
-  //    let element = timelineElements.first { $0.key == elementId.intValue }
-  //    if (element != nil) {
-  //      missionControl.scheduleElement(element!.value)
-  //      scheduledElementIndexOrder.append(elementId.intValue)
-  //    }
-  //    resolve(nil)
-  //  }
+  func buildRecordVideoAction(_ parameters: NSDictionary) -> DJIRecordVideoAction? {
+    let duration = parameters["duration"] as? Double
+    let stopRecord = parameters["stopRecord"] as? Bool
+    
+    if (stopRecord == true) {
+      return DJIRecordVideoAction(stopRecordVideo: ())
+    } else {
+      if (duration != nil) {
+        return DJIRecordVideoAction(duration: duration!)
+      } else {
+        return DJIRecordVideoAction(startRecordVideo: ())
+      }
+    }
+  }
   
   @objc(unscheduleEverything:reject:)
   func unscheduleEverything(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
