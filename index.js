@@ -82,6 +82,14 @@ const DJIMobileWrapper = {
   stopAircraftCompassHeadingListener: async () => {
     await DJIMobile.stopKeyListener('DJIFlightControllerParamCompassHeading');
   },
+
+  startRecordRealTimeData: async () => {
+    await DJIMobile.startRecordRealTimeData();
+  },
+  stopRecordRealTimeData: async () => {
+    await DJIMobile.stopRecordRealTimeData();
+  },
+
 };
 
 export default DJIMobileWrapper;

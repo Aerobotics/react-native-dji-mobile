@@ -271,8 +271,9 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     
     flightController?.send(
       DJIVirtualStickFlightControlData(
-        pitch: Float(self.virtualStickData["pitch"]! + self.adjustmentStickValues[.rollControllerStickAdjustment]!),
-        roll: Float(self.virtualStickData["roll"]! + self.adjustmentStickValues[.pitchControllerStickAdjustment]!),
+        // In the coordinate system used for the drone, roll and pitch are swapped
+        pitch: Float(self.virtualStickData["roll"]! + self.adjustmentStickValues[.rollControllerStickAdjustment]!),
+        roll: Float(self.virtualStickData["pitch"]! + self.adjustmentStickValues[.pitchControllerStickAdjustment]!),
         yaw: Float(self.virtualStickData["yaw"]! + self.adjustmentStickValues[.yawControllerStickAdjustment]!),
         verticalThrottle: Float(self.virtualStickData["verticalThrottle"]! + self.adjustmentStickValues[.verticalThrottleControllerStickAdjustment]!)
       ),

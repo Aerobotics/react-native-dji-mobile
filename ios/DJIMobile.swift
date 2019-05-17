@@ -10,6 +10,10 @@ import DJISDK
 @objc(DJIMobile)
 class DJIMobile: NSObject, RCTInvalidating {
   
+  let realTimeDataLogger = DJIRealTimeDataLogger()
+  var cameraDelegateEventSender: DJICameraDelegateSender?
+  //  var productConnectionListener
+  
   func invalidate() {
     // For debugging, when the Javascript side reloads, we want to remove all DJI event listeners
     if (DJISDKManager.hasSDKRegistered()) {
@@ -51,6 +55,8 @@ class DJIMobile: NSObject, RCTInvalidating {
         if (!sentRegistration) {
           resolve("DJI SDK: Registration Successful")
           sentRegistration = true
+          self.cameraDelegateEventSender = DJICameraDelegateSender()
+          
         }
       } else if (registrationError != nil) {
         if (!sentRegistration) {
@@ -61,6 +67,32 @@ class DJIMobile: NSObject, RCTInvalidating {
     }
     
     DJISDKManager.beginAppRegistration()
+  }
+  
+  @objc(startRecordRealTimeData:reject:)
+  func startRecordRealTimeData(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    self.realTimeDataLogger.startLogging(fileName: "testfile") { (error: Error?) in
+      if (error != nil) {
+        self.sendReject(reject, "startRecordRealTimeData Error", nil)
+        return
+      } else {
+        resolve("startRecordRealTimeData Successful")
+        return
+      }
+    }
+  }
+  
+  @objc(stopRecordRealTimeData:reject:)
+  func stopRecordRealTimeData(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    self.realTimeDataLogger.stopLogging { (error: Error?) in
+      if (error != nil) {
+        self.sendReject(reject, "stopRecordRealTimeData Error", nil)
+        return
+      } else {
+        resolve("stopRecordRealTimeData Successful")
+        return
+      }
+    }
   }
   
   @objc(startProductConnectionListener:reject:)
@@ -208,16 +240,28 @@ class DJIMobile: NSObject, RCTInvalidating {
   
   func sendReject(_ reject: RCTPromiseRejectBlock,
                   _ code: String,
-                  _ error: NSError
+                  _ error: NSError?
     ) {
-    reject(
-      code,
-      error.localizedDescription,
-      error
-    )
+    if (error != nil) {
+      reject(
+        code,
+        error!.localizedDescription,
+        error!
+      )
+    } else {
+      reject(
+        code,
+        code,
+        nil
+      )
+    }
   }
   
   @objc static func requiresMainQueueSetup() -> Bool {
     return true
   }
+}
+
+class RealTimeDataRecorder: NSObject {
+  
 }
