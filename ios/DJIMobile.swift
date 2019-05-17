@@ -69,9 +69,9 @@ class DJIMobile: NSObject, RCTInvalidating {
     DJISDKManager.beginAppRegistration()
   }
   
-  @objc(startRecordRealTimeData:reject:)
-  func startRecordRealTimeData(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    self.realTimeDataLogger.startLogging(fileName: "testfile") { (error: Error?) in
+  @objc(startRecordRealTimeData:resolve:reject:)
+  func startRecordRealTimeData(fileName: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    self.realTimeDataLogger.startLogging(fileName: fileName) { (error: Error?) in
       if (error != nil) {
         self.sendReject(reject, "startRecordRealTimeData Error", nil)
         return
@@ -165,6 +165,26 @@ class DJIMobile: NSObject, RCTInvalidating {
       }
     }
   }
+  
+  @objc(startNewMediaFileListener:reject:)
+  func startNewMediaFileListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    NotificationCenter.default.addObserver(self, selector: #selector(newMediaFileUpdate), name: CameraEvent.didGenerateNewMediaFile.notification, object: nil)
+    resolve("startNewMediaFileListener")
+  }
+  
+  @objc private func newMediaFileUpdate(payload: NSNotification) {
+    let newMedia = payload.userInfo!["value"] as! DJIMediaFile
+    EventSender.sendReactEvent(type: "newMediaFile", value: [
+      "fileName": newMedia.fileName
+      ])
+  }
+  
+  @objc(stopNotificationCenterListener:resolve:reject:)
+  func stopNotificationServiceListener(name: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    NotificationCenter.default.removeObserver(self, name: NSNotification.Name(name), object: nil)
+    resolve("stopNotificationCenterListener")
+  }
+  
   
   @objc(stopKeyListener:resolve:reject:)
   func stopKeyListener(keyString: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
