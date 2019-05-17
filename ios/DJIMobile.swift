@@ -11,6 +11,8 @@ import DJISDK
 class DJIMobile: NSObject, RCTInvalidating {
   
   let realTimeDataLogger = DJIRealTimeDataLogger()
+  var cameraDelegateEventSender: DJICameraDelegateSender?
+  //  var productConnectionListener
   
   func invalidate() {
     // For debugging, when the Javascript side reloads, we want to remove all DJI event listeners
@@ -53,6 +55,8 @@ class DJIMobile: NSObject, RCTInvalidating {
         if (!sentRegistration) {
           resolve("DJI SDK: Registration Successful")
           sentRegistration = true
+          self.cameraDelegateEventSender = DJICameraDelegateSender()
+          
         }
       } else if (registrationError != nil) {
         if (!sentRegistration) {

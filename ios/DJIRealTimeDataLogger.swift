@@ -19,7 +19,7 @@ struct PreviousCameraState {
   var isRecording = false
 }
 
-class DJIRealTimeDataLogger: NSObject, DJICameraDelegate {
+class DJIRealTimeDataLogger: NSObject {
   
   var previousCameraState = PreviousCameraState()
   var fileName = ""
@@ -31,11 +31,13 @@ class DJIRealTimeDataLogger: NSObject, DJICameraDelegate {
       return
     }
     
-    guard let camera = DJISDKManager.product()?.camera else {
-      withCompletion(ErrorsToThrow.noCamera)
-      return
-    }
-    camera.delegate = self
+    //    guard let camera = DJISDKManager.product()?.camera else {
+    //      withCompletion(ErrorsToThrow.noCamera)
+    //      return
+    //    }
+    //    camera.delegate = self
+    
+    NotificationCenter.default.addObserver(self, selector: #selector(cameraDelegateEvent), name: NSNotification.Name("DJICameraEvent"), object: nil)
     
     self.fileName = fileName
     self.isLogging = true
@@ -128,49 +130,46 @@ class DJIRealTimeDataLogger: NSObject, DJICameraDelegate {
       return
     }
     
-    if let camera = DJISDKManager.product()?.camera {
-      camera.delegate = nil
-    } else {
-      withCompletion(ErrorsToThrow.noCamera)
-      return
-    }
+    NotificationCenter.default.removeObserver(self)
     
     withCompletion(nil)
   }
   
-  public func camera(_ camera: DJICamera, didUpdate systemState: DJICameraSystemState) {
+  @objc private func cameraDelegateEvent(payload: NSNotification) {
+    // Only send events if the JS bridge has loaded
+    let type = payload.userInfo!["type"] as! CameraEventTypes
+    let value = payload.userInfo!["value"]!
     
-    let isShootingSinglePhoto = systemState.isShootingSinglePhoto
-    let isRecording = systemState.isRecording
-    
-    
-    if (isShootingSinglePhoto != self.previousCameraState.isShootingSinglePhoto) {
-      self.previousCameraState.isShootingSinglePhoto = isShootingSinglePhoto
-      if (isShootingSinglePhoto == true && self.isLogging) {
-        self.writeDataToLogFile(fileName: self.fileName, data: [
-          "camera": "startCapturingPhoto"
-          ])
-      }
-    }
-    
-    if (isRecording != self.previousCameraState.isRecording) {
-      self.previousCameraState.isRecording = isRecording
-      if (self.isLogging) {
-        if (isRecording == true) {
+    if (type == .didUpdateSystemState) {
+      let systemState = value as! DJICameraSystemState
+      let isShootingSinglePhoto = systemState.isShootingSinglePhoto
+      let isRecording = systemState.isRecording
+      
+      if (isShootingSinglePhoto != self.previousCameraState.isShootingSinglePhoto) {
+        self.previousCameraState.isShootingSinglePhoto = isShootingSinglePhoto
+        if (isShootingSinglePhoto == true && self.isLogging) {
           self.writeDataToLogFile(fileName: self.fileName, data: [
-            "camera": "startCapturingVideo"
-            ])
-        } else {
-          self.writeDataToLogFile(fileName: self.fileName, data: [
-            "camera": "stopCapturingVideo"
+            "camera": "startCapturePhoto"
             ])
         }
       }
+      
+      if (isRecording != self.previousCameraState.isRecording) {
+        self.previousCameraState.isRecording = isRecording
+        if (self.isLogging) {
+          if (isRecording == true) {
+            self.writeDataToLogFile(fileName: self.fileName, data: [
+              "camera": "startCaptureVideo"
+              ])
+          } else {
+            self.writeDataToLogFile(fileName: self.fileName, data: [
+              "camera": "stopCaptureVideo"
+              ])
+          }
+        }
+      }
     }
-    
-    print(systemState.isShootingSinglePhoto)
   }
-  
   
   private func roundDecimalPlaces(number: Double, decimalPlaces: Int) -> Double {
     let multiple = pow(Double(10), Double(decimalPlaces))
