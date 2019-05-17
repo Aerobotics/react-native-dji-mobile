@@ -37,7 +37,7 @@ class DJIRealTimeDataLogger: NSObject {
     //    }
     //    camera.delegate = self
     
-    NotificationCenter.default.addObserver(self, selector: #selector(cameraDelegateEvent), name: NSNotification.Name("DJICameraEvent"), object: nil)
+    NotificationCenter.default.addObserver(self, selector: #selector(cameraSystemStateUpdate), name: CameraEvent.didUpdateSystemState.notification, object: nil)
     
     self.fileName = fileName
     self.isLogging = true
@@ -130,42 +130,36 @@ class DJIRealTimeDataLogger: NSObject {
       return
     }
     
-    NotificationCenter.default.removeObserver(self)
+    NotificationCenter.default.removeObserver(self, name: NSNotification.Name("DJICameraEvent.didUpdateSystemState"), object: nil)
     
     withCompletion(nil)
   }
   
-  @objc private func cameraDelegateEvent(payload: NSNotification) {
-    // Only send events if the JS bridge has loaded
-    let type = payload.userInfo!["type"] as! CameraEventTypes
-    let value = payload.userInfo!["value"]!
+  @objc private func cameraSystemStateUpdate(payload: NSNotification) {
+    let systemState = payload.userInfo!["value"] as! DJICameraSystemState
+    let isShootingSinglePhoto = systemState.isShootingSinglePhoto
+    let isRecording = systemState.isRecording
     
-    if (type == .didUpdateSystemState) {
-      let systemState = value as! DJICameraSystemState
-      let isShootingSinglePhoto = systemState.isShootingSinglePhoto
-      let isRecording = systemState.isRecording
-      
-      if (isShootingSinglePhoto != self.previousCameraState.isShootingSinglePhoto) {
-        self.previousCameraState.isShootingSinglePhoto = isShootingSinglePhoto
-        if (isShootingSinglePhoto == true && self.isLogging) {
-          self.writeDataToLogFile(fileName: self.fileName, data: [
-            "camera": "startCapturePhoto"
-            ])
-        }
+    if (isShootingSinglePhoto != self.previousCameraState.isShootingSinglePhoto) {
+      self.previousCameraState.isShootingSinglePhoto = isShootingSinglePhoto
+      if (isShootingSinglePhoto == true && self.isLogging) {
+        self.writeDataToLogFile(fileName: self.fileName, data: [
+          "camera": "startCapturePhoto"
+          ])
       }
-      
-      if (isRecording != self.previousCameraState.isRecording) {
-        self.previousCameraState.isRecording = isRecording
-        if (self.isLogging) {
-          if (isRecording == true) {
-            self.writeDataToLogFile(fileName: self.fileName, data: [
-              "camera": "startCaptureVideo"
-              ])
-          } else {
-            self.writeDataToLogFile(fileName: self.fileName, data: [
-              "camera": "stopCaptureVideo"
-              ])
-          }
+    }
+    
+    if (isRecording != self.previousCameraState.isRecording) {
+      self.previousCameraState.isRecording = isRecording
+      if (self.isLogging) {
+        if (isRecording == true) {
+          self.writeDataToLogFile(fileName: self.fileName, data: [
+            "camera": "startCaptureVideo"
+            ])
+        } else {
+          self.writeDataToLogFile(fileName: self.fileName, data: [
+            "camera": "stopCaptureVideo"
+            ])
         }
       }
     }
