@@ -24,6 +24,17 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  startRecordRealTimeData: (NSString) fileName
+                  resolve:                 (RCTPromiseResolveBlock)resolve
+                  reject:                  (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  stopRecordRealTimeData: (RCTPromiseResolveBlock)resolve
+                  reject:                 (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
                   startProductConnectionListener: (RCTPromiseResolveBlock)resolve
                   reject:                         (RCTPromiseRejectBlock)reject
                   )
@@ -49,9 +60,20 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  startNewMediaFileListener: (RCTPromiseResolveBlock)resolve
+                  reject:                    (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
                   stopKeyListener: (NSString)keyString
                   resolve:         (RCTPromiseResolveBlock)resolve
                   reject:          (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  stopNotificationCenterListener: (NSString)name
+                  resolve:                        (RCTPromiseResolveBlock)resolve
+                  reject:                         (RCTPromiseRejectBlock)reject
                   )
 
 @end

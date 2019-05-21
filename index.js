@@ -82,6 +82,22 @@ const DJIMobileWrapper = {
   stopAircraftCompassHeadingListener: async () => {
     await DJIMobile.stopKeyListener('DJIFlightControllerParamCompassHeading');
   },
+
+  startRecordRealTimeData: async (fileName: string) => {
+    await DJIMobile.startRecordRealTimeData(fileName);
+  },
+  stopRecordRealTimeData: async () => {
+    await DJIMobile.stopRecordRealTimeData();
+  },
+
+  startNewMediaFileListener: async () => {
+    await DJIMobile.startNewMediaFileListener();
+    return DJIEventSubject.pipe(filter(evt => evt.type === 'newMediaFile')).asObservable();
+  },
+  stopNewMediaFileListener: async () => {
+    await DJIMobile.stopNotificationCenterListener('DJICameraEvent.didGenerateNewMediaFile');
+  },
+
 };
 
 export default DJIMobileWrapper;
