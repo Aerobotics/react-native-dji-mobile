@@ -62,6 +62,9 @@ const DJIMobileWrapper = {
   stopAircraftLocationListener: async () => {
     await DJIMobile.stopKeyListener('DJIFlightControllerParamAircraftLocation');
   },
+  getAircraftLocation: async () => {
+    return await DJIMobile.getAircraftLocation();
+  },
 
   startAircraftVelocityListener: async () => {
     await DJIMobile.startAircraftVelocityListener();

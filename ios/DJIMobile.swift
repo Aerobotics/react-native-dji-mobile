@@ -99,7 +99,7 @@ class DJIMobile: NSObject, RCTInvalidating {
   func startProductConnectionListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let key = DJIProductKey(param: DJIParamConnection)!
     resolve(nil)
-    self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+    self.startKeyListener(key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let connected = newValue?.boolValue {
         EventSender.sendReactEvent(type: "connectionStatus", value: connected ? "connected" : "disconnected")
       }
@@ -110,7 +110,7 @@ class DJIMobile: NSObject, RCTInvalidating {
   func startBatteryPercentChargeRemainingListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let key = DJIBatteryKey(param: DJIBatteryParamChargeRemainingInPercent)!
     resolve(nil)
-    self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+    self.startKeyListener(key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let chargePercent = newValue?.integerValue {
         EventSender.sendReactEvent(type: "chargeRemaining", value: chargePercent)
       }
@@ -121,7 +121,7 @@ class DJIMobile: NSObject, RCTInvalidating {
   func startAircraftLocationListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let key = DJIFlightControllerKey(param: DJIFlightControllerParamAircraftLocation)!
     resolve(nil)
-    self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+    self.startKeyListener(key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let location = newValue?.value as? CLLocation {
         let longitude = location.coordinate.longitude
         let latitude = location.coordinate.latitude
@@ -135,11 +135,37 @@ class DJIMobile: NSObject, RCTInvalidating {
     }
   }
   
+  @objc(getAircraftLocation:reject:)
+  func getAircraftLocation(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    let key = DJIFlightControllerKey(param: DJIFlightControllerParamAircraftLocation)!
+    print("HERE")
+    self.getKeyValue(key) { (value: DJIKeyedValue?, error: Error?) in
+      if (error != nil) {
+        print("ERROR")
+        print(error)
+        self.sendReject(reject, "getAircraftLocation Error", error! as NSError)
+      } else {
+        print("I AM HERE")
+        if let location = value?.value as? CLLocation {
+          let longitude = location.coordinate.longitude
+          let latitude = location.coordinate.latitude
+          let altitude = location.altitude
+          resolve([
+            "longitude": longitude,
+            "latitude": latitude,
+            "altitude": altitude,
+            ])
+        }
+      }
+    }
+    
+  }
+  
   @objc(startAircraftVelocityListener:reject:)
   func startAircraftVelocityListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let key = DJIFlightControllerKey(param: DJIFlightControllerParamVelocity)!
     resolve(nil)
-    self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+    self.startKeyListener(key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let velocity = newValue?.value as? DJISDKVector3D {
         let x = velocity.x
         let y = velocity.y
@@ -157,7 +183,7 @@ class DJIMobile: NSObject, RCTInvalidating {
   func startAircraftCompassHeadingListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     let key = DJIFlightControllerKey(param: DJIFlightControllerParamCompassHeading)!
     resolve(nil)
-    self.startKeyListener(key: key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+    self.startKeyListener(key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let heading = newValue?.doubleValue {
         EventSender.sendReactEvent(type: "aircraftCompassHeading", value: [
           "heading": heading,
@@ -246,7 +272,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     }
   }
   
-  func startKeyListener(key: DJIKey, updateBlock: @escaping DJIKeyedListenerUpdateBlock) {
+  private func startKeyListener(_ key: DJIKey, updateBlock: @escaping DJIKeyedListenerUpdateBlock) {
     let existingKeyIndex = self.keyListeners.firstIndex(of: key.param!)
     if (existingKeyIndex == nil) {
       self.keyListeners.append(key.param!)
@@ -256,6 +282,10 @@ class DJIMobile: NSObject, RCTInvalidating {
       return
     }
     
+  }
+  
+  private func getKeyValue(_ key: DJIKey, updateBlock: @escaping DJIKeyedGetCompletionBlock) {
+    DJISDKManager.keyManager()?.getValueFor(key, withCompletion: updateBlock)
   }
   
   func sendReject(_ reject: RCTPromiseRejectBlock,
