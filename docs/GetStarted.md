@@ -12,7 +12,7 @@ $ cd NewProject
 $ npm i --save react-native-dji-mobile
 ```
 
-## Upgrade with react-native-dji-mobile new version
+## Upgrade react-native-dji-mobile latest version
 
 1 - Unlink react-native-dji-mobile
 ```

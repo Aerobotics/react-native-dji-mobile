@@ -18,6 +18,7 @@ $ git fetch upstream
 ### Merge Aerobotics develop branch to your working branch
 then: (like "git pull" which is fetch + merge)
 ```shell
+$ git fetch upstream
 $ git merge upstream/develop your_branch
 ```
 
