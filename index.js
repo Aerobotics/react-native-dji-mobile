@@ -23,11 +23,8 @@ let SDKRegistered = false;
 
 const DJIMobileWrapper = {
 
-  hello: () {
-    console.log( 'Hello World' );
-  },
-
   registerApp: async (bridgeIp?: string) => {
+    console.log( 'HERE: registerApp' );
     let registerSDKPromise;
     if (bridgeIp !== undefined) {
       registerSDKPromise = DJIMobile.registerAppAndUseBridge(bridgeIp);
