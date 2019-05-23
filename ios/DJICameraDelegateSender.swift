@@ -39,6 +39,7 @@ class DJICameraDelegateSender: NSObject, DJICameraDelegate {
       // First check if the camera is already connected
       DJISDKManager.keyManager()?.getValueFor(cameraConnectedKey, withCompletion: { (value: DJIKeyedValue?, error: Error?) in
         if (error != nil) {
+          print("Camera Delegate Error:")
           print(error!.localizedDescription)
         }
         if let isCameraConnected = value?.boolValue {
@@ -72,7 +73,6 @@ class DJICameraDelegateSender: NSObject, DJICameraDelegate {
   
   public func camera(_ camera: DJICamera, didGenerateNewMediaFile newMedia: DJIMediaFile) {
     NotificationCenter.default.post(name: CameraEvent.didGenerateNewMediaFile.notification, object: nil, userInfo: ["value": newMedia])
-    print(newMedia.fileName)
   }
   
 }

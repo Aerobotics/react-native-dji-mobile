@@ -138,14 +138,10 @@ class DJIMobile: NSObject, RCTInvalidating {
   @objc(getAircraftLocation:reject:)
   func getAircraftLocation(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let key = DJIFlightControllerKey(param: DJIFlightControllerParamAircraftLocation)!
-    print("HERE")
     self.getKeyValue(key) { (value: DJIKeyedValue?, error: Error?) in
       if (error != nil) {
-        print("ERROR")
-        print(error)
         self.sendReject(reject, "getAircraftLocation Error", error! as NSError)
       } else {
-        print("I AM HERE")
         if let location = value?.value as? CLLocation {
           let longitude = location.coordinate.longitude
           let latitude = location.coordinate.latitude
