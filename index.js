@@ -3,6 +3,7 @@
 import {
   Platform,
   NativeModules,
+  PermissionsAndroid,
 } from 'react-native';
 
 import {
@@ -21,9 +22,30 @@ const {
 
 let SDKRegistered = false;
 
+const throwIfSDKNotRegistered = () => {
+  if (SDKRegistered === false) {
+    throw new Error('DJI SDK not registered!');
+  }
+};
+
 const DJIMobileWrapper = {
 
   registerApp: async (bridgeIp?: string) => {
+
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE,
+        // {
+        //   title: 'Permission Required',
+        //   message: 'The phone permission is required to allow the DJI drone functionality to work',
+        //   buttonPositive: 'Ok',
+        // }
+      );
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        throw new Error('Missing READ_PHONE_STATE permission');
+      }
+    }
+
     let registerSDKPromise;
     if (bridgeIp !== undefined) {
       registerSDKPromise = DJIMobile.registerAppAndUseBridge(bridgeIp);
@@ -37,6 +59,8 @@ const DJIMobileWrapper = {
     });
     return registerSDKPromise;
   },
+
+  // TODO: (Adam) What should happen if these functions are called and the SDK is not registered?
 
   startProductConnectionListener: async () => {
     await DJIMobile.startProductConnectionListener();
