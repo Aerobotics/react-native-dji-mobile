@@ -1,24 +1,24 @@
 # Contribute to react-native-dji-mobile
 
-## Fork Github repository
+## 1 - Fork Github repository
 ```shell
 $ git clone git@github.com:Aerobotics/react-native-dji-mobile.git
 $ cd react-native-dji-mobile
 $ git fork 
 ```
 
-## Update source code from Aerobotics repository
-### Init upstream
+## 2 - Update source code from Aerobotics repository
+
+### a:/ Init upstream
 ```shell
 $ cd react-native-dji-mobile
 $ git remote add upstream git@github.com:Aerobotics/react-native-dji-mobile.git
 $ git fetch upstream
 ```
 
-### Merge Aerobotics develop branch to your working branch
+### b:/ Merge Aerobotics develop branch to your working branch
 then: (like "git pull" which is fetch + merge)
 ```shell
-$ git fetch upstream
 $ git merge upstream/develop your_branch
 ```
 
