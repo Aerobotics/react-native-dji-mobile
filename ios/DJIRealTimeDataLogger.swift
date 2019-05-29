@@ -42,6 +42,17 @@ class DJIRealTimeDataLogger: NSObject {
     self.fileName = fileName
     self.isLogging = true
     
+    // First get the aircraft model type and write it to the file
+    if let modelName = DJISDKManager.product()?.model {
+      self.writeDataToLogFile(fileName: fileName, data: [
+        "modelName": modelName,
+        ])
+    } else {
+      self.writeDataToLogFile(fileName: fileName, data: [
+        "modelName": "undefined",
+        ])
+    }
+    
     keyManager.startListeningForChanges(on: DJIFlightControllerKey(param: DJIFlightControllerParamAircraftLocation)!, withListener: self) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let location = newValue?.value as? CLLocation {
         let longitude = self.roundDecimalPlaces(number: location.coordinate.longitude, decimalPlaces: 7)
@@ -205,6 +216,7 @@ class DJIRealTimeDataLogger: NSObject {
       }
       file.closeFile()
     } catch {
+      print("Real Time Data Logger Error:")
       print(error)
     }
   }

@@ -56,7 +56,7 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   var doNotStopVirtualStickOnEnd = false
   var stopExistingVirtualStick = false
   var waitForControlSticksReleaseOnEnd = false
-  
+    
   var adjustmentStickValues = [
     AdjustmentStickMode.pitchControllerStickAdjustment: 0.0,
     AdjustmentStickMode.rollControllerStickAdjustment: 0.0,
@@ -81,7 +81,6 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     super.init()
     
     if let virtualStickData = parameters["virtualStickData"] as? NSDictionary {
-      print(virtualStickData)
       if let pitch = virtualStickData["pitch"] as? Double {
         self.virtualStickData["pitch"] = pitch
       }
@@ -202,7 +201,6 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   }
   
   public func stopRun() {
-    //    print("stopRun")
     let missionControl = DJISDKManager.missionControl()
     self.cleanUp { (error: Error?) in
       if (error != nil) {
@@ -269,13 +267,18 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   private func sendVirtualStickData() {
     let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
     
+    var pitch = Float(self.virtualStickData["pitch"]! + self.adjustmentStickValues[.pitchControllerStickAdjustment]!)
+    var roll = Float(self.virtualStickData["roll"]! + self.adjustmentStickValues[.rollControllerStickAdjustment]!)
+    var yaw = Float(self.virtualStickData["yaw"]! + self.adjustmentStickValues[.yawControllerStickAdjustment]!)
+    var verticalThrottle = Float(self.virtualStickData["verticalThrottle"]! + self.adjustmentStickValues[.verticalThrottleControllerStickAdjustment]!)
+    
     flightController?.send(
       DJIVirtualStickFlightControlData(
         // In the coordinate system used for the drone, roll and pitch are swapped
-        pitch: Float(self.virtualStickData["roll"]! + self.adjustmentStickValues[.rollControllerStickAdjustment]!),
-        roll: Float(self.virtualStickData["pitch"]! + self.adjustmentStickValues[.pitchControllerStickAdjustment]!),
-        yaw: Float(self.virtualStickData["yaw"]! + self.adjustmentStickValues[.yawControllerStickAdjustment]!),
-        verticalThrottle: Float(self.virtualStickData["verticalThrottle"]! + self.adjustmentStickValues[.verticalThrottleControllerStickAdjustment]!)
+        pitch: roll,
+        roll: pitch,
+        yaw: yaw,
+        verticalThrottle: verticalThrottle
       ),
       withCompletion: nil)
     
