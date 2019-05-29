@@ -63,3 +63,26 @@ DJIMobile.registerApp( '192.168.0.33' ) // update with the IP adresse diplqyed b
 // wait for product to connect
 DJIMobile.startProductConnectionListener();
 ```
+
+## How to subscribe DJI Event with React Native Javascript
+react-native-dji-mobile use [RxJS](https://www.learnrxjs.io/) for dealing with events.
+
+Example to subscribe to the Battery C
+```javascript
+DJIMobile.startBatteryPercentChargeRemainingListener()
+  .then( ( observable ) => {
+    const observer = observable.subscribe( evt => {
+      console.log( `Battery: ${ evt.value }% charge remaining.` );
+    } );
+  } )
+  .catch( err => {
+    console.log( 'ERROR: startBatteryPercentChargeRemainingListener fail.', err );
+  } );
+```
+__NOTE__: Do not forget to call the observer.unsubscribe() when you finish to work with the Event. And then the corresponding stop listener method ( DJIMobile.startBatteryPercentChargeRemainingListener in the example below ).
+
+## How to get Realtime video feedback to ReactNative
+TODO
+
+## How to use mission timeline elements and start first mission
+TODO
