@@ -1,68 +1,44 @@
 
 package com.aerobotics.DjiMobile;
 
-import com.aerobotics.DjiMobile.DJITimelineElements.WaypointMissionTimelineElement;
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.NoSuchKeyException;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReadableArray;
-import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableArray;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
-
-
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import java.lang.reflect.Method;
-import java.security.Key;
-import java.util.ArrayList;
+import com.aerobotics.DjiMobile.DJITimelineElements.WaypointMissionTimelineElement;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import dji.common.error.DJIError;
-import dji.common.error.DJISDKError;
-import dji.common.flightcontroller.LocationCoordinate3D;
 import dji.common.gimbal.Attitude;
-import dji.common.mission.waypoint.Waypoint;
-import dji.common.mission.waypoint.WaypointMission;
-import dji.keysdk.DJIKey;
-import dji.keysdk.FlightControllerKey;
-import dji.keysdk.KeyManager;
-import dji.keysdk.ProductKey;
-import dji.keysdk.BatteryKey;
-import dji.keysdk.callback.KeyListener;
-import dji.sdk.base.BaseComponent;
-import dji.sdk.base.BaseProduct;
 import dji.sdk.mission.MissionControl;
 import dji.sdk.mission.timeline.TimelineElement;
 import dji.sdk.mission.timeline.TimelineEvent;
 import dji.sdk.mission.timeline.TimelineMission;
 import dji.sdk.mission.timeline.actions.GimbalAttitudeAction;
+import dji.sdk.mission.timeline.actions.RecordVideoAction;
 import dji.sdk.mission.timeline.actions.ShootPhotoAction;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 
+enum TimelineElementType {
+  WaypointMissionTimelineElement,
+  GimbalAttitudeAction,
+  ShootPhotoAction,
+  RecordVideoAction,
+  }
+
 public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
-//  private int timelineElementIndex = 0;
-//  private HashMap<Integer, TimelineElement> timelineElements = new HashMap<>();
-//  private ArrayList<Integer> scheduledElementIndexOrder = new ArrayList<>();
-
-  private Map<String, String> timelineElements = new HashMap<String, String>() {{
-    put("WaypointMissionTimelineElement", "WaypointMissionTimelineElement");
-    put("GimbalAttitudeAction", "GimbalAttitudeAction");
-    put("ShootPhotoAction", "ShootPhotoAction");
-//    put("CapturePictureTimelineElement", "CapturePictureTimelineElement");
-  }};
-
 
   public DJIMissionControlWrapper(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -76,20 +52,23 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
     TimelineElement newElement = null;
 
-    switch (timelineElementType) {
-      case "WaypointMissionTimelineElement":
+    switch (TimelineElementType.valueOf(timelineElementType)) {
+      case WaypointMissionTimelineElement:
         WaypointMissionTimelineElement waypointMissionTimelineElement = new WaypointMissionTimelineElement(parameters);
         newElement = TimelineMission.elementFromWaypointMission(
           waypointMissionTimelineElement.build()
         );
         break;
 
-      case "GimbalAttitudeAction":
+      case GimbalAttitudeAction:
         newElement = buildGimbalAttitudeAction(parameters);
         break;
 
-      case "ShootPhotoAction":
+      case ShootPhotoAction:
         newElement = buildShootPhotoAction(parameters);
+
+      case RecordVideoAction:
+        newElement = buildRecordVideoAction(parameters);
 
       default:
         break;
@@ -130,8 +109,7 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
   public ShootPhotoAction buildShootPhotoAction(ReadableMap parameters) {
     Integer count = null;
     Integer interval = null;
-    Boolean wait = null;
-    Boolean stopShoot = null;
+    boolean stopShoot = false;
 
     try {
       count = parameters.getInt("count");
@@ -142,25 +120,40 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
     } catch (Exception e) {}
 
     try {
-      wait = parameters.getBoolean("wait");
-    } catch (Exception e) {}
-
-    try {
       stopShoot = parameters.getBoolean("stopShoot");
     } catch (Exception e) {}
 
-    ShootPhotoAction shootPhotoAction;
-
-    if (stopShoot != null && stopShoot == true) {
-      shootPhotoAction = ShootPhotoAction.newStopIntervalPhotoAction();
-    } else if (count != null && interval != null && wait != null) {
-      shootPhotoAction = ShootPhotoAction.newShootIntervalPhotoAction(count, interval);
+    if (stopShoot == true) {
+      return ShootPhotoAction.newStopIntervalPhotoAction();
+    } else if (count != null && interval != null) {
+      return ShootPhotoAction.newShootIntervalPhotoAction(count, interval);
     } else {
-      shootPhotoAction = ShootPhotoAction.newShootSinglePhotoAction();
+      return ShootPhotoAction.newShootSinglePhotoAction();
     }
 
-    return shootPhotoAction;
+  }
 
+  public RecordVideoAction buildRecordVideoAction(ReadableMap parameters) {
+    Integer duration = null;
+    boolean stopRecord = false;
+
+    try {
+      duration = parameters.getInt("duration");
+    } catch (Exception e) {}
+
+    try {
+      stopRecord = parameters.getBoolean("stopRecord");
+    } catch (Exception e) {}
+
+    if (stopRecord == true) {
+      return RecordVideoAction.newStopRecordVideoAction();
+    } else {
+      if (duration != null) {
+        return RecordVideoAction.newRecordVideoActionWithDuration(duration);
+      } else {
+        return RecordVideoAction.newStartRecordVideoAction();
+      }
+    }
   }
 
   @ReactMethod
@@ -242,7 +235,9 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
   @Override
   public Map<String, Object> getConstants() {
     final Map<String, Object> constants = new HashMap<>();
-    constants.putAll(timelineElements);
+    for (TimelineElementType elementType : TimelineElementType.values()) {
+      constants.put(elementType.toString(), elementType.toString());
+    }
     return constants;
   }
 }
