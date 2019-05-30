@@ -3,7 +3,6 @@ package com.aerobotics.DjiMobile;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Promise;
@@ -12,14 +11,15 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.lang.reflect.Method;
-import java.security.Key;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.SplittableRandom;
 
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
@@ -29,9 +29,11 @@ import dji.keysdk.FlightControllerKey;
 import dji.keysdk.KeyManager;
 import dji.keysdk.ProductKey;
 import dji.keysdk.BatteryKey;
+import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.KeyListener;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
+import dji.sdk.media.MediaFile;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 class ValidKeyInfo {
@@ -67,26 +69,25 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
 
-  private HashMap keyListeners = new HashMap();
+  private HashMap eventListeners = new HashMap();
 
-  private HashMap implementedKeys = new HashMap<String, ValidKeyInfo>() {{
-    put(
-      "DJIParamConnection",
-      new ValidKeyInfo(ProductKey.CONNECTION, ProductKey.class)
-    );
-    put(
-      "DJIBatteryParamChargeRemainingInPercent",
-      new ValidKeyInfo(BatteryKey.CHARGE_REMAINING_IN_PERCENT, BatteryKey.class)
-    );
-    put(
-      "DJIFlightControllerParamAircraftLocation",
-      new ValidKeyInfo(FlightControllerKey.AIRCRAFT_LOCATION, FlightControllerKey.class)
-    );
-    put(
-      "DJIFlightControllerParamCompassHeading",
-      new ValidKeyInfo(FlightControllerKey.COMPASS_HEADING, FlightControllerKey.class)
-    );
-  }};
+  ; // This must only be initialized once the SDK has registered, as it uses the SDK
+  private SdkEventHandler sdkEventHandler;
+
+//  private Observer newMediaFileObserver = new Observer() {
+//    @Override
+//    public void update(Observable observable, Object arg) {
+//      if (arg instanceof HashMap) {
+//        HashMap payload = (HashMap) arg;
+//        if (payload.get("name") == CameraEvent.DID_GENERATE_NEW_MEDIA_FILE.getEventName()) {
+//          MediaFile mediaFile = (MediaFile) payload.get("value");
+//          WritableMap params = Arguments.createMap();
+//          params.putString("fileName", mediaFile.getFileName());
+//          sendEvent("newMediaFile", params);
+//        }
+//      }
+//    }
+//  };
 
   public DJIMobile(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -105,10 +106,14 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   public void registerAppInternal(final String bridgeIp, final Promise promise) {
     final DJISDKManager djisdkManager = DJISDKManager.getInstance();
-    djisdkManager.registerApp(this.reactContext, new DJISDKManager.SDKManagerCallback() {
+    djisdkManager.registerApp(reactContext, new DJISDKManager.SDKManagerCallback() {
       @Override
       public void onRegister(DJIError djiError) {
         if (djiError == DJISDKError.REGISTRATION_SUCCESS) {
+          // Only create a single instance of the sdkEventHandler, as multiple instances cause conflicts (duplicate camera callbacks, etc.)
+          if (sdkEventHandler == null) {
+            sdkEventHandler = new SdkEventHandler();
+          }
           promise.resolve("DJI SDK: Registration Successful");
           if (bridgeIp != null) {
             djisdkManager.enableBridgeModeWithBridgeAppIP(bridgeIp);
@@ -122,58 +127,54 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onProductDisconnect() {
-        // TODO:
+        // TODO
       }
 
       @Override
       public void onProductConnect(BaseProduct baseProduct) {
-        // TODO:
+        // TODO
       }
 
       @Override
       public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent baseComponent, BaseComponent baseComponent1) {
-
+        // TODO
       }
     });
   }
 
   @ReactMethod
   public void startProductConnectionListener(Promise promise) {
-    DJIKey key = ProductKey.create(ProductKey.CONNECTION);
-    promise.resolve(null);
-    startKeyListener(key, new KeyListener() {
+    startEventListener(SDKEvent.ProductConnection, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue != null) {
-          sendEvent(reactContext, "connectionStatus", (boolean) newValue ? "connected" : "disconnected");
+        if (newValue != null && newValue instanceof Boolean) {
+          sendEvent(SDKEvent.ProductConnection, (boolean) newValue ? "connected" : "disconnected");
         }
       }
     });
+    promise.resolve(null);
   }
 
   @ReactMethod
   public void startBatteryPercentChargeRemainingListener(Promise promise) {
-    DJIKey key = BatteryKey.create(BatteryKey.CHARGE_REMAINING_IN_PERCENT);
-    promise.resolve(null);
-    startKeyListener(key, new KeyListener() {
+    startEventListener(SDKEvent.BatteryChargeRemaining, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue != null) {
-          sendEvent(reactContext, "chargeRemaining", newValue);
+        if (newValue != null && newValue instanceof Integer) {
+          sendEvent(SDKEvent.BatteryChargeRemaining, newValue);
         }
       }
     });
+    promise.resolve(null);
   }
 
   @ReactMethod
   public void startAircraftLocationListener(Promise promise) {
-    DJIKey key = FlightControllerKey.create(FlightControllerKey.AIRCRAFT_LOCATION);
-    promise.resolve(null);
-    startKeyListener(key, new KeyListener() {
+    startEventListener(SDKEvent.AircraftLocation, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue != null) {
-          LocationCoordinate3D location = (LocationCoordinate3D)newValue;
+        if (newValue != null && newValue instanceof LocationCoordinate3D) {
+          LocationCoordinate3D location = (LocationCoordinate3D) newValue;
           double longitude = location.getLongitude();
           double latitude = location.getLatitude();
           double altitude = location.getAltitude();
@@ -182,100 +183,180 @@ public class DJIMobile extends ReactContextBaseJavaModule {
             params.putDouble("longitude", longitude);
             params.putDouble("latitude", latitude);
             params.putDouble("altitude", altitude);
-            sendEvent(reactContext, "aircraftLocation", params);
+            sendEvent(SDKEvent.AircraftLocation, params);
           }
         }
+      }
+    });
+    promise.resolve(null);
+  }
+
+  // TODO: (Adam) Update to new method!
+  @ReactMethod
+  public void getAircraftLocation(final Promise promise) {
+    DJIKey key = FlightControllerKey.create(FlightControllerKey.AIRCRAFT_LOCATION);
+    DJISDKManager.getInstance().getKeyManager().getValue(key, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        LocationCoordinate3D location = (LocationCoordinate3D) value;
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+        double altitude = location.getAltitude();
+        if (!Double.isNaN(longitude) && !Double.isNaN(latitude)) {
+          WritableMap params = Arguments.createMap();
+          params.putDouble("longitude", longitude);
+          params.putDouble("latitude", latitude);
+          params.putDouble("altitude", altitude);
+          promise.resolve(params);
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject("getAircraftLocation Error", djiError.getDescription());
       }
     });
   }
 
   @ReactMethod
   public void startAircraftVelocityListener(Promise promise) {
-    DJIKey[] velocityKeys = {
-      FlightControllerKey.create(FlightControllerKey.VELOCITY_X),
-      FlightControllerKey.create(FlightControllerKey.VELOCITY_Y),
-      FlightControllerKey.create(FlightControllerKey.VELOCITY_Z),
+    SDKEvent[] velocityEvents = {
+      SDKEvent.AircraftVelocityX,
+      SDKEvent.AircraftVelocityY,
+      SDKEvent.AircraftVelocityZ,
     };
-    final double[] velocity3D = {0.0, 0.0, 0.0};
+    final double[] velocityVector = {0.0, 0.0, 0.0};
 
-    promise.resolve(null);
     for (int i = 0; i < 3; i++) {
       final int finalI = i;
-      startKeyListener(velocityKeys[i], new KeyListener() {
+      startEventListener(velocityEvents[i], new EventListener() {
         @Override
         public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-          if (newValue != null) {
-            velocity3D[finalI] = (float)newValue;
+          if (newValue != null && newValue instanceof Float) {
+            velocityVector[finalI] = (float)newValue;
             WritableMap params = Arguments.createMap();
-            params.putDouble("x", velocity3D[0]);
-            params.putDouble("y", velocity3D[1]);
-            params.putDouble("z", velocity3D[2]);
-            sendEvent(reactContext, "aircraftVelocity", params);
+            params.putDouble("x", velocityVector[0]);
+            params.putDouble("y", velocityVector[1]);
+            params.putDouble("z", velocityVector[2]);
+            sendEvent("AircraftVelocity", params);
           }
         }
       });
     }
-  }
 
-  @ReactMethod
-  public void stopAircraftVelocityListener(Promise promise) {
-    DJIKey[] velocityKeys = {
-      FlightControllerKey.create(FlightControllerKey.VELOCITY_X),
-      FlightControllerKey.create(FlightControllerKey.VELOCITY_Y),
-      FlightControllerKey.create(FlightControllerKey.VELOCITY_Z),
-    };
-    for (int i = 0; i < 3; i++) {
-      KeyListener updateBlock = (KeyListener) keyListeners.remove(velocityKeys[i].toString());
-      if (updateBlock != null) {
-        KeyManager.getInstance().removeListener(updateBlock);
-      }
-    }
+    promise.resolve(null);
   }
 
   @ReactMethod
   public void startAircraftCompassHeadingListener(Promise promise) {
-    DJIKey key = FlightControllerKey.create(FlightControllerKey.COMPASS_HEADING);
-    promise.resolve(null);
-    startKeyListener(key, new KeyListener() {
+    startEventListener(SDKEvent.AircraftCompassHeading, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue != null) {
-          double heading = (float)newValue;
+        if (newValue != null && newValue instanceof Float) {
           WritableMap params = Arguments.createMap();
-          params.putDouble("heading", heading);
-          sendEvent(reactContext, "aircraftCompassHeading", params);
+          params.putDouble("heading", (float)newValue);
+          sendEvent(SDKEvent.AircraftCompassHeading, params);
+        }
+      }
+    });
+    promise.resolve(null);
+  }
+
+
+//  @ReactMethod
+//  public void startNewMediaFileListener(Promise promise) {
+//    cameraDelegateSender.addObserver(newMediaFileObserver);
+//    promise.resolve("startNewMediaFileListener");
+//  }
+
+  @ReactMethod
+  public void startNewMediaFileListener(Promise promise) {
+    startEventListener(SDKEvent.CameraDidGenerateNewMediaFile, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue != null && newValue instanceof HashMap) {
+          HashMap payload = (HashMap) newValue;
+          MediaFile mediaFile = (MediaFile) payload.get("value");
+          WritableMap params = Arguments.createMap();
+          params.putString("fileName", mediaFile.getFileName());
+          sendEvent(SDKEvent.CameraDidGenerateNewMediaFile, params);
         }
       }
     });
   }
 
+//  @ReactMethod
+//  public void stopCameraDelegateListener(String eventName, Promise promise) {
+//    switch (eventName) {
+//      case "DJICameraEvent.didGenerateNewMediaFile":
+//        cameraDelegateSender.removeObserver(newMediaFileObserver);
+//        break;
+//
+//      default:
+//        break;
+//    }
+//    promise.resolve("stopCameraDelegateListener");
+//  }
+
   @ReactMethod
-  public void stopKeyListener(String keyString, Promise promise) {
-    ValidKeyInfo keyInfo = (ValidKeyInfo)implementedKeys.get(keyString);
-    if (keyInfo != null) {
-      DJIKey createdKey = keyInfo.createDJIKey();
-      KeyListener updateBlock = (KeyListener)keyListeners.remove(createdKey.toString());
-      if (updateBlock != null) {
-        KeyManager.getInstance().removeListener(updateBlock);
+  public void stopEventListener(String eventName) {
+    if (eventName.equals("AircraftVelocity")) {
+      SDKEvent[] velocityEvents = {
+        SDKEvent.AircraftVelocityX,
+        SDKEvent.AircraftVelocityY,
+        SDKEvent.AircraftVelocityZ,
+      };
+      for (int i = 0; i < 3; i++) {
+        final int finalI = i;
+        stopEventListenerInternal(velocityEvents[i]);
+      }
+
+    } else {
+      SDKEvent sdkEvent = SDKEvent.valueOf(eventName);
+      if (sdkEvent != null) {
+        stopEventListenerInternal(sdkEvent);
       }
     }
   }
 
-  private void startKeyListener(DJIKey key, KeyListener updateBlock) {
-    KeyListener existingUpdateBlock = (KeyListener)keyListeners.get(key.toString());
-    if (existingUpdateBlock == null) {
-      keyListeners.put(key.toString(), updateBlock);
-      KeyManager.getInstance().addListener(key, updateBlock);
+  private void startEventListener(SDKEvent SDKEvent, EventListener eventListener) {
+
+    Object existingEventListener = eventListeners.get(SDKEvent);
+
+    if (existingEventListener == null) {
+      Object eventSubscriptionObject = sdkEventHandler.startEventListener(SDKEvent, eventListener);
+      eventListeners.put(SDKEvent, eventSubscriptionObject);
     } else {
-      // If there is an existing listener, don't create a new one
+      // If there is an existing listener, don't create a new one (the existing one will be sending events across the bridge already)
       return;
     }
-
   }
 
-  private void sendEvent(ReactContext reactContext, String type, Object value) {
-    WritableMap params = Arguments.createMap();
+  private void stopEventListenerInternal(SDKEvent SDKEvent) {
+    Object eventSubscriptionObject = eventListeners.get(SDKEvent);
+    if (eventSubscriptionObject != null) {
+      sdkEventHandler.stopEventListener(SDKEvent, eventSubscriptionObject);
+    }
+  }
 
+  private void sendEvent(SDKEvent SDKEvent, Object value) {
+    WritableMap params = buildEventParams(value);
+    params.putString("type", SDKEvent.toString());
+    reactContext
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+      .emit("DJIEvent", params);
+  }
+
+  private void sendEvent(String eventName, Object value) {
+    WritableMap params = buildEventParams(value);
+    params.putString("type", eventName);
+    reactContext
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+      .emit("DJIEvent", params);
+  }
+
+  private WritableMap buildEventParams(Object value) {
+    WritableMap params = Arguments.createMap();
     if (value instanceof Integer) {
       params.putInt("value", (Integer)value);
     } else if (value instanceof Double) {
@@ -289,11 +370,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     } else if (value instanceof WritableArray) {
       params.putArray("value", (WritableArray) value);
     }
-
-    params.putString("type", type);
-    reactContext
-      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-      .emit("DJIEvent", params);
+    return params;
   }
 
   @Override
