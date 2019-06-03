@@ -79,7 +79,7 @@ public class CameraEventDelegate implements SystemState.Callback, MediaFile.Call
   private void setCameraCallbacks() {
     if (isCameraConnected) {
 
-      // When the SDK has just registered, calling getProduct may return null, so wait a second before trying
+      // When the SDK has just registered, calling getProduct may return null, so wait before trying
       Handler handler = new Handler();
       handler.postDelayed(new Runnable() {
         @Override
@@ -91,7 +91,7 @@ public class CameraEventDelegate implements SystemState.Callback, MediaFile.Call
             camera.setSystemStateCallback(cameraDelegateSenderInstance);
             camera.setMediaFileCallback(cameraDelegateSenderInstance);
         }
-      }, 1000);
+      }, 2000);
 
 
 
