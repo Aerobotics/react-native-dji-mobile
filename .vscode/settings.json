@@ -3,13 +3,5 @@
   "typescript.validate.enable": false,
   "flow.enabled": true,
   "eslint.enable": true,
-  "flow.pathToFlow": "${workspaceFolder}/node_modules/.bin/flow",
-  "atlascode.jira.workingSite": {
-    "baseUrlSuffix": "atlassian.net"
-  },
-  "atlascode.jira.workingProject": {
-    "id": "10307",
-    "name": "Data Collection",
-    "key": "DC"
-  }
+  "flow.pathToFlow": "${workspaceFolder}/node_modules/.bin/flow"
 }
