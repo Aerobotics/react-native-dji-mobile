@@ -40,27 +40,18 @@ enum EndTrigger: String {
   case ultrasonic
 }
 
-let adjustmentStickModeNames: [AdjustmentStickMode] = [
-  .pitchControllerStickAdjustment,
-  .rollControllerStickAdjustment,
-  .verticalThrottleControllerStickAdjustment,
-  .yawControllerStickAdjustment,
-]
-
 let CONTROLLER_STICK_LIMIT = 660.0
 let sendVirtualStickDataTimerPeriod = 0.05
 
 public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineElement {
-  
-  var parameters: NSDictionary
   
   var sendVirtualStickDataTimer: Timer
   var endTriggerTimer: Timer
   var waitForControlsResetTimer: Timer
   var secondsUntilEndTrigger: TimeInterval?
   
-  var endTrigger: EndTrigger
-  var timerEndTime: Double
+  var endTrigger: EndTrigger?
+  var timerEndTime: Double?
   
   var stopExistingVirtualStick = false
   var doNotStopVirtualStickOnEnd = false
@@ -82,7 +73,7 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   
   init(_ parameters: NSDictionary) {
     
-    // Create empty timers for now
+    // Initialize all required values
     self.sendVirtualStickDataTimer = Timer.init()
     self.endTriggerTimer = Timer.init()
     self.waitForControlsResetTimer = Timer.init()
@@ -109,7 +100,7 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
       }
       
       if let endTrigger = parameters[Parameters.endTrigger] as? String {
-        self.endTrigger = EndTrigger.init(rawValue: endTrigger)
+        self.endTrigger = EndTrigger.init(rawValue: endTrigger)!
       }
       
       if let timerEndTime = parameters[Parameters.timerEndTime] as? Double {
@@ -120,7 +111,7 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
         
         for virtualStickControl in VirtualStickControl.allCases {
           if let adjustmentStickParameters = controlStickAdjustments[virtualStickControl] as? NSDictionary {
-            let controllerStickAxis = ControllerStickAxis.init(rawValue: adjustmentStickParameters["axis"] as! String)
+            let controllerStickAxis = ControllerStickAxis.init(rawValue: adjustmentStickParameters["axis"] as! String)!
             var minSpeed: Double
             let maxSpeed = adjustmentStickParameters["maxSpeed"] as! Double
             if (virtualStickControl == .yaw) { // For yaw the max (cw & ccw) rotation speed is defined, instead of a min max value
@@ -128,6 +119,9 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
             } else {
               minSpeed = adjustmentStickParameters["minSpeed"] as! Double
             }
+            
+            implementControlStickAdjustment(virtualStickControl, controllerStickAxis, minSpeed, maxSpeed)
+            
           }
         }
       }
@@ -135,19 +129,19 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     }
   }
   
-  private func implementControlStickAdjustment(virtualStickControl: VirtualStickControl, controllerStickAxis: ControllerStickAxis, minSpeed: Double, maxSpeed: Double) {
+  private func implementControlStickAdjustment(_ virtualStickControl: VirtualStickControl, _ controllerStickAxis: ControllerStickAxis, _ minSpeed: Double, _ maxSpeed: Double) {
     
     var controllerStickKeyParam: String
     
     switch controllerStickAxis {
     case .leftHorizontal:
-      adjustmentStickKey = DJIRemoteControllerParamLeftHorizontalValue
+      controllerStickKeyParam = DJIRemoteControllerParamLeftHorizontalValue
     case .leftVertical:
-      adjustmentStickKey = DJIRemoteControllerParamLeftVerticalValue
+      controllerStickKeyParam = DJIRemoteControllerParamLeftVerticalValue
     case .rightHorizontal:
-      adjustmentStickKey = DJIRemoteControllerParamRightHorizontalValue
+      controllerStickKeyParam = DJIRemoteControllerParamRightHorizontalValue
     case .rightVertical:
-      adjustmentStickKey = DJIRemoteControllerParamRightVerticalValue
+      controllerStickKeyParam = DJIRemoteControllerParamRightVerticalValue
     }
     
     DJISDKManager.keyManager()?.startListeningForChanges(on: DJIRemoteControllerKey(param: controllerStickKeyParam)!, withListener: self, andUpdate: { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
@@ -159,10 +153,10 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     })
   }
   
-  private func rescaleControllerStickValue(controllerStickValue: Integer, minSpeed: Double, maxSpeed: Double) -> Double {
+  private func rescaleControllerStickValue(_ controllerStickValue: Int, _ minSpeed: Double, _ maxSpeed: Double) -> Double {
     if (controllerStickValue < 0) {
       return Double(controllerStickValue) / (-CONTROLLER_STICK_LIMIT / minSpeed)
-    } else if (stickValue > 0) {
+    } else {
       return Double(controllerStickValue) / (CONTROLLER_STICK_LIMIT / maxSpeed)
     }
   }
@@ -192,7 +186,7 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   private func sendVirtualStickData() {
     let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
     
-    var virtualStickData = [VirtualStickControl: Double]
+    var virtualStickData: [VirtualStickControl: Double] = [:]
     
     for virtualStickControl in VirtualStickControl.allCases {
       virtualStickData[virtualStickControl] = self.baseVirtualStickControlValues[virtualStickControl]! + self.virtualStickAdjustmentValues[virtualStickControl]!
@@ -201,10 +195,10 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     flightController?.send(
       DJIVirtualStickFlightControlData(
         // In the coordinate system used for the drone, roll and pitch are swapped
-        pitch: virtualStickData[.roll],
-        roll: virtualStickData[.pitch],
-        yaw: virtualStickData[.yaw],
-        verticalThrottle: virtualStickData[.verticalThrottle]
+        pitch: Float(virtualStickData[VirtualStickControl.roll]!),
+        roll: Float(virtualStickData[VirtualStickControl.pitch]!),
+        yaw: Float(virtualStickData[VirtualStickControl.yaw]!),
+        verticalThrottle: Float(virtualStickData[VirtualStickControl.verticalThrottle]!)
       ),
       withCompletion: nil)
   }
@@ -257,7 +251,7 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
         self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
         
         if (self.endTrigger == .timer) {
-          self.endTriggerTimer = Timer.scheduledTimer(timeInterval: self.timerEndTime, target: self, selector: #selector(self.endTriggerTimerDidTrigger), userInfo: nil, repeats: false)
+          self.endTriggerTimer = Timer.scheduledTimer(timeInterval: self.timerEndTime!, target: self, selector: #selector(self.endTriggerTimerDidTrigger), userInfo: nil, repeats: false)
         }
         
       })
@@ -297,38 +291,6 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   
   public func checkValidity() -> Error? {
     return nil
-  }
-  
-  private func implementControllerStickAdjustment(mode: AdjustmentStickMode, stick: ControllerStickAxis, minValue: Double, maxValue: Double) {
-    
-    var adjustmentStickKey: String
-    
-    switch stick {
-    case .leftHorizontal:
-      adjustmentStickKey = DJIRemoteControllerParamLeftHorizontalValue
-    case .leftVertical:
-      adjustmentStickKey = DJIRemoteControllerParamLeftVerticalValue
-    case .rightHorizontal:
-      adjustmentStickKey = DJIRemoteControllerParamRightHorizontalValue
-    case .rightVertical:
-      adjustmentStickKey = DJIRemoteControllerParamRightVerticalValue
-    default:
-      break
-    }
-    
-    DJISDKManager.keyManager()?.startListeningForChanges(on: DJIRemoteControllerKey(param: adjustmentStickKey)!, withListener: self, andUpdate: { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
-      if (newValue != nil) {
-        var stickValue = Double(newValue!.integerValue)
-        if (stickValue < 0) {
-          stickValue = Double(stickValue) / (-CONTROLLER_STICK_LIMIT / minValue)
-        } else if (stickValue > 0) {
-          stickValue = Double(stickValue) / (CONTROLLER_STICK_LIMIT / maxValue)
-        }
-        
-        self.adjustmentStickValues[mode] = stickValue
-      }
-    })
-    
   }
   
 }
