@@ -8,18 +8,12 @@
 import Foundation
 import DJISDK
 
-//enum Parameters: String {
-//  case stopVirtualStick
-//  case endTrigger
-//  case timerEndTime
-//  case ultrasonicEndDistance
-//  case ultrasonicDecreaseVerticalThrottleWithDistance
-//  case enableObstacleAvoidance
-//  case pitchControllerStickAdjustment
-//  case rollControllerStickAdjustment
-//  case verticalThrottleControllerStickAdjustment
-//  case yawControllerStickAdjustment
-//}
+enum VirtualStickControl: String, CaseIterable {
+  case pitch
+  case roll
+  case yaw
+  case verticalThrottle
+}
 
 enum ControllerStickAxis: String {
   case leftHorizontal
@@ -28,110 +22,198 @@ enum ControllerStickAxis: String {
   case rightVertical
 }
 
-enum AdjustmentStickMode: String {
-  case pitchControllerStickAdjustment
-  case rollControllerStickAdjustment
-  case verticalThrottleControllerStickAdjustment
-  case yawControllerStickAdjustment
+enum Parameters: String {
+  case baseVirtualStickControlValues
+  case doNotStopVirtualStickOnEnd
+  case stopExistingVirtualStick
+  case waitForControlSticksReleaseOnEnd
+  case endTrigger
+  case timerEndTime
+  case ultrasonicEndDistance
+  case ultrasonicDecreaseVerticalThrottleWithDistance
+  case enableObstacleAvoidance
+  case controlStickAdjustments
 }
 
-let adjustmentStickModeNames: [AdjustmentStickMode] = [
-  .pitchControllerStickAdjustment,
-  .rollControllerStickAdjustment,
-  .verticalThrottleControllerStickAdjustment,
-  .yawControllerStickAdjustment,
-]
+enum EndTrigger: String {
+  case timer
+  case ultrasonic
+}
 
 let CONTROLLER_STICK_LIMIT = 660.0
+let sendVirtualStickDataTimerPeriod = 0.05
 
 public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineElement {
-  
-  var parameters: NSDictionary
   
   var sendVirtualStickDataTimer: Timer
   var endTriggerTimer: Timer
   var waitForControlsResetTimer: Timer
   var secondsUntilEndTrigger: TimeInterval?
   
-  var doNotStopVirtualStickOnEnd = false
+  var endTrigger: EndTrigger?
+  var timerEndTime: Double?
+  
   var stopExistingVirtualStick = false
+  var doNotStopVirtualStickOnEnd = false
   var waitForControlSticksReleaseOnEnd = false
-    
-  var adjustmentStickValues = [
-    AdjustmentStickMode.pitchControllerStickAdjustment: 0.0,
-    AdjustmentStickMode.rollControllerStickAdjustment: 0.0,
-    AdjustmentStickMode.yawControllerStickAdjustment: 0.0,
-    AdjustmentStickMode.verticalThrottleControllerStickAdjustment: 0.0,
+  
+  var virtualStickAdjustmentValues = [
+    VirtualStickControl.pitch: 0.0,
+    VirtualStickControl.roll: 0.0,
+    VirtualStickControl.yaw: 0.0,
+    VirtualStickControl.verticalThrottle: 0.0,
   ]
   
-  var virtualStickData = [
-    "pitch": 0.0,
-    "roll": 0.0,
-    "yaw": 0.0,
-    "verticalThrottle": 0.0,
+  var baseVirtualStickControlValues = [
+    VirtualStickControl.pitch: 0.0,
+    VirtualStickControl.roll: 0.0,
+    VirtualStickControl.yaw: 0.0,
+    VirtualStickControl.verticalThrottle: 0.0,
   ]
   
   init(_ parameters: NSDictionary) {
     
-    self.parameters = parameters
-    // Create empty timers for now
+    // Initialize all required values
     self.sendVirtualStickDataTimer = Timer.init()
     self.endTriggerTimer = Timer.init()
     self.waitForControlsResetTimer = Timer.init()
     super.init()
     
-    if let virtualStickData = parameters["virtualStickData"] as? NSDictionary {
-      if let pitch = virtualStickData["pitch"] as? Double {
-        self.virtualStickData["pitch"] = pitch
-      }
-      if let roll = virtualStickData["roll"] as? Double {
-        self.virtualStickData["roll"] = roll
-      }
-      if let yaw = virtualStickData["yaw"] as? Double {
-        self.virtualStickData["yaw"] = yaw
-      }
-      if let verticalThrottle = virtualStickData["verticalThrottle"] as? Double {
-        self.virtualStickData["verticalThrottle"] = verticalThrottle
-      }
-    }
-    
-    if let doNotStopVirtualStickOnEnd = parameters["doNotStopVirtualStickOnEnd"] as? Bool {
-      self.doNotStopVirtualStickOnEnd = doNotStopVirtualStickOnEnd
-    }
-    
-    if let waitForControlSticksReleaseOnEnd = parameters["waitForControlSticksReleaseOnEnd"] as? Bool {
-      self.waitForControlSticksReleaseOnEnd = waitForControlSticksReleaseOnEnd
-    }
-    
-    if let stopExistingVirtualStick = parameters["stopExistingVirtualStick"] as? Bool {
+    if let stopExistingVirtualStick = parameters[Parameters.stopExistingVirtualStick] as? Bool {
       self.stopExistingVirtualStick = stopExistingVirtualStick
+    }
+    
+    if (self.stopExistingVirtualStick != true) {
       
-    } else {
-      for adjustmentStick in adjustmentStickModeNames {
-        if let adjustmentStickParameters = parameters[adjustmentStick.rawValue] as? [String: Any] {
-          let axis = adjustmentStickParameters["axis"] as! String
-          var maxValue: Double
-          var minValue: Double
-          
-          if (adjustmentStick == .yawControllerStickAdjustment) { // For yaw the max rotation speed is defined, instead of a min max value
-            maxValue = adjustmentStickParameters["maxYawSpeed"] as! Double
-            minValue = -maxValue // Opposite direction rotation
-          } else {
-            maxValue = adjustmentStickParameters["maxValue"] as! Double
-            minValue = adjustmentStickParameters["minValue"] as! Double
-          }
-          self.implementControllerStickAdjustment(mode: adjustmentStick, stick: ControllerStickAxis(rawValue: axis)!, minValue: minValue, maxValue: maxValue)
+      if let baseVirtualStickControlValuesInput = parameters[Parameters.baseVirtualStickControlValues] as? NSDictionary {
+        for (key, value) in baseVirtualStickControlValuesInput {
+          baseVirtualStickControlValues[VirtualStickControl.init(rawValue: key as! String)!] = (value as! Double)
         }
       }
+      
+      if let doNotStopVirtualStickOnEnd = parameters[Parameters.doNotStopVirtualStickOnEnd] as? Bool {
+        self.doNotStopVirtualStickOnEnd = doNotStopVirtualStickOnEnd
+      }
+      
+      if let waitForControlSticksReleaseOnEnd = parameters[Parameters.waitForControlSticksReleaseOnEnd] as? Bool {
+        self.waitForControlSticksReleaseOnEnd = waitForControlSticksReleaseOnEnd
+      }
+      
+      if let endTrigger = parameters[Parameters.endTrigger] as? String {
+        self.endTrigger = EndTrigger.init(rawValue: endTrigger)!
+      }
+      
+      if let timerEndTime = parameters[Parameters.timerEndTime] as? Double {
+        self.timerEndTime = timerEndTime
+      }
+      
+      if let controlStickAdjustments = parameters[Parameters.controlStickAdjustments] as? NSDictionary {
+        
+        for virtualStickControl in VirtualStickControl.allCases {
+          if let adjustmentStickParameters = controlStickAdjustments[virtualStickControl] as? NSDictionary {
+            let controllerStickAxis = ControllerStickAxis.init(rawValue: adjustmentStickParameters["axis"] as! String)!
+            var minSpeed: Double
+            let maxSpeed = adjustmentStickParameters["maxSpeed"] as! Double
+            if (virtualStickControl == .yaw) { // For yaw the max (cw & ccw) rotation speed is defined, instead of a min max value
+              minSpeed = -maxSpeed
+            } else {
+              minSpeed = adjustmentStickParameters["minSpeed"] as! Double
+            }
+            
+            implementControlStickAdjustment(virtualStickControl, controllerStickAxis, minSpeed, maxSpeed)
+            
+          }
+        }
+      }
+      
     }
-    
-    
-    
   }
   
-  public func run() {
-    //    print("run")
+  private func implementControlStickAdjustment(_ virtualStickControl: VirtualStickControl, _ controllerStickAxis: ControllerStickAxis, _ minSpeed: Double, _ maxSpeed: Double) {
     
+    var controllerStickKeyParam: String
+    
+    switch controllerStickAxis {
+    case .leftHorizontal:
+      controllerStickKeyParam = DJIRemoteControllerParamLeftHorizontalValue
+    case .leftVertical:
+      controllerStickKeyParam = DJIRemoteControllerParamLeftVerticalValue
+    case .rightHorizontal:
+      controllerStickKeyParam = DJIRemoteControllerParamRightHorizontalValue
+    case .rightVertical:
+      controllerStickKeyParam = DJIRemoteControllerParamRightVerticalValue
+    }
+    
+    DJISDKManager.keyManager()?.startListeningForChanges(on: DJIRemoteControllerKey(param: controllerStickKeyParam)!, withListener: self, andUpdate: { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      if (newValue != nil) {
+        let stickValue = newValue!.integerValue
+        let rescaledStickValue = self.rescaleControllerStickValue(stickValue, minSpeed, maxSpeed)
+        self.virtualStickAdjustmentValues[virtualStickControl] = rescaledStickValue
+      }
+    })
+  }
+  
+  private func rescaleControllerStickValue(_ controllerStickValue: Int, _ minSpeed: Double, _ maxSpeed: Double) -> Double {
+    if (controllerStickValue < 0) {
+      return Double(controllerStickValue) / (-CONTROLLER_STICK_LIMIT / minSpeed)
+    } else {
+      return Double(controllerStickValue) / (CONTROLLER_STICK_LIMIT / maxSpeed)
+    }
+  }
+  
+  private func cleanUp(withCompletion: @escaping (Error?) -> ()) {
+    self.sendVirtualStickDataTimer.invalidate()
+    self.endTriggerTimer.invalidate()
+    DJISDKManager.keyManager()?.stopAllListening(ofListeners: self)
+    
+    if (self.doNotStopVirtualStickOnEnd == true) {
+      withCompletion(nil)
+    } else {
+      self.stopVirtualStick { (error: Error?) in
+        withCompletion(error)
+      }
+    }
+  }
+  
+  private func stopVirtualStick(withCompletion: @escaping (Error?) -> ()) {
+    let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
+    flightController?.setVirtualStickModeEnabled(false, withCompletion: { (error: Error?) in
+      withCompletion(error)
+    })
+  }
+  
+  @objc
+  private func sendVirtualStickData() {
+    let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
+    
+    var virtualStickData: [VirtualStickControl: Double] = [:]
+    
+    for virtualStickControl in VirtualStickControl.allCases {
+      virtualStickData[virtualStickControl] = self.baseVirtualStickControlValues[virtualStickControl]! + self.virtualStickAdjustmentValues[virtualStickControl]!
+    }
+    
+    flightController?.send(
+      DJIVirtualStickFlightControlData(
+        // In the coordinate system used for the drone, roll and pitch are swapped
+        pitch: Float(virtualStickData[VirtualStickControl.roll]!),
+        roll: Float(virtualStickData[VirtualStickControl.pitch]!),
+        yaw: Float(virtualStickData[VirtualStickControl.yaw]!),
+        verticalThrottle: Float(virtualStickData[VirtualStickControl.verticalThrottle]!)
+      ),
+      withCompletion: nil)
+  }
+  
+  @objc
+  private func endTriggerTimerDidTrigger() {
+    self.sendVirtualStickDataTimer.invalidate()
+    self.cleanUp { (error: Error?) in
+      DJISDKManager.missionControl()?.element(self, didFinishRunningWithError: error)
+    }
+  }
+  
+  
+  
+  public func run() {
     let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
     let missionControl = DJISDKManager.missionControl()
     
@@ -166,19 +248,14 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
         //          return
         //        }
         
-        self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
+        self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
         
-        let endTrigger = self.parameters["endTrigger"] as! String
-        
-        if (endTrigger == "timer") {
-          let timerEndTime = self.parameters["timerEndTime"] as! Double
-          self.endTriggerTimer = Timer.scheduledTimer(timeInterval: timerEndTime, target: self, selector: #selector(self.endTriggerTimerDidTrigger), userInfo: nil, repeats: false)
+        if (self.endTrigger == .timer) {
+          self.endTriggerTimer = Timer.scheduledTimer(timeInterval: self.timerEndTime!, target: self, selector: #selector(self.endTriggerTimerDidTrigger), userInfo: nil, repeats: false)
         }
         
       })
-      
     }
-    
   }
   
   public func isPausable() -> Bool {
@@ -187,15 +264,15 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   
   public func pauseRun() {
     self.sendVirtualStickDataTimer.invalidate()
-    if (self.endTriggerTimer.isValid) {
+    if (self.endTrigger == .timer) {
       self.secondsUntilEndTrigger = self.endTriggerTimer.fireDate.timeIntervalSinceNow
       self.endTriggerTimer.invalidate()
     }
   }
   
   public func resumeRun() {
-    self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
-    if (self.secondsUntilEndTrigger != nil) {
+    self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
+    if (self.endTrigger == .timer) {
       self.endTriggerTimer = Timer.scheduledTimer(timeInterval: self.secondsUntilEndTrigger!, target: self, selector: #selector(self.endTriggerTimerDidTrigger), userInfo: nil, repeats: false)
     }
   }
@@ -214,89 +291,6 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   
   public func checkValidity() -> Error? {
     return nil
-  }
-  
-  private func implementControllerStickAdjustment(mode: AdjustmentStickMode, stick: ControllerStickAxis, minValue: Double, maxValue: Double) {
-    
-    var adjustmentStickKey: String
-    
-    switch stick {
-    case .leftHorizontal:
-      adjustmentStickKey = DJIRemoteControllerParamLeftHorizontalValue
-    case .leftVertical:
-      adjustmentStickKey = DJIRemoteControllerParamLeftVerticalValue
-    case .rightHorizontal:
-      adjustmentStickKey = DJIRemoteControllerParamRightHorizontalValue
-    case .rightVertical:
-      adjustmentStickKey = DJIRemoteControllerParamRightVerticalValue
-    default:
-      break
-    }
-    
-    DJISDKManager.keyManager()?.startListeningForChanges(on: DJIRemoteControllerKey(param: adjustmentStickKey)!, withListener: self, andUpdate: { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
-      if (newValue != nil) {
-        var stickValue = Double(newValue!.integerValue)
-        if (stickValue < 0) {
-          stickValue = Double(stickValue) / (-CONTROLLER_STICK_LIMIT / minValue)
-        } else if (stickValue > 0) {
-          stickValue = Double(stickValue) / (CONTROLLER_STICK_LIMIT / maxValue)
-        }
-        
-        self.adjustmentStickValues[mode] = stickValue
-      }
-    })
-    
-  }
-  
-  private func cleanUp(withCompletion: @escaping (Error?) -> ()) {
-    self.sendVirtualStickDataTimer.invalidate()
-    self.endTriggerTimer.invalidate()
-    DJISDKManager.keyManager()?.stopAllListening(ofListeners: self)
-    
-    if (self.doNotStopVirtualStickOnEnd == true) {
-      withCompletion(nil)
-    } else {
-      self.stopVirtualStick { (error: Error?) in
-        withCompletion(error)
-      }
-    }
-    
-  }
-  
-  @objc
-  private func sendVirtualStickData() {
-    let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
-    
-    var pitch = Float(self.virtualStickData["pitch"]! + self.adjustmentStickValues[.pitchControllerStickAdjustment]!)
-    var roll = Float(self.virtualStickData["roll"]! + self.adjustmentStickValues[.rollControllerStickAdjustment]!)
-    var yaw = Float(self.virtualStickData["yaw"]! + self.adjustmentStickValues[.yawControllerStickAdjustment]!)
-    var verticalThrottle = Float(self.virtualStickData["verticalThrottle"]! + self.adjustmentStickValues[.verticalThrottleControllerStickAdjustment]!)
-    
-    flightController?.send(
-      DJIVirtualStickFlightControlData(
-        // In the coordinate system used for the drone, roll and pitch are swapped
-        pitch: roll,
-        roll: pitch,
-        yaw: yaw,
-        verticalThrottle: verticalThrottle
-      ),
-      withCompletion: nil)
-    
-  }
-  
-  @objc
-  private func endTriggerTimerDidTrigger() {
-    self.sendVirtualStickDataTimer.invalidate()
-    self.cleanUp { (error: Error?) in
-      DJISDKManager.missionControl()?.element(self, didFinishRunningWithError: error)
-    }
-  }
-  
-  private func stopVirtualStick(withCompletion: @escaping (Error?) -> ()) {
-    let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
-    flightController?.setVirtualStickModeEnabled(false, withCompletion: { (error: Error?) in
-      withCompletion(error)
-    })
   }
   
 }
