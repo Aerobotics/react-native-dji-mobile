@@ -79,10 +79,12 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
       DJIError validError = newElement.checkValidity();
       if (validError != null) {
         Log.i("ReactNativeJS", validError.getDescription());
+        promise.reject(validError.getDescription())
       }
       DJIError scheduleError = missionControl.scheduleElement(newElement);
       if (scheduleError != null) {
         Log.i("ReactNativeJS", scheduleError.getDescription());
+        promise.reject(scheduleError.getDescription())
       }
     }
 
