@@ -11,6 +11,7 @@ import DJISDK
 enum TimelineElement: String {
   case TakeOffAction
   case GoToAction
+  case GoHomeAction
   case GimbalAttitudeAction
   case RecordVideoAction
   case ShootPhotoAction
@@ -46,6 +47,9 @@ class DJIMissionControlWrapper: NSObject {
       
     case .GoToAction:
       newElement = buildGoToAction(parameters)
+      
+    case .GoHomeAction:
+      newElement = buildGoHomeAction(parameters)
       
     case .GimbalAttitudeAction:
       newElement = buildGimbalAttitudeAction(parameters)
@@ -113,6 +117,14 @@ class DJIMissionControlWrapper: NSObject {
     }
     
     return goToAction
+  }
+  
+  private func buildGoHomeAction(_ parameters: NSDictionary) -> DJIGoHomeAction? {
+    let goHomeAction = DJIGoHomeAction()
+    if let autoConfirmLandingEnabled = parameters["autoConfirmLandingEnabled"] as? Bool {
+      goHomeAction.autoConfirmLandingEnabled = autoConfirmLandingEnabled
+    }
+    return goHomeAction
   }
   
   private func buildGimbalAttitudeAction(_ parameters: NSDictionary) -> DJIGimbalAttitudeAction? {
