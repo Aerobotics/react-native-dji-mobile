@@ -30,6 +30,7 @@ import dji.sdk.mission.timeline.actions.HotpointAction;
 import dji.common.mission.hotpoint.HotpointMission;
 import dji.common.mission.hotpoint.HotpointHeading;
 import dji.common.mission.hotpoint.HotpointStartPoint;
+import dji.sdk.mission.timeline.actions.AircraftYawAction;
 import dji.common.model.LocationCoordinate2D;
 
 import dji.sdk.sdkmanager.DJISDKManager;
@@ -41,6 +42,7 @@ enum TimelineElementType {
   ShootPhotoAction,
   RecordVideoAction,
   HotpointAction,
+  AircraftYawAction,
   }
 
 public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
@@ -73,12 +75,19 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
       case ShootPhotoAction:
         newElement = buildShootPhotoAction(parameters);
+        break;
 
       case RecordVideoAction:
         newElement = buildRecordVideoAction(parameters);
+        break;
 
       case HotpointAction:
         newElement = buildHotpointAction(parameters);
+        break;
+
+      case AircraftYawAction:
+        newElement = buildAircraftYawAction(parameters);
+        break;
 
       default:
         break;
@@ -190,6 +199,18 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
     hotpointMission.setClockwise(clockwise);
 
     return new HotpointAction(hotpointMission, (float)angle);
+  }
+
+  public AircraftYawAction buildAircraftYawAction(ReadableMap parameters) {
+    double angle = parameters.getDouble("angle");
+
+    if(parameters.hasKey("velocity")){
+      double velocity = parameters.getDouble("velocity");
+      return new AircraftYawAction((float)angle, (float)velocity);
+    } else {
+      boolean isAbsolute = parameters.getBoolean("isAbsolute");
+      return new AircraftYawAction((float)angle, isAbsolute);
+    }
   }
 
   @ReactMethod
