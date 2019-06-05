@@ -101,7 +101,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     resolve(nil)
     self.startKeyListener(key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let connected = newValue?.boolValue {
-        EventSender.sendReactEvent(type: "connectionStatus", value: connected ? "connected" : "disconnected")
+        EventSender.sendReactEvent(type: "ProductConnection", value: connected ? "connected" : "disconnected")
       }
     }
   }
@@ -112,7 +112,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     resolve(nil)
     self.startKeyListener(key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let chargePercent = newValue?.integerValue {
-        EventSender.sendReactEvent(type: "chargeRemaining", value: chargePercent)
+        EventSender.sendReactEvent(type: "BatteryChargeRemaining", value: chargePercent)
       }
     }
   }
@@ -126,7 +126,7 @@ class DJIMobile: NSObject, RCTInvalidating {
         let longitude = location.coordinate.longitude
         let latitude = location.coordinate.latitude
         let altitude = location.altitude
-        EventSender.sendReactEvent(type: "aircraftLocation", value: [
+        EventSender.sendReactEvent(type: "AircraftLocation", value: [
           "longitude": longitude,
           "latitude": latitude,
           "altitude": altitude,
@@ -166,7 +166,7 @@ class DJIMobile: NSObject, RCTInvalidating {
         let x = velocity.x
         let y = velocity.y
         let z = velocity.z
-        EventSender.sendReactEvent(type: "aircraftVelocity", value: [
+        EventSender.sendReactEvent(type: "AircraftVelocity", value: [
           "x": x,
           "y": y,
           "z": z,
@@ -181,7 +181,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     resolve(nil)
     self.startKeyListener(key) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let heading = newValue?.doubleValue {
-        EventSender.sendReactEvent(type: "aircraftCompassHeading", value: [
+        EventSender.sendReactEvent(type: "AircraftCompassHeading", value: [
           "heading": heading,
           ])
       }
@@ -196,7 +196,7 @@ class DJIMobile: NSObject, RCTInvalidating {
   
   @objc private func newMediaFileUpdate(payload: NSNotification) {
     let newMedia = payload.userInfo!["value"] as! DJIMediaFile
-    EventSender.sendReactEvent(type: "newMediaFile", value: [
+    EventSender.sendReactEvent(type: "CameraDidGenerateNewMediaFile", value: [
       "fileName": newMedia.fileName
       ])
   }
