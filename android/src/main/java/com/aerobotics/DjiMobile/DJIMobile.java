@@ -261,7 +261,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       startEventListener(attitudeEvents[i], new EventListener() {
         @Override
         public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-          if (newValue != null && newValue instanceof Float) {
+          if (newValue != null && newValue instanceof Double) {
             attitudeVector[finalI] = (float)newValue;
             WritableMap params = Arguments.createMap();
             params.putDouble("yaw", attitudeVector[0]);
