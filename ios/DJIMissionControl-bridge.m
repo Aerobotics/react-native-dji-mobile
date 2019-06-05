@@ -12,7 +12,7 @@
 @interface RCT_EXTERN_MODULE(DJIMissionControlWrapper, NSObject)
 
 RCT_EXTERN_METHOD(
-                  scheduleElement: (NSString)timelineElementType
+                  scheduleElement: (NSString)timelineElementName
                   parameters:      (NSDictionary)parameters
                   resolve:         (RCTPromiseResolveBlock)resolve
                   reject:          (RCTPromiseRejectBlock)reject
