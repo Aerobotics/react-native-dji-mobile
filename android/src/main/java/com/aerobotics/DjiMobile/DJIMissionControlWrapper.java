@@ -26,6 +26,12 @@ import dji.sdk.mission.timeline.TimelineMission;
 import dji.sdk.mission.timeline.actions.GimbalAttitudeAction;
 import dji.sdk.mission.timeline.actions.RecordVideoAction;
 import dji.sdk.mission.timeline.actions.ShootPhotoAction;
+import dji.sdk.mission.timeline.actions.HotpointAction;
+import dji.common.mission.hotpoint.HotpointMission;
+import dji.common.mission.hotpoint.HotpointHeading;
+import dji.common.mission.hotpoint.HotpointStartPoint;
+import dji.common.model.LocationCoordinate2D;
+
 import dji.sdk.sdkmanager.DJISDKManager;
 
 
@@ -34,6 +40,7 @@ enum TimelineElementType {
   GimbalAttitudeAction,
   ShootPhotoAction,
   RecordVideoAction,
+  HotpointAction,
   }
 
 public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
@@ -69,6 +76,9 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
       case RecordVideoAction:
         newElement = buildRecordVideoAction(parameters);
+
+      case HotpointAction:
+        newElement = buildHotpointAction(parameters);
 
       default:
         break;
@@ -156,6 +166,30 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
         return RecordVideoAction.newStartRecordVideoAction();
       }
     }
+  }
+
+  public HotpointAction buildHotpointAction(ReadableMap parameters) {
+    ReadableMap hotpoint = parameters.getMap("hotpoint");
+    double angle = parameters.getDouble("angle");
+    double longitude = hotpoint.getDouble("longitude");
+    double latitude = hotpoint.getDouble("latitude");
+    double altitude = hotpoint.getDouble("altitude");
+    double radius = parameters.getDouble("radius");
+    double angularVelocity = parameters.getDouble("angularVelocity");
+    String startPointString = parameters.getString("startPoint");
+    String headingString = parameters.getString("heading");
+    boolean clockwise = parameters.getBoolean("clockwise");
+
+    HotpointMission hotpointMission = new HotpointMission();
+    hotpointMission.setHotpoint(new LocationCoordinate2D(latitude, longitude));
+    hotpointMission.setAltitude((float)altitude);
+    hotpointMission.setRadius(radius);
+    hotpointMission.setAngularVelocity((float)angularVelocity);
+    hotpointMission.setStartPoint(HotpointStartPoint.valueOf(startPointString));
+    hotpointMission.setHeading(HotpointHeading.valueOf(headingString));
+    hotpointMission.setClockwise(clockwise);
+
+    return new HotpointAction(hotpointMission, (float)angle);
   }
 
   @ReactMethod
