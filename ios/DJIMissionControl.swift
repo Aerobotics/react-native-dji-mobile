@@ -8,15 +8,18 @@
 import Foundation
 import DJISDK
 
-// TODO: (Adam) Replace this with an enum
-let timelineElements = [
-  "GimbalAttitudeAction": "GimbalAttitudeAction",
-  "ShootPhotoAction": "ShootPhotoAction",
-  "RecordVideoAction": "RecordVideoAction",
+enum TimelineElement: String {
+  case TakeOffAction
+  case GoToAction
+  case GoHomeAction
+  case GimbalAttitudeAction
+  case RecordVideoAction
+  case ShootPhotoAction
   
-  "WaypointMissionTimelineElement": "WaypointMissionTimelineElement",
-  "VirtualStickTimelineElement": "VirtualStickTimelineElement",
-]
+  case WaypointMissionTimelineElement
+  case VirtualStickTimelineElement
+  
+}
 
 @objc(DJIMissionControlWrapper)
 class DJIMissionControlWrapper: NSObject {
@@ -26,34 +29,43 @@ class DJIMissionControlWrapper: NSObject {
   //  var scheduledElementIndexOrder: [Int] = [];
   
   @objc(scheduleElement:parameters:resolve:reject:)
-  func scheduleElement(timelineElementType: String, parameters: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+  func scheduleElement(timelineElementName: String, parameters: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     
     guard let missionControl = DJISDKManager.missionControl() else {
       reject("Schedule Element Error", "Could not schedule element as mission control could not be loaded", nil);
       return
     }
     
+    let timelineElementToSchedule = TimelineElement.init(rawValue: timelineElementName)!
+    
     var newElement: DJIMissionControlTimelineElement?
     
-    switch timelineElementType {
-    case timelineElements["WaypointMissionTimelineElement"]:
+    switch timelineElementToSchedule {
+      
+    case .TakeOffAction:
+      newElement = buildTakeOffAction()
+      
+    case .GoToAction:
+      newElement = buildGoToAction(parameters)
+      
+    case .GoHomeAction:
+      newElement = buildGoHomeAction(parameters)
+      
+    case .GimbalAttitudeAction:
+      newElement = buildGimbalAttitudeAction(parameters)
+      
+    case .RecordVideoAction:
+      newElement = buildRecordVideoAction(parameters)
+      
+    case .ShootPhotoAction:
+      newElement = buildShootPhotoAction(parameters)
+      
+    case .WaypointMissionTimelineElement:
       let waypointMission = WaypointMissionTimelineElement(parameters)
       newElement = DJIWaypointMission(mission: waypointMission)
       
-    case timelineElements["GimbalAttitudeAction"]:
-      newElement = buildGimbalAttitudeAction(parameters)
-      
-    case timelineElements["ShootPhotoAction"]:
-      newElement = buildShootPhotoAction(parameters)
-      
-    case timelineElements["RecordVideoAction"]:
-      newElement = buildRecordVideoAction(parameters)
-      
-    case timelineElements["VirtualStickTimelineElement"]:
+    case .VirtualStickTimelineElement:
       newElement = VirtualStickTimelineElement(parameters)
-      
-    default:
-      break
     }
     
     if newElement != nil {
@@ -72,7 +84,50 @@ class DJIMissionControlWrapper: NSObject {
     }
   }
   
-  func buildGimbalAttitudeAction(_ parameters: NSDictionary) -> DJIGimbalAttitudeAction? {
+  private func buildTakeOffAction() -> DJITakeOffAction? {
+    return DJITakeOffAction()
+  }
+  
+  private func buildGoToAction(_ parameters: NSDictionary) -> DJIGoToAction? {
+    let altitude = parameters["altitude"] as? Double
+    let flightSpeed = parameters["flightSpeed"] as? Double
+    var coordinate: CLLocationCoordinate2D? = nil
+    if let coordinateParam = parameters["coordinate"] as? NSDictionary {
+      coordinate = CLLocationCoordinate2D(
+        latitude: coordinateParam["latitude"] as! Double,
+        longitude: coordinateParam["longitude"] as! Double
+      )
+    }
+    
+    let goToAction: DJIGoToAction?
+    
+    if (coordinate != nil) {
+      if (altitude != nil) {
+        goToAction = DJIGoToAction(coordinate: coordinate!, altitude: altitude!)
+      } else {
+        goToAction = DJIGoToAction(coordinate: coordinate!)
+      }
+      
+    } else { // Altitude will be provided only
+      goToAction = DJIGoToAction(altitude: altitude!)
+    }
+    
+    if (goToAction != nil && flightSpeed != nil) {
+      goToAction!.flightSpeed = Float(flightSpeed!)
+    }
+    
+    return goToAction
+  }
+  
+  private func buildGoHomeAction(_ parameters: NSDictionary) -> DJIGoHomeAction? {
+    let goHomeAction = DJIGoHomeAction()
+    if let autoConfirmLandingEnabled = parameters["autoConfirmLandingEnabled"] as? Bool {
+      goHomeAction.autoConfirmLandingEnabled = autoConfirmLandingEnabled
+    }
+    return goHomeAction
+  }
+  
+  private func buildGimbalAttitudeAction(_ parameters: NSDictionary) -> DJIGimbalAttitudeAction? {
     let pitch = parameters["pitch"] as! Float
     let roll = parameters["roll"] as! Float
     let yaw = parameters["yaw"] as! Float
@@ -87,7 +142,7 @@ class DJIMissionControlWrapper: NSObject {
     return gimbalAttitudeAction
   }
   
-  func buildShootPhotoAction(_ parameters: NSDictionary) -> DJIShootPhotoAction? {
+  private func buildShootPhotoAction(_ parameters: NSDictionary) -> DJIShootPhotoAction? {
     let count = parameters["count"] as? Int32
     let interval = parameters["interval"] as? Double
     let wait = parameters["wait"] as? Bool
@@ -107,7 +162,7 @@ class DJIMissionControlWrapper: NSObject {
     
   }
   
-  func buildRecordVideoAction(_ parameters: NSDictionary) -> DJIRecordVideoAction? {
+  private func buildRecordVideoAction(_ parameters: NSDictionary) -> DJIRecordVideoAction? {
     let duration = parameters["duration"] as? Double
     let stopRecord = parameters["stopRecord"] as? Bool
     
@@ -217,11 +272,11 @@ class DJIMissionControlWrapper: NSObject {
     }
   }
   
-  @objc func constantsToExport() -> [AnyHashable : Any]! {
-    return [
-      "timelineElements": timelineElements,
-    ]
-  }
+  //  @objc func constantsToExport() -> [AnyHashable : Any]! {
+  //    return [
+  //      "timelineElements": timelineElements,
+  //    ]
+  //  }
   
   @objc static func requiresMainQueueSetup() -> Bool {
     return true

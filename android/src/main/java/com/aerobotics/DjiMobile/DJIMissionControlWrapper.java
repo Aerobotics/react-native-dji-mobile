@@ -19,11 +19,14 @@ import java.util.Map;
 
 import dji.common.error.DJIError;
 import dji.common.gimbal.Attitude;
+import dji.common.model.LocationCoordinate2D;
 import dji.sdk.mission.MissionControl;
 import dji.sdk.mission.timeline.TimelineElement;
 import dji.sdk.mission.timeline.TimelineEvent;
 import dji.sdk.mission.timeline.TimelineMission;
 import dji.sdk.mission.timeline.actions.GimbalAttitudeAction;
+import dji.sdk.mission.timeline.actions.GoHomeAction;
+import dji.sdk.mission.timeline.actions.GoToAction;
 import dji.sdk.mission.timeline.actions.RecordVideoAction;
 import dji.sdk.mission.timeline.actions.ShootPhotoAction;
 import dji.sdk.mission.timeline.actions.HotpointAction;
@@ -32,7 +35,7 @@ import dji.common.mission.hotpoint.HotpointHeading;
 import dji.common.mission.hotpoint.HotpointStartPoint;
 import dji.sdk.mission.timeline.actions.AircraftYawAction;
 import dji.common.model.LocationCoordinate2D;
-
+import dji.sdk.mission.timeline.actions.TakeOffAction;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 
@@ -43,7 +46,10 @@ enum TimelineElementType {
   RecordVideoAction,
   HotpointAction,
   AircraftYawAction,
-  }
+  TakeOffAction,
+  GoToAction,
+  GoHomeAction,
+}
 
 public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
@@ -56,7 +62,7 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void scheduleElement(String timelineElementType, ReadableMap parameters, Promise promise) {
-
+    Log.i("REACT", "Element type " + timelineElementType);
     MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
 
     TimelineElement newElement = null;
@@ -81,12 +87,25 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
         newElement = buildRecordVideoAction(parameters);
         break;
 
+
       case HotpointAction:
         newElement = buildHotpointAction(parameters);
         break;
 
       case AircraftYawAction:
         newElement = buildAircraftYawAction(parameters);
+        break;
+
+      case TakeOffAction:
+        newElement = buildTakeOffAction();
+        break;
+
+      case GoToAction:
+        newElement = buildGoToAction(parameters);
+        break;
+
+      case GoHomeAction:
+        newElement = buildGoHomeAction();
         break;
 
       default:
@@ -211,6 +230,52 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
       boolean isAbsolute = parameters.getBoolean("isAbsolute");
       return new AircraftYawAction((float)angle, isAbsolute);
     }
+  }
+
+  public TakeOffAction buildTakeOffAction() {
+    return new TakeOffAction();
+  }
+
+  public GoToAction buildGoToAction(ReadableMap parameters) {
+    Double latitude = null;
+    Double longitude = null;
+    Float altitude = null;
+    Float flightSpeed = null;
+
+    try {
+      ReadableMap coordinate = parameters.getMap("coordinate");
+      latitude = coordinate.getDouble("latitude");
+      longitude = coordinate.getDouble("longitude");
+    } catch (Exception e) {}
+
+    try {
+      altitude = (float) parameters.getDouble("altitude");
+    } catch (Exception e) {}
+
+    try {
+      flightSpeed = (float) parameters.getDouble("flightSpeed");
+    } catch (Exception e) {}
+
+    if (latitude != null && longitude != null && altitude != null) {
+      LocationCoordinate2D coordinate2D = new LocationCoordinate2D(latitude, longitude);
+      GoToAction goToAction = new GoToAction(coordinate2D, altitude);
+      if (flightSpeed != null) {
+        goToAction.setFlightSpeed(flightSpeed);
+      }
+      return goToAction;
+    } else if (altitude != null) {
+      GoToAction goToAction = new GoToAction(altitude);
+      if (flightSpeed != null) {
+        goToAction.setFlightSpeed(flightSpeed);
+      }
+      return goToAction;
+    } else {
+      return null;
+    }
+  }
+
+  public GoHomeAction buildGoHomeAction() {
+    return new GoHomeAction();
   }
 
   @ReactMethod
