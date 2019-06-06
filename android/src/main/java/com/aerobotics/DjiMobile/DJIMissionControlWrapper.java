@@ -4,6 +4,7 @@ package com.aerobotics.DjiMobile;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.aerobotics.DjiMobile.DJITimelineElements.VirtualStickTimelineElement;
 import com.aerobotics.DjiMobile.DJITimelineElements.WaypointMissionTimelineElement;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -49,6 +50,7 @@ enum TimelineElementType {
   TakeOffAction,
   GoToAction,
   GoHomeAction,
+  VirtualStickTimelineElement,
 }
 
 public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
@@ -106,6 +108,10 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
       case GoHomeAction:
         newElement = buildGoHomeAction();
+        break;
+
+      case VirtualStickTimelineElement:
+        newElement = buildVirtualStickTimelineElement(parameters);
         break;
 
       default:
@@ -276,6 +282,10 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
   public GoHomeAction buildGoHomeAction() {
     return new GoHomeAction();
+  }
+
+  public VirtualStickTimelineElement buildVirtualStickTimelineElement(ReadableMap parameters) {
+    return new VirtualStickTimelineElement(parameters);
   }
 
   @ReactMethod

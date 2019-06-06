@@ -1,6 +1,7 @@
 package com.aerobotics.DjiMobile.DJITimelineElements;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
@@ -15,6 +16,7 @@ import dji.common.error.DJIError;
 import dji.common.flightcontroller.virtualstick.FlightControlData;
 import dji.common.flightcontroller.virtualstick.FlightCoordinateSystem;
 import dji.common.flightcontroller.virtualstick.RollPitchControlMode;
+import dji.common.flightcontroller.virtualstick.VerticalControlMode;
 import dji.common.flightcontroller.virtualstick.YawControlMode;
 import dji.common.util.CommonCallbacks;
 import dji.keysdk.DJIKey;
@@ -94,7 +96,6 @@ public class VirtualStickTimelineElement extends TimelineElement {
     put(VirtualStickControl.roll, 0.0);
     put(VirtualStickControl.yaw, 0.0);
     put(VirtualStickControl.verticalThrottle, 0.0);
-
   }};
 
   private ArrayList<KeyListener> runningKeyListeners = new ArrayList<KeyListener>();
@@ -192,7 +193,7 @@ public class VirtualStickTimelineElement extends TimelineElement {
             if (virtualStickControl == VirtualStickControl.yaw) { // For yaw the max (cw & ccw) rotation speed is defined, instead of a min max value
               minSpeed = -maxSpeed; // Opposite direction rotation
             } else {
-              minSpeed = adjustmentStickParameters.getDouble("maxSpeed");
+              minSpeed = adjustmentStickParameters.getDouble("minSpeed");
             }
 
             implementControlStickAdjustment(virtualStickControl, controllerStickAxis, minSpeed, maxSpeed);
@@ -288,10 +289,10 @@ public class VirtualStickTimelineElement extends TimelineElement {
 
     // Using velocity and body for controlMode and coordinateSystem respectively means that a positive pitch corresponds to a roll to the right,
     // and a positive roll corresponds to a pitch forwards, THIS IS THE DJI SDK AND WE HAVE TO LIVE WITH IT
+    flightController.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
     flightController.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
     flightController.setYawControlMode(YawControlMode.ANGULAR_VELOCITY);
-    flightController.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
-
+    flightController.setVerticalControlMode(VerticalControlMode.VELOCITY);
     if (stopExistingVirtualStick == true) {
       cleanUp(new CompletionCallback() {
         @Override
