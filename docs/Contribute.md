@@ -9,14 +9,14 @@ $ git fork
 
 ## 2 - Update source code from Aerobotics repository
 
-### a:/ Init upstream
+__a:/ Init upstream__
 ```shell
 $ cd react-native-dji-mobile
 $ git remote add upstream git@github.com:Aerobotics/react-native-dji-mobile.git
 $ git fetch upstream
 ```
 
-### b:/ Merge Aerobotics develop branch to your working branch
+__b:/ Merge Aerobotics develop branch to your working branch__
 then: (like "git pull" which is fetch + merge)
 ```shell
 $ git merge upstream/develop your_branch
