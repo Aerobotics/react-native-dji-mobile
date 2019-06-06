@@ -248,6 +248,35 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void startAircraftAttitudeListener(Promise promise) {
+    SDKEvent[] attitudeEvents = {
+      SDKEvent.AircraftAttitudeYaw,
+      SDKEvent.AircraftAttitudePitch,
+      SDKEvent.AircraftAttitudeRoll,
+    };
+    final double[] attitudeVector = {0.0, 0.0, 0.0};
+
+    for (int i = 0; i < 3; i++) {
+      final int finalI = i;
+      startEventListener(attitudeEvents[i], new EventListener() {
+        @Override
+        public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+          if (newValue != null && newValue instanceof Double) {
+            attitudeVector[finalI] = (double)newValue;
+            WritableMap params = Arguments.createMap();
+            params.putDouble("yaw", attitudeVector[0]);
+            params.putDouble("pitch", attitudeVector[1]);
+            params.putDouble("roll", attitudeVector[2]);
+            sendEvent("AircraftAttitude", params);
+          }
+        }
+      });
+    }
+
+    promise.resolve(null);
+  }
+
+  @ReactMethod
   public void startAircraftCompassHeadingListener(Promise promise) {
     startEventListener(SDKEvent.AircraftCompassHeading, new EventListener() {
       @Override

@@ -114,6 +114,18 @@ const DJIMobileWrapper = {
     }
   },
 
+  startAircraftAttitudeListener: async () => {
+    await DJIMobile.startAircraftAttitudeListener();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'AircraftAttitude')).asObservable();
+  },
+  stopAircraftAttitudeListener: async () => {
+    if (Platform.OS === 'android') {
+      await DJIMobile.stopEventListener('AircraftAttitude');
+    } else {
+      await DJIMobile.stopKeyListener('DJIFlightControllerParamAttitude');
+    }
+  },
+
   startAircraftCompassHeadingListener: async () => {
     await DJIMobile.startAircraftCompassHeadingListener();
     return DJIEventSubject.pipe($filter(evt => evt.type === 'AircraftCompassHeading')).asObservable();
