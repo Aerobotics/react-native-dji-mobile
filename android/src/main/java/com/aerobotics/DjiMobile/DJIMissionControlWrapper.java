@@ -30,6 +30,12 @@ import dji.sdk.mission.timeline.actions.GoHomeAction;
 import dji.sdk.mission.timeline.actions.GoToAction;
 import dji.sdk.mission.timeline.actions.RecordVideoAction;
 import dji.sdk.mission.timeline.actions.ShootPhotoAction;
+import dji.sdk.mission.timeline.actions.HotpointAction;
+import dji.common.mission.hotpoint.HotpointMission;
+import dji.common.mission.hotpoint.HotpointHeading;
+import dji.common.mission.hotpoint.HotpointStartPoint;
+import dji.sdk.mission.timeline.actions.AircraftYawAction;
+import dji.common.model.LocationCoordinate2D;
 import dji.sdk.mission.timeline.actions.TakeOffAction;
 import dji.sdk.sdkmanager.DJISDKManager;
 
@@ -39,6 +45,8 @@ enum TimelineElementType {
   GimbalAttitudeAction,
   ShootPhotoAction,
   RecordVideoAction,
+  HotpointAction,
+  AircraftYawAction,
   TakeOffAction,
   GoToAction,
   GoHomeAction,
@@ -79,6 +87,15 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
       case RecordVideoAction:
         newElement = buildRecordVideoAction(parameters);
+        break;
+
+
+      case HotpointAction:
+        newElement = buildHotpointAction(parameters);
+        break;
+
+      case AircraftYawAction:
+        newElement = buildAircraftYawAction(parameters);
         break;
 
       case TakeOffAction:
@@ -182,6 +199,42 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
       } else {
         return RecordVideoAction.newStartRecordVideoAction();
       }
+    }
+  }
+
+  public HotpointAction buildHotpointAction(ReadableMap parameters) {
+    ReadableMap hotpoint = parameters.getMap("hotpoint");
+    double angle = parameters.getDouble("angle");
+    double longitude = hotpoint.getDouble("longitude");
+    double latitude = hotpoint.getDouble("latitude");
+    double altitude = hotpoint.getDouble("altitude");
+    double radius = parameters.getDouble("radius");
+    double angularVelocity = parameters.getDouble("angularVelocity");
+    String startPointString = parameters.getString("startPoint");
+    String headingString = parameters.getString("heading");
+    boolean clockwise = parameters.getBoolean("clockwise");
+
+    HotpointMission hotpointMission = new HotpointMission();
+    hotpointMission.setHotpoint(new LocationCoordinate2D(latitude, longitude));
+    hotpointMission.setAltitude((float)altitude);
+    hotpointMission.setRadius(radius);
+    hotpointMission.setAngularVelocity((float)angularVelocity);
+    hotpointMission.setStartPoint(HotpointStartPoint.valueOf(startPointString));
+    hotpointMission.setHeading(HotpointHeading.valueOf(headingString));
+    hotpointMission.setClockwise(clockwise);
+
+    return new HotpointAction(hotpointMission, (float)angle);
+  }
+
+  public AircraftYawAction buildAircraftYawAction(ReadableMap parameters) {
+    double angle = parameters.getDouble("angle");
+
+    if(parameters.hasKey("velocity")){
+      double velocity = parameters.getDouble("velocity");
+      return new AircraftYawAction((float)angle, (float)velocity);
+    } else {
+      boolean isAbsolute = parameters.getBoolean("isAbsolute");
+      return new AircraftYawAction((float)angle, isAbsolute);
     }
   }
 

@@ -31,6 +31,9 @@ enum SDKEvent {
   AircraftVelocityX(FlightControllerKey.create(FlightControllerKey.VELOCITY_X), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftVelocityY(FlightControllerKey.create(FlightControllerKey.VELOCITY_Y), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftVelocityZ(FlightControllerKey.create(FlightControllerKey.VELOCITY_Z), EventType.DJI_KEY_MANAGER_EVENT),
+  AircraftAttitudeYaw(FlightControllerKey.create(FlightControllerKey.ATTITUDE_YAW), EventType.DJI_KEY_MANAGER_EVENT),
+  AircraftAttitudePitch(FlightControllerKey.create(FlightControllerKey.ATTITUDE_PITCH), EventType.DJI_KEY_MANAGER_EVENT),
+  AircraftAttitudeRoll(FlightControllerKey.create(FlightControllerKey.ATTITUDE_ROLL), EventType.DJI_KEY_MANAGER_EVENT),
 
   CameraDidUpdateSystemState(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
   CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT);

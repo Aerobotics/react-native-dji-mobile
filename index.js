@@ -67,7 +67,7 @@ const DJIMobileWrapper = {
     return DJIEventSubject.pipe($filter(evt => evt.type === 'ProductConnection')).asObservable();
   },
   stopProductConnectionListener: async () => {
-    if (Platform.OS == 'android') {
+    if (Platform.OS === 'android') {
       await DJIMobile.stopEventListener('ProductConnection');
     } else {
       // TODO: (Adam) this key could potentially be used for different types (product, gimbal, etc.) so how to differentiate?
@@ -80,7 +80,7 @@ const DJIMobileWrapper = {
     return DJIEventSubject.pipe($filter(evt => evt.type === 'BatteryChargeRemaining')).asObservable();
   },
   stopBatteryPercentChargeRemainingListener: async () => {
-    if (Platform.OS == 'android') {
+    if (Platform.OS === 'android') {
       await DJIMobile.stopEventListener('BatteryChargeRemaining');
     } else {
       await DJIMobile.stopKeyListener('DJIBatteryParamChargeRemainingInPercent');
@@ -92,7 +92,7 @@ const DJIMobileWrapper = {
     return DJIEventSubject.pipe($filter(evt => evt.type === 'AircraftLocation')).asObservable();
   },
   stopAircraftLocationListener: async () => {
-    if (Platform.OS == 'android') {
+    if (Platform.OS === 'android') {
       await DJIMobile.stopEventListener('AircraftLocation');
     } else {
       await DJIMobile.stopKeyListener('DJIFlightControllerParamAircraftLocation');
@@ -111,6 +111,18 @@ const DJIMobileWrapper = {
       await DJIMobile.stopEventListener('AircraftVelocity');
     } else {
       await DJIMobile.stopKeyListener('DJIFlightControllerParamVelocity');
+    }
+  },
+
+  startAircraftAttitudeListener: async () => {
+    await DJIMobile.startAircraftAttitudeListener();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'AircraftAttitude')).asObservable();
+  },
+  stopAircraftAttitudeListener: async () => {
+    if (Platform.OS === 'android') {
+      await DJIMobile.stopEventListener('AircraftAttitude');
+    } else {
+      await DJIMobile.stopKeyListener('DJIFlightControllerParamAttitude');
     }
   },
 
