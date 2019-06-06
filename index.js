@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 
 import {
-  filter,
+  filter as $filter,
 } from 'rxjs/operators';
 
 import DJIMissionControl from './lib/DJIMissionControl';
@@ -64,27 +64,39 @@ const DJIMobileWrapper = {
 
   startProductConnectionListener: async () => {
     await DJIMobile.startProductConnectionListener();
-    return DJIEventSubject.pipe(filter(evt => evt.type === 'connectionStatus')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'ProductConnection')).asObservable();
   },
   stopProductConnectionListener: async () => {
-    // TODO: (Adam) this key could potentially be used for different types (product, gimbal, etc.) so how to differentiate?
-    await DJIMobile.stopKeyListener('DJIParamConnection');
+    if (Platform.OS === 'android') {
+      await DJIMobile.stopEventListener('ProductConnection');
+    } else {
+      // TODO: (Adam) this key could potentially be used for different types (product, gimbal, etc.) so how to differentiate?
+      await DJIMobile.stopKeyListener('DJIParamConnection');
+    }
   },
 
   startBatteryPercentChargeRemainingListener: async () => {
     await DJIMobile.startBatteryPercentChargeRemainingListener();
-    return DJIEventSubject.pipe(filter(evt => evt.type === 'chargeRemaining')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'BatteryChargeRemaining')).asObservable();
   },
   stopBatteryPercentChargeRemainingListener: async () => {
-    await DJIMobile.stopKeyListener('DJIBatteryParamChargeRemainingInPercent');
+    if (Platform.OS === 'android') {
+      await DJIMobile.stopEventListener('BatteryChargeRemaining');
+    } else {
+      await DJIMobile.stopKeyListener('DJIBatteryParamChargeRemainingInPercent');
+    }
   },
 
   startAircraftLocationListener: async () => {
     await DJIMobile.startAircraftLocationListener();
-    return DJIEventSubject.pipe(filter(evt => evt.type === 'aircraftLocation')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'AircraftLocation')).asObservable();
   },
   stopAircraftLocationListener: async () => {
-    await DJIMobile.stopKeyListener('DJIFlightControllerParamAircraftLocation');
+    if (Platform.OS === 'android') {
+      await DJIMobile.stopEventListener('AircraftLocation');
+    } else {
+      await DJIMobile.stopKeyListener('DJIFlightControllerParamAircraftLocation');
+    }
   },
   getAircraftLocation: async () => {
     return await DJIMobile.getAircraftLocation();
@@ -92,22 +104,38 @@ const DJIMobileWrapper = {
 
   startAircraftVelocityListener: async () => {
     await DJIMobile.startAircraftVelocityListener();
-    return DJIEventSubject.pipe(filter(evt => evt.type === 'aircraftVelocity')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'AircraftVelocity')).asObservable();
   },
   stopAircraftVelocityListener: async () => {
     if (Platform.OS === 'android') {
-      await DJIMobile.stopAircraftVelocityListener();
+      await DJIMobile.stopEventListener('AircraftVelocity');
     } else {
       await DJIMobile.stopKeyListener('DJIFlightControllerParamVelocity');
     }
   },
 
+  startAircraftAttitudeListener: async () => {
+    await DJIMobile.startAircraftAttitudeListener();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'AircraftAttitude')).asObservable();
+  },
+  stopAircraftAttitudeListener: async () => {
+    if (Platform.OS === 'android') {
+      await DJIMobile.stopEventListener('AircraftAttitude');
+    } else {
+      await DJIMobile.stopKeyListener('DJIFlightControllerParamAttitude');
+    }
+  },
+
   startAircraftCompassHeadingListener: async () => {
     await DJIMobile.startAircraftCompassHeadingListener();
-    return DJIEventSubject.pipe(filter(evt => evt.type === 'aircraftCompassHeading')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'AircraftCompassHeading')).asObservable();
   },
   stopAircraftCompassHeadingListener: async () => {
-    await DJIMobile.stopKeyListener('DJIFlightControllerParamCompassHeading');
+    if (Platform.OS === 'android') {
+      await DJIMobile.stopEventListener('AircraftCompassHeading');
+    } else {
+      await DJIMobile.stopKeyListener('DJIFlightControllerParamCompassHeading');
+    }
   },
 
   startRecordRealTimeData: async (fileName: string) => {
@@ -119,10 +147,15 @@ const DJIMobileWrapper = {
 
   startNewMediaFileListener: async () => {
     await DJIMobile.startNewMediaFileListener();
-    return DJIEventSubject.pipe(filter(evt => evt.type === 'newMediaFile')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'CameraDidGenerateNewMediaFile')).asObservable();
   },
   stopNewMediaFileListener: async () => {
-    await DJIMobile.stopNotificationCenterListener('DJICameraEvent.didGenerateNewMediaFile');
+    // TODO: (Adam) generalize & merge these!
+    if (Platform.OS === 'ios') {
+      await DJIMobile.stopNotificationCenterListener('DJICameraEvent.didGenerateNewMediaFile');
+    } else {
+      await DJIMobile.stopEventListener('CameraDidGenerateNewMediaFile');
+    }
   },
 
 };
