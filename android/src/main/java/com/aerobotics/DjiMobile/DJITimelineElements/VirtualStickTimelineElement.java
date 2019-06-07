@@ -312,6 +312,7 @@ public class VirtualStickTimelineElement extends TimelineElement {
   }
 
   private void stopAtUltrasonicHeight() {
+    final MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
     DJIKey ultrasonicHeightKey = FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS);
     KeyListener ultrasonicHeightKeyListener = new KeyListener() {
       @Override
@@ -322,7 +323,7 @@ public class VirtualStickTimelineElement extends TimelineElement {
             cleanUp(new CompletionCallback() {
               @Override
               public void complete(@Nullable DJIError djiError) {
-                Log.i("REACT", "stopped by ultrasonic");
+                missionControl.onFinishWithError(self, djiError);
               }
             });
           }
