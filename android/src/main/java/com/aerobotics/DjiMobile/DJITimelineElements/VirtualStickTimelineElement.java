@@ -1,5 +1,6 @@
 package com.aerobotics.DjiMobile.DJITimelineElements;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -20,7 +21,9 @@ import dji.common.flightcontroller.virtualstick.VerticalControlMode;
 import dji.common.flightcontroller.virtualstick.YawControlMode;
 import dji.common.util.CommonCallbacks;
 import dji.keysdk.DJIKey;
+import dji.keysdk.FlightControllerKey;
 import dji.keysdk.RemoteControllerKey;
+import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.KeyListener;
 import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.mission.MissionControl;
@@ -76,6 +79,9 @@ public class VirtualStickTimelineElement extends TimelineElement {
 
   private EndTrigger endTrigger;
   private Double timerEndTime;
+
+  private Float ultrasonicEndDistance;
+  private boolean isUltrasonicEnabled = false;
 
   private boolean doNotStopVirtualStickOnEnd = false;
   private boolean waitForControlSticksReleaseOnEnd = false;
@@ -176,6 +182,10 @@ public class VirtualStickTimelineElement extends TimelineElement {
       try {
         timerEndTime = parameters.getDouble(Parameters.timerEndTime.toString());
         secondsUntilEndTrigger = timerEndTime;
+      } catch (Exception e) {}
+
+      try {
+        ultrasonicEndDistance = (float) parameters.getDouble(Parameters.ultrasonicEndDistance.toString());
       } catch (Exception e) {}
 
       try {
@@ -282,11 +292,52 @@ public class VirtualStickTimelineElement extends TimelineElement {
     });
   }
 
+  private void isUltrasonicEnabled(final CompletionCallback completionCallback) {
+    DJIKey isUltrasonicBeingUsedKey = FlightControllerKey.create(FlightControllerKey.IS_ULTRASONIC_BEING_USED);
+    DJISDKManager.getInstance().getKeyManager().getValue(isUltrasonicBeingUsedKey, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        isUltrasonicEnabled = true;
+        completionCallback.complete(null);
+
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        isUltrasonicEnabled = false;
+        completionCallback.complete(djiError);
+
+      }
+    });
+  }
+
+  private void stopAtUltrasonicHeight() {
+    DJIKey ultrasonicHeightKey = FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS);
+    KeyListener ultrasonicHeightKeyListener = new KeyListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Float) {
+          if ((Float) newValue <= ultrasonicEndDistance) {
+            sendVirtualStickDataTimer.cancel();
+            cleanUp(new CompletionCallback() {
+              @Override
+              public void complete(@Nullable DJIError djiError) {
+                Log.i("REACT", "stopped by ultrasonic");
+              }
+            });
+          }
+        }
+      }
+    };
+
+    DJISDKManager.getInstance().getKeyManager().addListener(ultrasonicHeightKey, ultrasonicHeightKeyListener);
+    runningKeyListeners.add(ultrasonicHeightKeyListener);
+  }
+
   @Override
   public void run() {
     FlightController flightController = ((Aircraft)DJISDKManager.getInstance().getProduct()).getFlightController();
     final MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
-
     // Using velocity and body for controlMode and coordinateSystem respectively means that a positive pitch corresponds to a roll to the right,
     // and a positive roll corresponds to a pitch forwards, THIS IS THE DJI SDK AND WE HAVE TO LIVE WITH IT
     flightController.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
@@ -311,11 +362,19 @@ public class VirtualStickTimelineElement extends TimelineElement {
           } else {
             sendVirtualStickDataTimer = new Timer();
             sendVirtualStickDataTimer.scheduleAtFixedRate(sendVirtualStickDataBlock, 0, 50);
-
             if (endTrigger == EndTrigger.timer && timerEndTime != null) {
               endTriggerTimer = new Timer();
               // NB if the period
               endTriggerTimer.scheduleAtFixedRate(endTriggerTimerBlock, 0, (long)(END_TRIGGER_TIMER_UPDATE_SECONDS * 1000));
+            } else if (endTrigger == EndTrigger.ultrasonic && ultrasonicEndDistance != null) {
+              isUltrasonicEnabled(new CompletionCallback() {
+                @Override
+                public void complete(@Nullable DJIError djiError) {
+                  if (djiError == null && isUltrasonicEnabled) {
+                    stopAtUltrasonicHeight();
+                  }
+                }
+              });
             }
           }
         }
