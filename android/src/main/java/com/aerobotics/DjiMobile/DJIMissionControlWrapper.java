@@ -89,7 +89,6 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
         newElement = buildRecordVideoAction(parameters);
         break;
 
-
       case HotpointAction:
         newElement = buildHotpointAction(parameters);
         break;
@@ -176,7 +175,6 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
     } else {
       return ShootPhotoAction.newShootSinglePhotoAction();
     }
-
   }
 
   public RecordVideoAction buildRecordVideoAction(ReadableMap parameters) {
@@ -321,7 +319,15 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
           timelineIndex = -1;
           eventInfo.putInt("elementId", -1);
         } else {
-//          eventInfo.putInt("elementId", scheduledElementIndexOrder.get(timelineIndex));
+          String simpleName=null;
+          if (timelineElement instanceof TimelineMission) {
+            simpleName = ((TimelineMission) timelineElement).getMissionObject().getClass().getSimpleName();
+          } else {
+            simpleName = timelineElement.getClass().getSimpleName();
+          }
+          if (simpleName != null){
+            eventInfo.putString("eventName", simpleName);
+          }
         }
         eventInfo.putString("eventType", timelineEvent.name());
         eventInfo.putInt("timelineIndex", timelineIndex);
