@@ -195,7 +195,6 @@ class DJIMissionControlWrapper: NSObject {
       return
     }
     
-    missionControl.stopTimeline()
     missionControl.startTimeline()
     resolve("DJI Mission Control: Start Timeline")
     return
