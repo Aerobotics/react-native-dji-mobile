@@ -82,9 +82,9 @@ class DJIRealTimeDataLogger: NSObject {
     keyManager.startListeningForChanges(on: DJIFlightControllerKey(param: DJIFlightControllerParamVelocity)!, withListener: self) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let velocity = newValue?.value as? DJISDKVector3D {
         self.writeDataToLogFile(fileName: fileName, data: [
-          "velocity_x": self.roundDecimalPlaces(number: velocity.x, decimalPlaces: 2),
-          "velocity_y": self.roundDecimalPlaces(number: velocity.y, decimalPlaces: 2),
-          "velocity_z": self.roundDecimalPlaces(number: velocity.z, decimalPlaces: 2),
+          "velocity_n": self.roundDecimalPlaces(number: velocity.x, decimalPlaces: 2),
+          "velocity_e": self.roundDecimalPlaces(number: velocity.y, decimalPlaces: 2),
+          "velocity_d": self.roundDecimalPlaces(number: velocity.z, decimalPlaces: 2),
           ])
       }
     }
