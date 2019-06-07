@@ -1,6 +1,7 @@
 
 package com.aerobotics.DjiMobile;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -21,6 +22,9 @@ import java.util.Map;
 import dji.common.error.DJIError;
 import dji.common.gimbal.Attitude;
 import dji.common.model.LocationCoordinate2D;
+import dji.keysdk.DJIKey;
+import dji.keysdk.FlightControllerKey;
+import dji.keysdk.callback.ActionCallback;
 import dji.sdk.mission.MissionControl;
 import dji.sdk.mission.timeline.TimelineElement;
 import dji.sdk.mission.timeline.TimelineEvent;
@@ -296,6 +300,22 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
   public void stopTimeline(Promise promise) {
     DJISDKManager.getInstance().getMissionControl().stopTimeline();
     promise.resolve("DJI Mission Control: Stop Timeline");
+  }
+
+  @ReactMethod
+  public void returnHome(final Promise promise) {
+      DJIKey goGomeKey = FlightControllerKey.create(FlightControllerKey.START_GO_HOME);
+      DJISDKManager.getInstance().getKeyManager().performAction(goGomeKey, new ActionCallback() {
+          @Override
+          public void onSuccess() {
+              promise.resolve("DJI Mission Control: Returning home");
+          }
+
+          @Override
+          public void onFailure(@NonNull DJIError djiError) {
+              promise.reject(djiError.getDescription());
+          }
+      });
   }
 
   @ReactMethod
