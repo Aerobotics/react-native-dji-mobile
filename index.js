@@ -12,6 +12,8 @@ import {
 
 import DJIMissionControl from './lib/DJIMissionControl';
 
+import CameraControl from './lib/CameraControl';
+
 import {
   DJIEventSubject,
 } from './lib/utilities';
@@ -164,4 +166,5 @@ export default DJIMobileWrapper;
 
 export {
   DJIMissionControl,
+  CameraControl,
 };

@@ -10,7 +10,7 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTBridgeModule.h>
 
-@interface RCT_EXTERN_MODULE(CameraControl, NSObject)
+@interface RCT_EXTERN_MODULE(CameraControlNative, NSObject)
 
 RCT_EXTERN_METHOD(
                   setPhotoAspectRatio: (NSUInteger)photoAspectRatio
