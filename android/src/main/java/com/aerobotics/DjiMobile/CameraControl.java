@@ -44,13 +44,35 @@ public class CameraControl extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void setWhiteBalance(ReadableMap parameters) {
+    public void setWhiteBalance(String whiteBalancePreset, final Promise promise) {
+        DJIKey whiteBalanceKey = CameraKey.create(CameraKey.WHITE_BALANCE);
+        DJISDKManager.getInstance().getKeyManager().setValue(whiteBalanceKey, SettingsDefinitions.WhiteBalancePreset.valueOf(whiteBalancePreset), new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControl: White balance set successfully");
+            }
 
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject("CameraControl: Failed to set white balance");
+            }
+        });
     }
 
     @ReactMethod
-    public void setExposureMode(ReadableMap parameters) {
+    public void setExposureMode(String exposureMode, final Promise promise) {
+        DJIKey exposureModeKey = CameraKey.create(CameraKey.EXPOSURE_MODE);
+        DJISDKManager.getInstance().getKeyManager().setValue(exposureModeKey, SettingsDefinitions.ExposureMode.valueOf(exposureMode), new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControl: Exposure mode set successfully");
+            }
 
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject("CameraControl: Failed to set exposure mode");
+            }
+        });
     }
 
 }
