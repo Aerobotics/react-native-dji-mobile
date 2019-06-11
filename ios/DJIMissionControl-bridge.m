@@ -41,6 +41,11 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  startGoHome: (RCTPromiseResolveBlock)resolve
+                  reject:      (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
                   startTimelineListener: (RCTPromiseResolveBlock)resolve
                   reject:                (RCTPromiseRejectBlock)reject
                   )

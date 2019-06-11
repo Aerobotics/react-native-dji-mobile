@@ -303,7 +303,7 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void returnHome(final Promise promise) {
+  public void startGoHome(final Promise promise) {
       DJIKey goGomeKey = FlightControllerKey.create(FlightControllerKey.START_GO_HOME);
       DJISDKManager.getInstance().getKeyManager().performAction(goGomeKey, new ActionCallback() {
           @Override

@@ -212,6 +212,22 @@ class DJIMissionControlWrapper: NSObject {
     return
   }
   
+  @objc(startGoHome:reject:)
+  func startGoHome(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    guard let keyManager = DJISDKManager.keyManager() else {
+      reject("Start Go Home Error", "Could not start go home action as key manager could not be loaded", nil);
+      return
+    }
+    
+    keyManager.performAction(for: DJIFlightControllerKey.init(param: DJIFlightControllerParamGoHome)!, withArguments: nil) { (finished: Bool, response: DJIKeyedValue?, error: Error?) in
+      if (error == nil) {
+        resolve("DJI Mission Control: Start Go Home")
+      } else {
+        reject("Go Home Error", error?.localizedDescription, error)
+      }
+    }
+  }
+  
   @objc(startTimelineListener:reject:)
   func startTimelineListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     guard let missionControl = DJISDKManager.missionControl() else {
@@ -226,10 +242,10 @@ class DJIMissionControlWrapper: NSObject {
       
       if (timelineElement == nil) { // This is a general timeline event (timeline start/stop, etc.)
         timelineIndex = -1
-        eventInfo["elementId"] = -1
       } else {
-        //          eventInfo["elementId"] = self.scheduledElementIndexOrder[Int(timelineIndex)]
+        eventInfo["eventName"] = String(describing: type(of: timelineElement!))
       }
+      
       eventInfo["eventType"] = timelineEvent.rawValue
       eventInfo["timelineIndex"] = timelineIndex
       
