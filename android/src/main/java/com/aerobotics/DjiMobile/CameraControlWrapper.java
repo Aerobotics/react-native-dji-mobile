@@ -17,14 +17,14 @@ import dji.sdk.sdkmanager.DJISDKManager;
 
 
 
-public class CameraControl extends ReactContextBaseJavaModule {
-    public CameraControl(ReactApplicationContext reactContext) {
+public class CameraControlWrapper extends ReactContextBaseJavaModule {
+    public CameraControlWrapper(ReactApplicationContext reactContext) {
         super(reactContext);
     }
 
     @Override
     public String getName() {
-        return "CameraControl";
+        return "CameraControlWrapper";
     }
 
     @ReactMethod
@@ -33,12 +33,12 @@ public class CameraControl extends ReactContextBaseJavaModule {
         DJISDKManager.getInstance().getKeyManager().setValue(photoAspectRatioKey, SettingsDefinitions.PhotoAspectRatio.valueOf(photoAspectRatio), new SetCallback() {
             @Override
             public void onSuccess() {
-                promise.resolve("CameraControl: Photo aspect ratio set successfully");
+                promise.resolve("CameraControlWrapper: Photo aspect ratio set successfully");
             }
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControl: Failed to set photo aspect ratio");
+                promise.reject("CameraControlWrapper: Failed to set photo aspect ratio");
             }
         });
     }
@@ -49,12 +49,12 @@ public class CameraControl extends ReactContextBaseJavaModule {
         DJISDKManager.getInstance().getKeyManager().setValue(whiteBalanceKey, SettingsDefinitions.WhiteBalancePreset.valueOf(whiteBalancePreset), new SetCallback() {
             @Override
             public void onSuccess() {
-                promise.resolve("CameraControl: White balance set successfully");
+                promise.resolve("CameraControlWrapper: White balance set successfully");
             }
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControl: Failed to set white balance");
+                promise.reject("CameraControlWrapper: Failed to set white balance");
             }
         });
     }
@@ -65,12 +65,12 @@ public class CameraControl extends ReactContextBaseJavaModule {
         DJISDKManager.getInstance().getKeyManager().setValue(exposureModeKey, SettingsDefinitions.ExposureMode.valueOf(exposureMode), new SetCallback() {
             @Override
             public void onSuccess() {
-                promise.resolve("CameraControl: Exposure mode set successfully");
+                promise.resolve("CameraControlWrapper: Exposure mode set successfully");
             }
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControl: Failed to set exposure mode");
+                promise.reject("CameraControlWrapper: Failed to set exposure mode");
             }
         });
     }
