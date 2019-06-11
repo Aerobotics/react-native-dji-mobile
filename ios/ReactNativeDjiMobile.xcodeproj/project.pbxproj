@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6638626522AFA4D80085A552 /* CameraControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6638626422AFA4D80085A552 /* CameraControl.swift */; };
+		6638626722AFA5220085A552 /* CameraControl-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 6638626622AFA5220085A552 /* CameraControl-bridge.m */; };
 		6639AE9D228EA18B0033B214 /* DJICameraDelegateSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6639AE9C228EA18B0033B214 /* DJICameraDelegateSender.swift */; };
 		665EE7802200A40F00753E42 /* DJIMobile-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 665EE77F2200A40E00753E42 /* DJIMobile-bridge.m */; };
 		66610ECE2215513E00146F86 /* DroneVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66610ECD2215513E00146F86 /* DroneVideoView.swift */; };
@@ -36,6 +38,8 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libReactNativeDjiMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeDjiMobile.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		6638626422AFA4D80085A552 /* CameraControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraControl.swift; sourceTree = "<group>"; };
+		6638626622AFA5220085A552 /* CameraControl-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CameraControl-bridge.m"; sourceTree = "<group>"; };
 		6639AE9C228EA18B0033B214 /* DJICameraDelegateSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DJICameraDelegateSender.swift; sourceTree = "<group>"; };
 		665EE77F2200A40E00753E42 /* DJIMobile-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "DJIMobile-bridge.m"; sourceTree = "<group>"; };
 		66610ECD2215513E00146F86 /* DroneVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DroneVideoView.swift; sourceTree = "<group>"; };
@@ -81,6 +85,8 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				6638626622AFA5220085A552 /* CameraControl-bridge.m */,
+				6638626422AFA4D80085A552 /* CameraControl.swift */,
 				6639AE9C228EA18B0033B214 /* DJICameraDelegateSender.swift */,
 				66035A8F222E9DFE002E474D /* DJITimelineElements */,
 				669B3B152220347F00010E70 /* EventSender-bridge.m */,
@@ -236,11 +242,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				66CDD8D4221D38730024AA39 /* DJIMissionControl.swift in Sources */,
+				6638626722AFA5220085A552 /* CameraControl-bridge.m in Sources */,
 				66802ECD228065040039A915 /* VirtualStickTimelineElement.swift in Sources */,
 				669F8EE322145A9600CE1373 /* DroneVideoViewManager-bridge.m in Sources */,
 				669DFE34222FF24100BF901A /* WaypointMissionTimelineElement.swift in Sources */,
 				669B3B162220347F00010E70 /* EventSender-bridge.m in Sources */,
 				6639AE9D228EA18B0033B214 /* DJICameraDelegateSender.swift in Sources */,
+				6638626522AFA4D80085A552 /* CameraControl.swift in Sources */,
 				66DEB61F228BF8B90041EE40 /* DJIRealTimeDataLogger.swift in Sources */,
 				669F8EE1221459E700CE1373 /* DroneVideoViewManager.swift in Sources */,
 				665EE7802200A40F00753E42 /* DJIMobile-bridge.m in Sources */,
