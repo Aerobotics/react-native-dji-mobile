@@ -242,10 +242,10 @@ class DJIMissionControlWrapper: NSObject {
       
       if (timelineElement == nil) { // This is a general timeline event (timeline start/stop, etc.)
         timelineIndex = -1
-        eventInfo["elementId"] = -1
       } else {
-        //          eventInfo["elementId"] = self.scheduledElementIndexOrder[Int(timelineIndex)]
+        eventInfo["eventName"] = String(describing: type(of: timelineElement!))
       }
+      
       eventInfo["eventType"] = timelineEvent.rawValue
       eventInfo["timelineIndex"] = timelineIndex
       
