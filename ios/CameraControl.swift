@@ -9,8 +9,8 @@
 import Foundation
 import DJISDK
 
-
-class CameraControl: NSObject {
+@objc(CameraControlNative)
+class CameraControlNative: NSObject {
   
   @objc(setPhotoAspectRatioreso:resolve:reject:)
   func setPhotoAspectRatio(photoAspectRatio: UInt, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
