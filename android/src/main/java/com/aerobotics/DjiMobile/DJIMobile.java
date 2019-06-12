@@ -314,6 +314,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
+    promise.resolve(null);
   }
 
 //  @ReactMethod
