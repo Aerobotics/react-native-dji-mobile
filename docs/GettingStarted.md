@@ -1,4 +1,4 @@
-# Get Started with react-native-dji-mobile 
+# Getting Started with react-native-dji-mobile 
 
 ## Create a new React Native project from scrash
 
