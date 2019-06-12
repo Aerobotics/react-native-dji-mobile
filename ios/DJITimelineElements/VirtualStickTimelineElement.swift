@@ -275,12 +275,8 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     } else {
       
       if (self.endTrigger == .ultrasonic) {
-        
         self.isUltrasonicEnabled { (isUltrasonicEnabled: Bool) in
-          print("isUltrasonicEnabled")
-          print(isUltrasonicEnabled)
           if (isUltrasonicEnabled == true) {
-            
             self.stopAtUltrasonicHeight(stopHeight: self.ultrasonicEndDistance!)
             
             flightController?.setVirtualStickModeEnabled(true, withCompletion: { (error: Error?) in
@@ -288,13 +284,7 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
                 missionControl?.element(self, failedStartingWithError: error!)
                 return
               }
-              
               self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
-              
-              if (self.endTrigger == .timer) {
-                self.endTriggerTimer = Timer.scheduledTimer(timeInterval: self.timerEndTime!, target: self, selector: #selector(self.endTriggerTimerDidTrigger), userInfo: nil, repeats: false)
-              }
-              
             })
             
           } else {
@@ -302,12 +292,20 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
               case UltrasonicSensorUnavailableError(String)
             }
             missionControl?.element(self, failedStartingWithError: UltrasonicSensorError.UltrasonicSensorUnavailableError("UltrasonicSensorUnavailable"))
-            
           }
           
         }
         
-        
+      } else if (self.endTrigger == .timer) {
+        flightController?.setVirtualStickModeEnabled(true, withCompletion: { (error: Error?) in
+          if (error != nil) {
+            missionControl?.element(self, failedStartingWithError: error!)
+            return
+          }
+          self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
+          self.endTriggerTimer = Timer.scheduledTimer(timeInterval: self.timerEndTime!, target: self, selector: #selector(self.endTriggerTimerDidTrigger), userInfo: nil, repeats: false)
+          
+        })
       }
       
       

@@ -115,6 +115,8 @@ public class DJIMobile extends ReactContextBaseJavaModule {
             sdkEventHandler = new SdkEventHandler();
           }
           promise.resolve("DJI SDK: Registration Successful");
+          // djisdkManager.startConnectionToProduct();
+
           if (bridgeIp != null) {
             djisdkManager.enableBridgeModeWithBridgeAppIP(bridgeIp);
           } else {
@@ -312,6 +314,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
+    promise.resolve(null);
   }
 
 //  @ReactMethod
