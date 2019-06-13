@@ -9,13 +9,12 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 
-import java.util.Objects;
-
 import dji.common.camera.SettingsDefinitions;
 import dji.common.camera.WhiteBalance;
 import dji.common.error.DJIError;
 import dji.keysdk.CameraKey;
 import dji.keysdk.DJIKey;
+import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.sdkmanager.DJISDKManager;
 
@@ -44,6 +43,46 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             @Override
             public void onFailure(@NonNull DJIError djiError) {
                 promise.reject("CameraControlNative: Failed to set photo aspect ratio");
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getPhotoAspectRatio(final Promise promise) {
+        DJIKey photoAspectRatioKey = CameraKey.create(CameraKey.PHOTO_ASPECT_RATIO);
+        DJISDKManager.getInstance().getKeyManager().getValue(photoAspectRatioKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object o) {
+                if (o instanceof String) {
+                    promise.resolve(o);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
+            }
+        });
+
+    }
+
+    @ReactMethod
+    public void getWhiteBalance(final Promise promise) {
+        DJIKey whiteBalanceKey = CameraKey.create(CameraKey.WHITE_BALANCE);
+        DJISDKManager.getInstance().getKeyManager().getValue(whiteBalanceKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object value) {
+                if (value instanceof SettingsDefinitions.WhiteBalancePreset) {
+                    promise.resolve(value.toString());
+                }
+                if (value instanceof Integer) {
+                    promise.resolve(value);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
             }
         });
     }
@@ -91,6 +130,24 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         } else {
             promise.reject("CameraControlNative: Error invalid white balance parameters");
         }
+    }
+
+    @ReactMethod
+    public void getExposureMode(final Promise promise) {
+        DJIKey exposureModeKey = CameraKey.create(CameraKey.EXPOSURE_MODE);
+        DJISDKManager.getInstance().getKeyManager().getValue(exposureModeKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object value) {
+                if(value instanceof String) {
+                    promise.resolve(value);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
+            }
+        });
     }
 
     @ReactMethod
