@@ -23,6 +23,7 @@ import java.util.SplittableRandom;
 
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
+import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
@@ -31,6 +32,7 @@ import dji.keysdk.ProductKey;
 import dji.keysdk.BatteryKey;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.KeyListener;
+import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
 import dji.sdk.media.MediaFile;
@@ -145,6 +147,26 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void setCollisionAvoidanceEnabled(final Boolean enabled, final Promise promise) {
+    DJIKey collisionAvoidanceKey = FlightControllerKey.createFlightAssistantKey(FlightControllerKey.COLLISION_AVOIDANCE_ENABLED);
+    DJISDKManager.getInstance().getKeyManager().setValue(collisionAvoidanceKey, enabled, new SetCallback() {
+      @Override
+      public void onSuccess() {
+        if (enabled) {
+          promise.resolve("DJIMobile: Set collision avoidance enabled successfully");
+        } else {
+          promise.resolve("DJIMobile: Set collision avoidance disabled successfully");
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable(djiError.getDescription()));
+      }
+    });
+  }
+
+  @ReactMethod
   public void startProductConnectionListener(Promise promise) {
     startEventListener(SDKEvent.ProductConnection, new EventListener() {
       @Override
@@ -168,6 +190,44 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       }
     });
     promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void startGPSSignalLevelListener(Promise promise) {
+      startEventListener(SDKEvent.GPSSignalLevel, new EventListener() {
+          @Override
+          public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+              if (newValue != null && newValue instanceof GPSSignalLevel) {
+                  GPSSignalLevel gpsSignalLevel = (GPSSignalLevel) newValue;
+                  switch (gpsSignalLevel) {
+                      case LEVEL_0:
+                          sendEvent(SDKEvent.GPSSignalLevel, 0);
+                          break;
+                      case LEVEL_1:
+                          sendEvent(SDKEvent.GPSSignalLevel, 1);
+                          break;
+                      case LEVEL_2:
+                          sendEvent(SDKEvent.GPSSignalLevel, 2);
+                          break;
+                      case LEVEL_3:
+                          sendEvent(SDKEvent.GPSSignalLevel, 3);
+                          break;
+                      case LEVEL_4:
+                          sendEvent(SDKEvent.GPSSignalLevel, 4);
+                          break;
+                      case LEVEL_5:
+                          sendEvent(SDKEvent.GPSSignalLevel, 5);
+                          break;
+                      case NONE:
+                          sendEvent(SDKEvent.GPSSignalLevel, null);
+                          break;
+                      default:
+                          break;
+                  }
+              }
+          }
+      });
+      promise.resolve(null);
   }
 
   @ReactMethod
