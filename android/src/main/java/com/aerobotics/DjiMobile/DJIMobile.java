@@ -23,6 +23,7 @@ import java.util.SplittableRandom;
 
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
+import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
@@ -189,6 +190,44 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       }
     });
     promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void startGPSSignalLevelListener(Promise promise) {
+      startEventListener(SDKEvent.GPSSignalLevel, new EventListener() {
+          @Override
+          public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+              if (newValue != null && newValue instanceof GPSSignalLevel) {
+                  GPSSignalLevel gpsSignalLevel = (GPSSignalLevel) newValue;
+                  switch (gpsSignalLevel) {
+                      case LEVEL_0:
+                          sendEvent(SDKEvent.GPSSignalLevel, 0);
+                          break;
+                      case LEVEL_1:
+                          sendEvent(SDKEvent.GPSSignalLevel, 1);
+                          break;
+                      case LEVEL_2:
+                          sendEvent(SDKEvent.GPSSignalLevel, 2);
+                          break;
+                      case LEVEL_3:
+                          sendEvent(SDKEvent.GPSSignalLevel, 3);
+                          break;
+                      case LEVEL_4:
+                          sendEvent(SDKEvent.GPSSignalLevel, 4);
+                          break;
+                      case LEVEL_5:
+                          sendEvent(SDKEvent.GPSSignalLevel, 5);
+                          break;
+                      case NONE:
+                          sendEvent(SDKEvent.GPSSignalLevel, null);
+                          break;
+                      default:
+                          break;
+                  }
+              }
+          }
+      });
+      promise.resolve(null);
   }
 
   @ReactMethod
