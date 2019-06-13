@@ -31,6 +31,7 @@ import dji.keysdk.ProductKey;
 import dji.keysdk.BatteryKey;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.KeyListener;
+import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
 import dji.sdk.media.MediaFile;
@@ -140,6 +141,26 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent baseComponent, BaseComponent baseComponent1) {
         // TODO
+      }
+    });
+  }
+
+  @ReactMethod
+  public void setCollisionAvoidanceEnabled(final Boolean enabled, final Promise promise) {
+    DJIKey collisionAvoidanceKey = FlightControllerKey.createFlightAssistantKey(FlightControllerKey.COLLISION_AVOIDANCE_ENABLED);
+    DJISDKManager.getInstance().getKeyManager().setValue(collisionAvoidanceKey, enabled, new SetCallback() {
+      @Override
+      public void onSuccess() {
+        if (enabled) {
+          promise.resolve("DJIMobile: Set collision avoidance enabled successfully");
+        } else {
+          promise.resolve("DJIMobile: Set collision avoidance disabled successfully");
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable(djiError.getDescription()));
       }
     });
   }
