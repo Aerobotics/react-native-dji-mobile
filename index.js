@@ -159,7 +159,9 @@ const DJIMobileWrapper = {
       await DJIMobile.stopEventListener('CameraDidGenerateNewMediaFile');
     }
   },
-
+  getFileList: () => {
+    return DJIMobile.getFileList();
+  }
 };
 
 export default DJIMobileWrapper;

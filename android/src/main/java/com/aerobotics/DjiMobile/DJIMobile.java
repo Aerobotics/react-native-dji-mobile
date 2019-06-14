@@ -147,6 +147,12 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void getFileList(final Promise promise) {
+    DJIMedia m = new DJIMedia();
+    m.getFileList(promise);
+  }
+
+  @ReactMethod
   public void setCollisionAvoidanceEnabled(final Boolean enabled, final Promise promise) {
     DJIKey collisionAvoidanceKey = FlightControllerKey.createFlightAssistantKey(FlightControllerKey.COLLISION_AVOIDANCE_ENABLED);
     DJISDKManager.getInstance().getKeyManager().setValue(collisionAvoidanceKey, enabled, new SetCallback() {
