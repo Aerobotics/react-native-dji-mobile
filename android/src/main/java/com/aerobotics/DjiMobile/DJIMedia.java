@@ -54,7 +54,6 @@ public class DJIMedia  {
       promise.reject("No camera connected");
       return;
     }
-    System.out.println("dronecha got camera");
     mediaManager = camera.getMediaManager();
 
     initMediaManager();
@@ -66,8 +65,6 @@ public class DJIMedia  {
       @Override
       public void onResult(DJIError error) {
         if (error == null) {
-          System.out.println("dronecha set mode");
-
           getFileList();
         } else {
           promise.reject("Set cameraMode failed");

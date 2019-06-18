@@ -137,8 +137,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onProductConnect(BaseProduct baseProduct) {
-        System.out.println("dronecha got product");
-
         product = baseProduct;
       }
 
@@ -151,8 +149,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void getFileList(final Promise promise) {
-    System.out.println("dronecha get file list");
-
     DJIMedia m = new DJIMedia();
     if (product == null){
       promise.reject("No product connected");
