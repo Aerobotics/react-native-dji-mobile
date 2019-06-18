@@ -63,7 +63,7 @@ public class DJIMedia  {
     mediaManager.addUpdateFileListStateListener(this.updateFileListStateListener);
     camera.setMode(SettingsDefinitions.CameraMode.MEDIA_DOWNLOAD, new CommonCallbacks.CompletionCallback() {
       @Override
-      public void onResult(DJIError error) {
+      public void onResult(DJIError djiError) {
         if (error == null) {
           getFileList();
         } else {
