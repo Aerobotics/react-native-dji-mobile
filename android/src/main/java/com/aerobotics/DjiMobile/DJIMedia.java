@@ -67,7 +67,7 @@ public class DJIMedia  {
         if (error == null) {
           getFileList();
         } else {
-          promise.reject("Set cameraMode failed");
+          promise.reject(djiError.toString(), djiError.getDescription());
           return;
         }
       }
