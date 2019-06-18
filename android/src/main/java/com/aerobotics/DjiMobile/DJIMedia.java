@@ -64,7 +64,7 @@ public class DJIMedia  {
     camera.setMode(SettingsDefinitions.CameraMode.MEDIA_DOWNLOAD, new CommonCallbacks.CompletionCallback() {
       @Override
       public void onResult(DJIError djiError) {
-        if (error == null) {
+        if (djiError == null) {
           getFileList();
         } else {
           promise.reject(djiError.toString(), djiError.getDescription());
