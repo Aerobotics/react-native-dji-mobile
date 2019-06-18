@@ -24,6 +24,7 @@ import dji.sdk.media.MediaManager;
 import dji.sdk.media.MediaFile;
 import dji.sdk.sdkmanager.DJISDKManager;
 import dji.sdk.products.Aircraft;
+import dji.sdk.base.BaseProduct;
 
 public class DJIMedia  {
   private Promise promise;
@@ -40,12 +41,21 @@ public class DJIMedia  {
   };
 
   DJIMedia(){
-    camera = ((Aircraft) DJISDKManager.getInstance().getProduct()).getCamera();
-    mediaManager = camera.getMediaManager();
+
   }
 
-  public void getFileList(final Promise promise) {
+  public void getFileList(final Promise promise, BaseProduct baseProduct) {
     this.promise = promise;
+
+    Aircraft aircraft =  (Aircraft) baseProduct;
+
+    camera = aircraft.getCamera();
+    if (camera == null){
+      promise.reject("No camera connected");
+      return;
+    }
+    System.out.println("dronecha got camera");
+    mediaManager = camera.getMediaManager();
 
     initMediaManager();
   }
@@ -56,9 +66,12 @@ public class DJIMedia  {
       @Override
       public void onResult(DJIError error) {
         if (error == null) {
+          System.out.println("dronecha set mode");
+
           getFileList();
         } else {
           promise.reject("Set cameraMode failed");
+          return;
         }
       }
     });

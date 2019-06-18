@@ -75,6 +75,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   ; // This must only be initialized once the SDK has registered, as it uses the SDK
   private SdkEventHandler sdkEventHandler;
+  private BaseProduct product;
 
 //  private Observer newMediaFileObserver = new Observer() {
 //    @Override
@@ -106,6 +107,18 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     registerAppInternal(bridgeIp, promise);
   }
 
+  @ReactMethod
+  public void getFileList(final Promise promise) {
+    System.out.println("dronecha get file list");
+
+    DJIMedia m = new DJIMedia();
+    if (product == null){
+      promise.reject("No product connected");
+    } else {
+      m.getFileList(promise, product);
+    }
+  }
+
   public void registerAppInternal(final String bridgeIp, final Promise promise) {
     final DJISDKManager djisdkManager = DJISDKManager.getInstance();
     djisdkManager.registerApp(reactContext, new DJISDKManager.SDKManagerCallback() {
@@ -131,12 +144,14 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onProductDisconnect() {
-        // TODO
+        product = null;
       }
 
       @Override
       public void onProductConnect(BaseProduct baseProduct) {
-        // TODO
+        System.out.println("dronecha got product");
+
+        product = baseProduct;
       }
 
       @Override

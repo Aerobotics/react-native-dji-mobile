@@ -159,8 +159,8 @@ const DJIMobileWrapper = {
       await DJIMobile.stopEventListener('CameraDidGenerateNewMediaFile');
     }
   },
-  getFileList: () => {
-    return DJIMobile.getFileList();
+  getFileList: async () => {
+    return await DJIMobile.getFileList();
   }
 };
 
