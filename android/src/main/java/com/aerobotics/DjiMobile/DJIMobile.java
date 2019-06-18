@@ -107,18 +107,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     registerAppInternal(bridgeIp, promise);
   }
 
-  @ReactMethod
-  public void getFileList(final Promise promise) {
-    System.out.println("dronecha get file list");
-
-    DJIMedia m = new DJIMedia();
-    if (product == null){
-      promise.reject("No product connected");
-    } else {
-      m.getFileList(promise, product);
-    }
-  }
-
   public void registerAppInternal(final String bridgeIp, final Promise promise) {
     final DJISDKManager djisdkManager = DJISDKManager.getInstance();
     djisdkManager.registerApp(reactContext, new DJISDKManager.SDKManagerCallback() {
@@ -163,8 +151,14 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void getFileList(final Promise promise) {
+    System.out.println("dronecha get file list");
+
     DJIMedia m = new DJIMedia();
-    m.getFileList(promise);
+    if (product == null){
+      promise.reject("No product connected");
+    } else {
+      m.getFileList(promise, product);
+    }
   }
 
   @ReactMethod
