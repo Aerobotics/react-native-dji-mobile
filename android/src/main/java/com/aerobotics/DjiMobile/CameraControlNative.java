@@ -16,9 +16,8 @@ import dji.keysdk.CameraKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
+import dji.keysdk.callback.ActionCallback;
 import dji.sdk.sdkmanager.DJISDKManager;
-
-
 
 public class CameraControlNative extends ReactContextBaseJavaModule {
     public CameraControlNative(ReactApplicationContext reactContext) {
@@ -165,6 +164,23 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
                 promise.reject("CameraControlNative: Failed to set exposure mode");
             }
         });
+    }
+
+    @ReactMethod
+    public void stopRecording(final Promise promise) {
+      DJIKey stopRecordingKey = CameraKey.create(CameraKey.STOP_RECORD_VIDEO);
+      DJISDKManager.getInstance().getKeyManager().performAction(stopRecordingKey, new ActionCallback() {
+        @Override
+        public void onSuccess() {
+            Log.i("REACT", "CameraControlNative: stopRecording ran successfully");
+            promise.resolve("CameraControlNative: stopRecording ran successfully");
+        }
+
+        @Override
+        public void onFailure(@NonNull DJIError djiError) {
+            promise.reject("CameraControlNative: stopRecording failed to stop recording");
+        }
+      });
     }
 
 }
