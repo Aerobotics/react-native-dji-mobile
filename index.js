@@ -160,6 +160,10 @@ const DJIMobileWrapper = {
     }
   },
 
+  downloadMedia: async () => {
+    await DJIMobile.downloadMedia();
+  }
+
 };
 
 export default DJIMobileWrapper;
