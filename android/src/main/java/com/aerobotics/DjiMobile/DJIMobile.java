@@ -17,9 +17,6 @@ import android.util.Log;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.SplittableRandom;
 
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
@@ -27,11 +24,7 @@ import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
-import dji.keysdk.KeyManager;
-import dji.keysdk.ProductKey;
-import dji.keysdk.BatteryKey;
 import dji.keysdk.callback.GetCallback;
-import dji.keysdk.callback.KeyListener;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
@@ -91,6 +84,8 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 //    }
 //  };
 
+  private DJIRealTimeDataLogger djiRealTimeDataLogger;
+
   public DJIMobile(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
@@ -136,6 +131,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onProductConnect(BaseProduct baseProduct) {
+        Log.i("REACT", "ON PRODUCT CONNECT");
         // TODO
       }
 
@@ -464,6 +460,21 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     }
     return params;
   }
+
+  @ReactMethod
+  public void startRecordRealTimeData(String fileName){
+    if (djiRealTimeDataLogger == null) {
+      djiRealTimeDataLogger = new DJIRealTimeDataLogger(reactContext);
+    }
+    djiRealTimeDataLogger.startLogging(fileName);
+  }
+
+  @ReactMethod
+  public void stopRecordRealTimeData() {
+    if (djiRealTimeDataLogger != null) {
+      djiRealTimeDataLogger.stopLogging();
+    }
+   }
 
   @Override
   public String getName() {
