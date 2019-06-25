@@ -68,6 +68,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   ; // This must only be initialized once the SDK has registered, as it uses the SDK
   private SdkEventHandler sdkEventHandler;
+  private BaseProduct product;
 
 //  private Observer newMediaFileObserver = new Observer() {
 //    @Override
@@ -126,13 +127,12 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onProductDisconnect() {
-        // TODO
+        product = null;
       }
 
       @Override
       public void onProductConnect(BaseProduct baseProduct) {
-        Log.i("REACT", "ON PRODUCT CONNECT");
-        // TODO
+        product = baseProduct;
       }
 
       @Override
@@ -140,6 +140,16 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         // TODO
       }
     });
+  }
+
+  @ReactMethod
+  public void getFileList(final Promise promise) {
+    DJIMedia m = new DJIMedia();
+    if (product == null){
+      promise.reject("No product connected");
+    } else {
+      m.getFileList(promise, product);
+    }
   }
 
   @ReactMethod
