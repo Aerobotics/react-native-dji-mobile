@@ -69,6 +69,11 @@ class DJIMobile: NSObject, RCTInvalidating {
     DJISDKManager.beginAppRegistration()
   }
   
+  @objc(limitEventFrequency:resolve:reject:)
+  func limitEventFrequency(frequency: Int, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    
+  }
+  
   @objc(startRecordRealTimeData:resolve:reject:)
   func startRecordRealTimeData(fileName: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     self.realTimeDataLogger.startLogging(fileName: fileName) { (error: Error?) in

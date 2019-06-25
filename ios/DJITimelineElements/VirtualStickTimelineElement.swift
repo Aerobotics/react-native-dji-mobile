@@ -189,22 +189,22 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   }
   
   // TODO: Return the reason of error if there is one!
-  private func isUltrasonicEnabled(withCompletion: @escaping (Bool) -> ()) {
+  private func isUltrasonicEnabled(withCompletion: @escaping (Bool, Error?) -> ()) {
     let keyManager = DJISDKManager.keyManager()
-    keyManager?.getValueFor(DJIFlightControllerKey.init(param: DJIFlightControllerParamIsUltrasonicBeingUsed)!, withCompletion: { (value: DJIKeyedValue?, error: Error?) in
-      if (error == nil && value != nil && value!.boolValue == true) {
-        keyManager?.getValueFor(DJIFlightControllerKey.init(param: DJIFlightControllerParamDoesUltrasonicHaveError)!, withCompletion: { (value: DJIKeyedValue?, error: Error?) in
-          if (error == nil && value != nil && value!.boolValue == false) {
-            withCompletion(true)
+    keyManager?.getValueFor(DJIFlightControllerKey.init(param: DJIFlightControllerParamIsUltrasonicBeingUsed)!, withCompletion: { (value: DJIKeyedValue?, isBeingUsedError: Error?) in
+      if (isBeingUsedError == nil && value != nil && value!.boolValue == true) {
+        keyManager?.getValueFor(DJIFlightControllerKey.init(param: DJIFlightControllerParamDoesUltrasonicHaveError)!, withCompletion: { (value: DJIKeyedValue?, ultrasonicError: Error?) in
+          if (ultrasonicError == nil && value != nil && value!.boolValue == false) {
+            withCompletion(true, nil)
             return
           } else {
-            withCompletion(false)
+            withCompletion(false, ultrasonicError)
             return
           }
         })
         
       } else {
-        withCompletion(false)
+        withCompletion(false, isBeingUsedError)
         return
       }
       
@@ -255,60 +255,65 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   
   
   public func run() {
-    let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
-    let missionControl = DJISDKManager.missionControl()
-    
-    // Using velocity and body for controlMode and coordinateSystem respectively means that a positive pitch corresponds to a roll to the right,
-    // and a positive roll corresponds to a pitch forwards, THIS IS THE DJI SDK AND WE HAVE TO LIVE WITH IT
-    flightController?.rollPitchControlMode = DJIVirtualStickRollPitchControlMode.velocity
-    flightController?.yawControlMode = DJIVirtualStickYawControlMode.angularVelocity
-    flightController?.verticalControlMode = DJIVirtualStickVerticalControlMode.velocity
-    flightController?.rollPitchCoordinateSystem = DJIVirtualStickFlightCoordinateSystem.body
-    
-    if (self.stopExistingVirtualStick == true) {
-      flightController?.setVirtualStickModeEnabled(false, withCompletion: { (error: Error?) in
-        self.cleanUp { (error: Error?) in
-          DJISDKManager.missionControl()?.element(self, didFinishRunningWithError: error)
-        }
-      })
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+      let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
+      let missionControl = DJISDKManager.missionControl()
       
-    } else {
+      // Using velocity and body for controlMode and coordinateSystem respectively means that a positive pitch corresponds to a roll to the right,
+      // and a positive roll corresponds to a pitch forwards, THIS IS THE DJI SDK AND WE HAVE TO LIVE WITH IT
+      // TODO: Should the original values be stored and restored on end?
+      flightController?.rollPitchControlMode = DJIVirtualStickRollPitchControlMode.velocity
+      flightController?.yawControlMode = DJIVirtualStickYawControlMode.angularVelocity
+      flightController?.verticalControlMode = DJIVirtualStickVerticalControlMode.velocity
+      flightController?.rollPitchCoordinateSystem = DJIVirtualStickFlightCoordinateSystem.body
+      flightController?.isVirtualStickAdvancedModeEnabled = true
       
-      if (self.endTrigger == .ultrasonic) {
-        self.isUltrasonicEnabled { (isUltrasonicEnabled: Bool) in
-          if (isUltrasonicEnabled == true) {
-            self.stopAtUltrasonicHeight(stopHeight: self.ultrasonicEndDistance!)
-            
-            flightController?.setVirtualStickModeEnabled(true, withCompletion: { (error: Error?) in
-              if (error != nil) {
-                missionControl?.element(self, failedStartingWithError: error!)
-                return
-              }
-              self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
-            })
-            
-          } else {
-            enum UltrasonicSensorError: Error {
-              case UltrasonicSensorUnavailableError(String)
+      if (self.stopExistingVirtualStick == true) {
+        flightController?.setVirtualStickModeEnabled(false, withCompletion: { (error: Error?) in
+          self.cleanUp { (error: Error?) in
+            DJISDKManager.missionControl()?.element(self, didFinishRunningWithError: error)
+          }
+        })
+        
+      } else {
+        if (self.endTrigger == .ultrasonic) {
+          self.isUltrasonicEnabled { (isUltrasonicEnabled: Bool, error: Error?) in
+            if (isUltrasonicEnabled == true) {
+              self.stopAtUltrasonicHeight(stopHeight: self.ultrasonicEndDistance!)
+              
+              flightController?.setVirtualStickModeEnabled(true, withCompletion: { (error: Error?) in
+                if (error != nil) {
+                  missionControl?.element(self, failedStartingWithError: error!)
+                } else {
+                  self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
+                  missionControl?.elementDidStartRunning(self)
+                }
+              })
+              
+            } else {
+              //            enum UltrasonicSensorError: Error {
+              //              case UltrasonicSensorUnavailableError(String)
+              //            }
+              //            missionControl?.element(self, failedStartingWithError: UltrasonicSensorError.UltrasonicSensorUnavailableError("UltrasonicSensorUnavailable"))
+              missionControl?.element(self, failedStartingWithError: error!)
             }
-            missionControl?.element(self, failedStartingWithError: UltrasonicSensorError.UltrasonicSensorUnavailableError("UltrasonicSensorUnavailable"))
+            
           }
           
+        } else if (self.endTrigger == .timer) {
+          flightController?.setVirtualStickModeEnabled(true, withCompletion: { (error: Error?) in
+            if (error != nil) {
+              missionControl?.element(self, failedStartingWithError: error!)
+            } else {
+              self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
+              self.endTriggerTimer = Timer.scheduledTimer(timeInterval: self.timerEndTime!, target: self, selector: #selector(self.endTriggerTimerDidTrigger), userInfo: nil, repeats: false)
+              missionControl?.elementDidStartRunning(self)
+            }
+          })
         }
         
-      } else if (self.endTrigger == .timer) {
-        flightController?.setVirtualStickModeEnabled(true, withCompletion: { (error: Error?) in
-          if (error != nil) {
-            missionControl?.element(self, failedStartingWithError: error!)
-            return
-          }
-          self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
-          self.endTriggerTimer = Timer.scheduledTimer(timeInterval: self.timerEndTime!, target: self, selector: #selector(self.endTriggerTimerDidTrigger), userInfo: nil, repeats: false)
-          
-        })
+        
       }
-      
-      
     }
   }
   

@@ -72,15 +72,14 @@ class DJIMissionControlWrapper: NSObject {
       let validError: Error? = newElement?.checkValidity()
       if (validError != nil) {
         reject("Schedule Element Error", validError!.localizedDescription, validError!)
-        return
+      } else {
+        let error: Error? = missionControl.scheduleElement(newElement!)
+        if (error != nil) {
+          reject("Schedule Element Error", error!.localizedDescription, error!)
+        } else {
+          resolve("DJI Mission Control: Scheduled Element")
+        }
       }
-      let error: Error? = missionControl.scheduleElement(newElement!)
-      if (error != nil) {
-        reject("Schedule Element Error", error!.localizedDescription, error!)
-        return
-      }
-      resolve("DJI Mission Control: Scheduled Element")
-      return
     }
   }
   
@@ -197,7 +196,6 @@ class DJIMissionControlWrapper: NSObject {
     
     missionControl.startTimeline()
     resolve("DJI Mission Control: Start Timeline")
-    return
   }
   
   @objc(stopTimeline:reject:)
@@ -209,7 +207,6 @@ class DJIMissionControlWrapper: NSObject {
     
     missionControl.stopTimeline()
     resolve("DJI Mission Control: Stop Timeline")
-    return
   }
   
   @objc(startGoHome:reject:)
