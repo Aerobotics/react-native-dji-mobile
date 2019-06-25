@@ -28,6 +28,7 @@ import dji.keysdk.callback.KeyListener;
 import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.mission.MissionControl;
 import dji.sdk.mission.timeline.TimelineElement;
+import dji.sdk.mission.timeline.actions.MissionAction;
 import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 
@@ -67,7 +68,7 @@ interface CompletionCallback {
   void complete(@Nullable DJIError djiError);
 }
 
-public class VirtualStickTimelineElement extends TimelineElement {
+public class VirtualStickTimelineElement extends MissionAction {
 
   private double CONTROLLER_STICK_LIMIT = 660.0;
   private double END_TRIGGER_TIMER_UPDATE_SECONDS = 0.1;
@@ -270,7 +271,7 @@ public class VirtualStickTimelineElement extends TimelineElement {
     for (KeyListener runningListener : runningKeyListeners) {
       DJISDKManager.getInstance().getKeyManager().removeListener(runningListener);
     }
-
+    final MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
     if (stopExistingVirtualStick != true && doNotStopVirtualStickOnEnd == true) {
       completionCallback.complete(null);
     } else {
@@ -278,6 +279,7 @@ public class VirtualStickTimelineElement extends TimelineElement {
         @Override
         public void complete(@Nullable DJIError djiError) {
           completionCallback.complete(djiError);
+          missionControl.onStopWithError(self, djiError);
         }
       });
     }
@@ -299,7 +301,6 @@ public class VirtualStickTimelineElement extends TimelineElement {
       public void onSuccess(@NonNull Object o) {
         isUltrasonicEnabled = true;
         completionCallback.complete(null);
-
       }
 
       @Override
@@ -359,8 +360,8 @@ public class VirtualStickTimelineElement extends TimelineElement {
         public void onResult(DJIError djiError) {
           if (djiError != null) {
             missionControl.onStartWithError(self, djiError);
-
           } else {
+            missionControl.onStart(self);
             sendVirtualStickDataTimer = new Timer();
             sendVirtualStickDataTimer.scheduleAtFixedRate(sendVirtualStickDataBlock, 0, 50);
             if (endTrigger == EndTrigger.timer && timerEndTime != null) {
@@ -411,6 +412,16 @@ public class VirtualStickTimelineElement extends TimelineElement {
   @Override
   public DJIError checkValidity() {
     return null;
+  }
+
+  @Override
+  protected void startListen() {
+
+  }
+
+  @Override
+  protected void stopListen() {
+
   }
 
   @Override
