@@ -11,7 +11,7 @@ import DJISDK
 @objc(EventSender)
 public class EventSender: RCTEventEmitter, RCTInvalidating {
   
-  var eventSendFrequency = 2.0
+  var eventSendFrequency = 10.0
   var eventSendLimiterTimer: Timer
   
   // The event queue only holds the most recent event for each event type received, discarding older events of the same type
@@ -21,8 +21,9 @@ public class EventSender: RCTEventEmitter, RCTInvalidating {
     self.eventSendLimiterTimer = Timer.init()
     super.init()
     
-    self.eventSendLimiterTimer = Timer.scheduledTimer(timeInterval: 1.0/eventSendFrequency, target: self, selector: #selector(self.sendQueuedEvents), userInfo: nil, repeats: true)
+    self.eventSendLimiterTimer = Timer.scheduledTimer(timeInterval: 1.0/self.eventSendFrequency, target: self, selector: #selector(self.sendQueuedEvents), userInfo: nil, repeats: true)
     NotificationCenter.default.addObserver(self, selector: #selector(processEvent), name: NSNotification.Name("DJIEvent"), object: nil)
+    NotificationCenter.default.addObserver(self, selector: #selector(setNewEventSendFrequency), name: NSNotification.Name("limitEventSendFrequency"), object: nil)
   }
   
   public func invalidate() {
@@ -30,13 +31,18 @@ public class EventSender: RCTEventEmitter, RCTInvalidating {
     NotificationCenter.default.removeObserver(self)
   }
   
-  func limitEventSendFrequency(frequency: Int) {
-    self.eventSendLimiterTimer.invalidate()
-    self.eventSendLimiterTimer = Timer.scheduledTimer(timeInterval: 1.0/Double(frequency), target: self, selector: #selector(self.sendQueuedEvents), userInfo: nil, repeats: true)
+  static func limitEventSendFrequency(frequency: Int) {
+    NotificationCenter.default.post(name: Notification.Name("limitEventSendFrequency"), object: nil, userInfo: ["frequency": frequency])
   }
   
   static func sendReactEvent(type: String, value: Any, realtime: Bool = false) {
     NotificationCenter.default.post(name: Notification.Name("DJIEvent"), object: nil, userInfo: ["type": type, "value": value, "realtime": realtime])
+  }
+  
+  @objc private func setNewEventSendFrequency(payload: NSNotification) {
+    self.eventSendFrequency = payload.userInfo!["frequency"] as! Double
+    self.eventSendLimiterTimer.invalidate()
+    self.eventSendLimiterTimer = Timer.scheduledTimer(timeInterval: 1.0/self.eventSendFrequency, target: self, selector: #selector(self.sendQueuedEvents), userInfo: nil, repeats: true)
   }
   
   @objc private func sendQueuedEvents() {

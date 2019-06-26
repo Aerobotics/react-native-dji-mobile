@@ -62,6 +62,14 @@ const DJIMobileWrapper = {
     return registerSDKPromise;
   },
 
+  limitEventFrequency: async (frequency: number) => {
+    if (!Number.isInteger(frequency) || frequency < 1 || frequency > 10) {
+      throw Error('Please ensure frequency is an integer in the range [1, 10]');
+    } else {
+      await DJIMobile.limitEventFrequency(frequency);
+    }
+  },
+
   // TODO: (Adam) What should happen if these functions are called and the SDK is not registered?
 
   startProductConnectionListener: async () => {
