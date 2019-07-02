@@ -164,6 +164,9 @@ const DJIMobileWrapper = {
     await DJIMobile.downloadMedia();
   }
 
+  getFileList: async () => {
+    return await DJIMobile.getFileList();
+  }
 };
 
 export default DJIMobileWrapper;

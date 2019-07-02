@@ -30,11 +30,7 @@ import dji.common.flightcontroller.LocationCoordinate3D;
 import dji.common.util.CommonCallbacks;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
-import dji.keysdk.KeyManager;
-import dji.keysdk.ProductKey;
-import dji.keysdk.BatteryKey;
 import dji.keysdk.callback.GetCallback;
-import dji.keysdk.callback.KeyListener;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
@@ -83,6 +79,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   ; // This must only be initialized once the SDK has registered, as it uses the SDK
   private SdkEventHandler sdkEventHandler;
+  private BaseProduct product;
 
 //  private Observer newMediaFileObserver = new Observer() {
 //    @Override
@@ -98,6 +95,8 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 //      }
 //    }
 //  };
+
+  private DJIRealTimeDataLogger djiRealTimeDataLogger;
 
   public DJIMobile(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -138,12 +137,12 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onProductDisconnect() {
-        // TODO
+        product = null;
       }
 
       @Override
       public void onProductConnect(BaseProduct baseProduct) {
-        // TODO
+        product = baseProduct;
       }
 
       @Override
@@ -151,6 +150,16 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         // TODO
       }
     });
+  }
+
+  @ReactMethod
+  public void getFileList(final Promise promise) {
+    DJIMedia m = new DJIMedia();
+    if (product == null){
+      promise.reject("No product connected");
+    } else {
+      m.getFileList(promise, product);
+    }
   }
 
   @ReactMethod
@@ -569,6 +578,21 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           }
       }
   }
+
+    @ReactMethod
+    public void startRecordRealTimeData(String fileName){
+        if (djiRealTimeDataLogger == null) {
+            djiRealTimeDataLogger = new DJIRealTimeDataLogger(reactContext);
+        }
+        djiRealTimeDataLogger.startLogging(fileName);
+    }
+
+    @ReactMethod
+    public void stopRecordRealTimeData() {
+        if (djiRealTimeDataLogger != null) {
+            djiRealTimeDataLogger.stopLogging();
+        }
+    }
 
   @Override
   public String getName() {
