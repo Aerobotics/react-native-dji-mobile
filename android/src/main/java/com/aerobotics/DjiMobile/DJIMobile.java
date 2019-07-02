@@ -154,7 +154,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void getFileList(final Promise promise) {
-    DJIMedia m = new DJIMedia();
+    DJIMedia m = new DJIMedia(reactContext);
     if (product == null){
       promise.reject("No product connected");
     } else {
@@ -482,101 +482,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       params.putArray("value", (WritableArray) value);
     }
     return params;
-  }
-
-  @ReactMethod
-  public void downloadMedia(final Promise promise) {
-      Camera camera = null;
-      BaseProduct product = DJISDKManager.getInstance().getProduct();
-      if (product instanceof Aircraft){
-          camera = ((Aircraft) product).getCamera();
-      }
-
-      if (camera != null) {
-          final MediaManager mediaManager = camera.getMediaManager();
-          try {
-              MediaManager.FileListState fileListState = mediaManager.getSDCardFileListState();
-              if (fileListState == MediaManager.FileListState.UP_TO_DATE) {
-                  List<MediaFile> mediaFiles = mediaManager.getSDCardFileListSnapshot();
-                  for (MediaFile mediaFile: mediaFiles) {
-                      mediaFile.fetchFileData(reactContext.getFilesDir(), null, new DownloadListener<String>() {
-                          @Override
-                          public void onStart() {
-                              Log.i("REACT", "Download started");
-                          }
-
-                          @Override
-                          public void onRateUpdate(long l, long l1, long l2) {
-
-                          }
-
-                          @Override
-                          public void onProgress(long l, long l1) {
-
-                          }
-
-                          @Override
-                          public void onSuccess(String s) {
-                              Log.i("REACT", "Download success");
-                          }
-
-                          @Override
-                          public void onFailure(DJIError djiError) {
-                              Log.i("REACT", "Download failed: " + djiError.getDescription());
-                          }
-                      });
-                  }
-              } else {
-                  mediaManager.refreshFileListOfStorageLocation(SettingsDefinitions.StorageLocation.SDCARD, new CommonCallbacks.CompletionCallback() {
-                      @Override
-                      public void onResult(DJIError djiError) {
-                          if (djiError == null) {
-                              MediaManager.FileListState fileListState = mediaManager.getSDCardFileListState();
-                              if (fileListState == MediaManager.FileListState.UP_TO_DATE) {
-                                  List<MediaFile> mediaFiles = mediaManager.getSDCardFileListSnapshot();
-                                  for (MediaFile mediaFile: mediaFiles) {
-                                      Log.i("REACT", mediaFile.getFileName());
-                                      mediaFile.fetchFileData(reactContext.getFilesDir(), null, new DownloadListener<String>() {
-                                          @Override
-                                          public void onStart() {
-                                              Log.i("REACT", "Download started");
-                                          }
-
-                                          @Override
-                                          public void onRateUpdate(long l, long l1, long l2) {
-
-                                          }
-
-                                          @Override
-                                          public void onProgress(long l, long l1) {
-
-                                          }
-
-                                          @Override
-                                          public void onSuccess(String s) {
-                                              Log.i("REACT", "Download success");
-                                              promise.resolve(null);
-                                          }
-
-                                          @Override
-                                          public void onFailure(DJIError djiError) {
-                                              Log.i("REACT", "Download failed: " + djiError.getDescription());
-                                          }
-                                      });
-                                  }
-                              }
-                          } else {
-                              Log.i("REACT", djiError.getDescription());
-                          }
-
-                      }
-                  });
-              }
-
-          } catch (NullPointerException e) {
-              Log.e("REACT", e.getMessage());
-          }
-      }
   }
 
     @ReactMethod
