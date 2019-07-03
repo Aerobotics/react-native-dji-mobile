@@ -18,7 +18,8 @@ public class DJIMobilePackage implements ReactPackage {
     return Arrays.<NativeModule>asList(
       new DJIMobile(reactContext),
       new DJIMissionControlWrapper(reactContext),
-      new CameraControlNative(reactContext)
+      new CameraControlNative(reactContext),
+      new DJIMedia(reactContext)
     );
   }
 

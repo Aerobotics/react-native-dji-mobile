@@ -14,6 +14,8 @@ import DJIMissionControl from './lib/DJIMissionControl';
 
 import CameraControl from './lib/CameraControl';
 
+import DJIMediaControl from './lib/DJIMedia';
+
 import {
   DJIEventSubject,
 } from './lib/utilities';
@@ -161,7 +163,7 @@ const DJIMobileWrapper = {
   },
   getFileList: async () => {
     return await DJIMobile.getFileList();
-  }
+  },
 };
 
 export default DJIMobileWrapper;
@@ -169,4 +171,5 @@ export default DJIMobileWrapper;
 export {
   DJIMissionControl,
   CameraControl,
+  DJIMediaControl,
 };

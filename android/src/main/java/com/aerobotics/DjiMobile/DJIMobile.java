@@ -17,7 +17,6 @@ import android.util.Log;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
@@ -113,7 +112,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
             sdkEventHandler = new SdkEventHandler();
           }
           promise.resolve("DJI SDK: Registration Successful");
-          // djisdkManager.startConnectionToProduct();
 
           if (bridgeIp != null) {
             djisdkManager.enableBridgeModeWithBridgeAppIP(bridgeIp);
@@ -144,7 +142,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void getFileList(final Promise promise) {
-    DJIMedia m = new DJIMedia();
+    DJIMedia m = new DJIMedia(reactContext);
     if (product == null){
       promise.reject("No product connected");
     } else {
@@ -421,6 +419,9 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
     Object existingEventListener = eventListeners.get(SDKEvent);
 
+    if (sdkEventHandler == null) {
+        sdkEventHandler = new SdkEventHandler();
+    }
     if (existingEventListener == null) {
       Object eventSubscriptionObject = sdkEventHandler.startEventListener(SDKEvent, eventListener);
       eventListeners.put(SDKEvent, eventSubscriptionObject);
@@ -471,20 +472,20 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     return params;
   }
 
-  @ReactMethod
-  public void startRecordRealTimeData(String fileName){
-    if (djiRealTimeDataLogger == null) {
-      djiRealTimeDataLogger = new DJIRealTimeDataLogger(reactContext);
+    @ReactMethod
+    public void startRecordRealTimeData(String fileName){
+        if (djiRealTimeDataLogger == null) {
+            djiRealTimeDataLogger = new DJIRealTimeDataLogger(reactContext);
+        }
+        djiRealTimeDataLogger.startLogging(fileName);
     }
-    djiRealTimeDataLogger.startLogging(fileName);
-  }
 
-  @ReactMethod
-  public void stopRecordRealTimeData() {
-    if (djiRealTimeDataLogger != null) {
-      djiRealTimeDataLogger.stopLogging();
+    @ReactMethod
+    public void stopRecordRealTimeData() {
+        if (djiRealTimeDataLogger != null) {
+            djiRealTimeDataLogger.stopLogging();
+        }
     }
-   }
 
   @Override
   public String getName() {

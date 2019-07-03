@@ -1,5 +1,7 @@
 package com.aerobotics.DjiMobile;
 
+import android.util.Log;
+
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -9,7 +11,6 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,12 +27,13 @@ import dji.sdk.sdkmanager.DJISDKManager;
 import dji.sdk.products.Aircraft;
 import dji.sdk.base.BaseProduct;
 
-public class DJIMedia  {
+public class DJIMedia extends ReactContextBaseJavaModule {
   private Promise promise;
   private MediaManager.FileListState currentFileListState = MediaManager.FileListState.UNKNOWN;
   private MediaManager mediaManager;
   private Camera camera;
   private List<MediaFile> mediaFileList = new ArrayList<MediaFile>();
+  private final ReactApplicationContext reactContext;
 
   private MediaManager.FileListStateListener updateFileListStateListener = new MediaManager.FileListStateListener() {
     @Override
@@ -40,8 +42,9 @@ public class DJIMedia  {
     }
   };
 
-  DJIMedia(){
-
+  DJIMedia(ReactApplicationContext reactContext){
+    super(reactContext);
+    this.reactContext = reactContext;
   }
 
   public void getFileList(final Promise promise, BaseProduct baseProduct) {
@@ -57,6 +60,7 @@ public class DJIMedia  {
     mediaManager = camera.getMediaManager();
 
     initMediaManager();
+    // getFileList();
   }
 
   private void initMediaManager() {
@@ -68,18 +72,15 @@ public class DJIMedia  {
           getFileList();
         } else {
           promise.reject(djiError.toString(), djiError.getDescription());
-          return;
         }
       }
     });
-    return;
   }
 
-  public void getFileList() {
+  private void getFileList() {
 
     if ((currentFileListState == MediaManager.FileListState.SYNCING) || (currentFileListState == MediaManager.FileListState.DELETING)){
       promise.reject("Media manager is busy");
-
     } else{
       System.out.println("Refresh file list");
 
@@ -119,11 +120,145 @@ public class DJIMedia  {
             System.out.println("Get Media File List Success");
             promise.resolve(params);
           } else {
-            System.out.println("Get Media File List Failed");
+            System.out.println("Get Media File List Failed: " +  djiError.getDescription());
             promise.reject(djiError.toString(), djiError.getDescription());
           }
         }
       });
     }
+  }
+
+  @ReactMethod
+  public void startFullResMediaFileDownload(final String nameOfFileToDownload, final Promise promise) {
+    Camera camera = null;
+    final BaseProduct product = DJISDKManager.getInstance().getProduct();
+    if (product instanceof Aircraft){
+      camera = ((Aircraft) product).getCamera();
+    }
+
+    if (camera != null) {
+      final MediaManager mediaManager = camera.getMediaManager();
+      try {
+        MediaManager.FileListState fileListState = mediaManager.getSDCardFileListState();
+        if (fileListState == MediaManager.FileListState.UP_TO_DATE) {
+          List<MediaFile> mediaFiles = mediaManager.getSDCardFileListSnapshot();
+          for (MediaFile mediaFile: mediaFiles) {
+            final String fileName = mediaFile.getFileName();
+            if (nameOfFileToDownload.equals(fileName)) {
+              mediaFile.fetchFileData(reactContext.getFilesDir(), null, downloadListener);
+              promise.resolve(null);
+              break;
+            }
+          }
+          promise.reject(new Throwable("Error: File not found"));
+        } else {
+          mediaManager.refreshFileListOfStorageLocation(SettingsDefinitions.StorageLocation.SDCARD, new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onResult(DJIError djiError) {
+              if (djiError == null) {
+                MediaManager.FileListState fileListState = mediaManager.getSDCardFileListState();
+                if (fileListState == MediaManager.FileListState.UP_TO_DATE) {
+                  List<MediaFile> mediaFiles = mediaManager.getSDCardFileListSnapshot();
+                  for (MediaFile mediaFile: mediaFiles) {
+                    final String fileName = mediaFile.getFileName();
+                    if (nameOfFileToDownload.equals(fileName)) {
+                      mediaFile.fetchFileData(reactContext.getFilesDir(), null, downloadListener);
+                      promise.resolve(null);
+                    }
+                  }
+                  promise.reject(new Throwable("Error: File not found"));
+                } else {
+                  promise.reject(new Throwable("Error: Could not get file list"));
+                }
+              } else {
+                Log.i("REACT", djiError.getDescription());
+                promise.reject(new Throwable("Error getting file list: " + djiError.getDescription()));
+              }
+            }
+          });
+        }
+      } catch (NullPointerException e) {
+        Log.e("REACT", e.getMessage());
+        promise.reject(new Throwable("Error: " + e.getMessage()));
+      }
+    }
+  }
+
+  private DownloadListener<String> downloadListener = new DownloadListener<String>() {
+    @Override
+    public void onStart() {
+      // Log.i("REACT", "Started file download: " + fileName);
+
+      WritableMap params = Arguments.createMap();
+      WritableMap eventInfo = Arguments.createMap();
+      eventInfo.putString("eventName", "onStart");
+      params.putMap("value", eventInfo);
+      params.putString("type", "mediaFileDownloadEvent");
+      reactContext
+              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+              .emit("DJIEvent", params);
+    }
+
+    @Override
+    public void onRateUpdate(long total, long current, long persize) {
+      WritableMap params = Arguments.createMap();
+      WritableMap eventInfo = Arguments.createMap();
+      eventInfo.putString("eventName", "onRateUpdate");
+      eventInfo.putInt("total", (int) total);
+      eventInfo.putInt("current", (int) current);
+      eventInfo.putInt("persize", (int) persize);
+      params.putMap("value", eventInfo);
+      params.putString("type", "mediaFileDownloadEvent");
+      reactContext
+              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+              .emit("DJIEvent", params);
+
+    }
+
+    @Override
+    public void onProgress(long total, long current) {
+      WritableMap params = Arguments.createMap();
+      WritableMap eventInfo = Arguments.createMap();
+      eventInfo.putString("eventName", "onProgress");
+      eventInfo.putInt("total", (int) total);
+      eventInfo.putInt("current", (int) current);
+      params.putMap("value", eventInfo);
+      params.putString("type", "mediaFileDownloadEvent");
+//      reactContext
+//              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+//              .emit("DJIEvent", params);
+    }
+
+    @Override
+    public void onSuccess(String s) {
+      // Log.i("REACT", "Successful file download: " + s);
+      WritableMap params = Arguments.createMap();
+      WritableMap eventInfo = Arguments.createMap();
+      eventInfo.putString("eventName", "onSuccess");
+      params.putMap("value", eventInfo);
+      params.putString("type", "mediaFileDownloadEvent");
+      reactContext
+              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+              .emit("DJIEvent", params);
+    }
+
+    @Override
+    public void onFailure(DJIError djiError) {
+      // Log.i("REACT", "Failed to download file " + fileName + ": " + djiError.getDescription());
+      WritableMap params = Arguments.createMap();
+      WritableMap eventInfo = Arguments.createMap();
+      eventInfo.putString("eventName", "onFailure");
+      eventInfo.putString("error", djiError.toString());
+      params.putMap("value", eventInfo);
+      params.putString("type", "mediaFileDownloadEvent");
+      reactContext
+              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+              .emit("DJIEvent", params);
+    }
+  };
+
+  @Override
+  public String getName() {
+    return "DJIMedia";
   }
 }
