@@ -11,7 +11,6 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -61,6 +60,7 @@ public class DJIMedia extends ReactContextBaseJavaModule {
     mediaManager = camera.getMediaManager();
 
     initMediaManager();
+    // getFileList();
   }
 
   private void initMediaManager() {
@@ -72,18 +72,15 @@ public class DJIMedia extends ReactContextBaseJavaModule {
           getFileList();
         } else {
           promise.reject(djiError.toString(), djiError.getDescription());
-          return;
         }
       }
     });
-    return;
   }
 
-  public void getFileList() {
+  private void getFileList() {
 
     if ((currentFileListState == MediaManager.FileListState.SYNCING) || (currentFileListState == MediaManager.FileListState.DELETING)){
       promise.reject("Media manager is busy");
-
     } else{
       System.out.println("Refresh file list");
 
@@ -123,7 +120,7 @@ public class DJIMedia extends ReactContextBaseJavaModule {
             System.out.println("Get Media File List Success");
             promise.resolve(params);
           } else {
-            System.out.println("Get Media File List Failed");
+            System.out.println("Get Media File List Failed: " +  djiError.getDescription());
             promise.reject(djiError.toString(), djiError.getDescription());
           }
         }
@@ -132,9 +129,9 @@ public class DJIMedia extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void downloadMedia(final Promise promise) {
+  public void startFullResMediaFileDownload(final String nameOfFileToDownload, final Promise promise) {
     Camera camera = null;
-    BaseProduct product = DJISDKManager.getInstance().getProduct();
+    final BaseProduct product = DJISDKManager.getInstance().getProduct();
     if (product instanceof Aircraft){
       camera = ((Aircraft) product).getCamera();
     }
@@ -146,33 +143,14 @@ public class DJIMedia extends ReactContextBaseJavaModule {
         if (fileListState == MediaManager.FileListState.UP_TO_DATE) {
           List<MediaFile> mediaFiles = mediaManager.getSDCardFileListSnapshot();
           for (MediaFile mediaFile: mediaFiles) {
-            mediaFile.fetchFileData(reactContext.getFilesDir(), null, new DownloadListener<String>() {
-              @Override
-              public void onStart() {
-                Log.i("REACT", "Download started");
-              }
-
-              @Override
-              public void onRateUpdate(long l, long l1, long l2) {
-
-              }
-
-              @Override
-              public void onProgress(long l, long l1) {
-
-              }
-
-              @Override
-              public void onSuccess(String s) {
-                Log.i("REACT", "Download success");
-              }
-
-              @Override
-              public void onFailure(DJIError djiError) {
-                Log.i("REACT", "Download failed: " + djiError.getDescription());
-              }
-            });
+            final String fileName = mediaFile.getFileName();
+            if (nameOfFileToDownload.equals(fileName)) {
+              mediaFile.fetchFileData(reactContext.getFilesDir(), null, downloadListener);
+              promise.resolve(null);
+              break;
+            }
           }
+          promise.reject(new Throwable("Error: File not found"));
         } else {
           mediaManager.refreshFileListOfStorageLocation(SettingsDefinitions.StorageLocation.SDCARD, new CommonCallbacks.CompletionCallback() {
             @Override
@@ -182,49 +160,102 @@ public class DJIMedia extends ReactContextBaseJavaModule {
                 if (fileListState == MediaManager.FileListState.UP_TO_DATE) {
                   List<MediaFile> mediaFiles = mediaManager.getSDCardFileListSnapshot();
                   for (MediaFile mediaFile: mediaFiles) {
-                    Log.i("REACT", mediaFile.getFileName());
-                    mediaFile.fetchFileData(reactContext.getFilesDir(), null, new DownloadListener<String>() {
-                      @Override
-                      public void onStart() {
-                        Log.i("REACT", "Download started");
-                      }
-
-                      @Override
-                      public void onRateUpdate(long l, long l1, long l2) {
-
-                      }
-
-                      @Override
-                      public void onProgress(long l, long l1) {
-
-                      }
-
-                      @Override
-                      public void onSuccess(String s) {
-                        Log.i("REACT", "Download success");
-                        promise.resolve(null);
-                      }
-
-                      @Override
-                      public void onFailure(DJIError djiError) {
-                        Log.i("REACT", "Download failed: " + djiError.getDescription());
-                      }
-                    });
+                    final String fileName = mediaFile.getFileName();
+                    if (nameOfFileToDownload.equals(fileName)) {
+                      mediaFile.fetchFileData(reactContext.getFilesDir(), null, downloadListener);
+                      promise.resolve(null);
+                    }
                   }
+                  promise.reject(new Throwable("Error: File not found"));
+                } else {
+                  promise.reject(new Throwable("Error: Could not get file list"));
                 }
               } else {
                 Log.i("REACT", djiError.getDescription());
+                promise.reject(new Throwable("Error getting file list: " + djiError.getDescription()));
               }
-
             }
           });
         }
-
       } catch (NullPointerException e) {
         Log.e("REACT", e.getMessage());
+        promise.reject(new Throwable("Error: " + e.getMessage()));
       }
     }
   }
+
+  private DownloadListener<String> downloadListener = new DownloadListener<String>() {
+    @Override
+    public void onStart() {
+      // Log.i("REACT", "Started file download: " + fileName);
+
+      WritableMap params = Arguments.createMap();
+      WritableMap eventInfo = Arguments.createMap();
+      eventInfo.putString("eventName", "onStart");
+      params.putMap("value", eventInfo);
+      params.putString("type", "mediaFileDownloadEvent");
+      reactContext
+              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+              .emit("DJIEvent", params);
+    }
+
+    @Override
+    public void onRateUpdate(long total, long current, long persize) {
+      WritableMap params = Arguments.createMap();
+      WritableMap eventInfo = Arguments.createMap();
+      eventInfo.putString("eventName", "onRateUpdate");
+      eventInfo.putInt("total", (int) total);
+      eventInfo.putInt("current", (int) current);
+      eventInfo.putInt("persize", (int) persize);
+      params.putMap("value", eventInfo);
+      params.putString("type", "mediaFileDownloadEvent");
+      reactContext
+              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+              .emit("DJIEvent", params);
+
+    }
+
+    @Override
+    public void onProgress(long total, long current) {
+      WritableMap params = Arguments.createMap();
+      WritableMap eventInfo = Arguments.createMap();
+      eventInfo.putString("eventName", "onProgress");
+      eventInfo.putInt("total", (int) total);
+      eventInfo.putInt("current", (int) current);
+      params.putMap("value", eventInfo);
+      params.putString("type", "mediaFileDownloadEvent");
+//      reactContext
+//              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+//              .emit("DJIEvent", params);
+    }
+
+    @Override
+    public void onSuccess(String s) {
+      // Log.i("REACT", "Successful file download: " + s);
+      WritableMap params = Arguments.createMap();
+      WritableMap eventInfo = Arguments.createMap();
+      eventInfo.putString("eventName", "onSuccess");
+      params.putMap("value", eventInfo);
+      params.putString("type", "mediaFileDownloadEvent");
+      reactContext
+              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+              .emit("DJIEvent", params);
+    }
+
+    @Override
+    public void onFailure(DJIError djiError) {
+      // Log.i("REACT", "Failed to download file " + fileName + ": " + djiError.getDescription());
+      WritableMap params = Arguments.createMap();
+      WritableMap eventInfo = Arguments.createMap();
+      eventInfo.putString("eventName", "onFailure");
+      eventInfo.putString("error", djiError.toString());
+      params.putMap("value", eventInfo);
+      params.putString("type", "mediaFileDownloadEvent");
+      reactContext
+              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+              .emit("DJIEvent", params);
+    }
+  };
 
   @Override
   public String getName() {
