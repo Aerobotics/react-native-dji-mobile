@@ -8,21 +8,21 @@
 import Foundation
 import DJISDK
 
-enum VirtualStickControl: String, CaseIterable {
+private enum VirtualStickControl: String, CaseIterable {
   case pitch
   case roll
   case yaw
   case verticalThrottle
 }
 
-enum ControllerStickAxis: String {
+private enum ControllerStickAxis: String {
   case leftHorizontal
   case leftVertical
   case rightHorizontal
   case rightVertical
 }
 
-enum Parameters: String {
+private enum Parameters: String {
   case baseVirtualStickControlValues
   case doNotStopVirtualStickOnEnd
   case stopExistingVirtualStick
@@ -35,38 +35,38 @@ enum Parameters: String {
   case controlStickAdjustments
 }
 
-enum EndTrigger: String {
+private enum EndTrigger: String {
   case timer
   case ultrasonic
 }
 
-let CONTROLLER_STICK_LIMIT = 660.0
-let sendVirtualStickDataTimerPeriod = 0.05
+private let CONTROLLER_STICK_LIMIT = 660.0
+private let sendVirtualStickDataTimerPeriod = 0.05
 
 public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineElement {
   
-  var sendVirtualStickDataTimer: Timer
-  var endTriggerTimer: Timer
-  var waitForControlSticksReleaseTimer: Timer
-  var secondsUntilEndTrigger: TimeInterval?
+  private var sendVirtualStickDataTimer: Timer
+  private var endTriggerTimer: Timer
+  private var waitForControlSticksReleaseTimer: Timer
+  private var secondsUntilEndTrigger: TimeInterval?
   
-  var endTrigger: EndTrigger?
-  var timerEndTime: Double?
+  private var endTrigger: EndTrigger?
+  private var timerEndTime: Double?
   
-  var stopExistingVirtualStick = false
-  var doNotStopVirtualStickOnEnd = false
-  var waitForControlSticksReleaseOnEnd = false
+  private var stopExistingVirtualStick = false
+  private var doNotStopVirtualStickOnEnd = false
+  private var waitForControlSticksReleaseOnEnd = false
   
-  var ultrasonicEndDistance: Double?
+  private var ultrasonicEndDistance: Double?
   
-  var virtualStickAdjustmentValues = [
+  private var virtualStickAdjustmentValues = [
     VirtualStickControl.pitch: 0.0,
     VirtualStickControl.roll: 0.0,
     VirtualStickControl.yaw: 0.0,
     VirtualStickControl.verticalThrottle: 0.0,
   ]
   
-  var baseVirtualStickControlValues = [
+  private var baseVirtualStickControlValues = [
     VirtualStickControl.pitch: 0.0,
     VirtualStickControl.roll: 0.0,
     VirtualStickControl.yaw: 0.0,

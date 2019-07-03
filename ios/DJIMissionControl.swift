@@ -18,6 +18,7 @@ enum TimelineElement: String {
   
   case WaypointMissionTimelineElement
   case VirtualStickTimelineElement
+  case RecordFlightData
   
 }
 
@@ -66,6 +67,9 @@ class DJIMissionControlWrapper: NSObject {
       
     case .VirtualStickTimelineElement:
       newElement = VirtualStickTimelineElement(parameters)
+      
+    case .RecordFlightData:
+      newElement = RecordFlightData(parameters)
     }
     
     if newElement != nil {
@@ -166,12 +170,12 @@ class DJIMissionControlWrapper: NSObject {
     let stopRecord = parameters["stopRecord"] as? Bool
     
     if (stopRecord == true) {
-      return DJIRecordVideoAction(stopRecordVideo: ())
+      return DJIRecordVideoAction.init(stopRecordVideo: ())
     } else {
       if (duration != nil) {
-        return DJIRecordVideoAction(duration: duration!)
+        return DJIRecordVideoAction.init(duration: duration!)
       } else {
-        return DJIRecordVideoAction(startRecordVideo: ())
+        return DJIRecordVideoAction.init(startRecordVideo: ())
       }
     }
   }

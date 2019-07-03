@@ -9,33 +9,64 @@
 import Foundation
 import DJISDK
 
-enum ErrorsToThrow: Error {
+private enum ErrorsToThrow: Error {
   case noKeyManager
   case noCamera
+  case alreadyLogging
 }
 
-struct PreviousCameraState {
+private struct PreviousCameraState {
   var isShootingSinglePhoto = false
   var isRecording = false
 }
 
-class DJIRealTimeDataLogger: NSObject {
+@objc(DJIRealTimeDataLogger)
+class DJIRealTimeDataLogger: NSObject, RCTInvalidating {
   
-  var previousCameraState = PreviousCameraState()
-  var fileName = ""
-  var isLogging = false
+  private var previousCameraState = PreviousCameraState()
+  private var fileName = ""
+  private var isLogging = false
   
-  public func startLogging(fileName: String, withCompletion: (Error?) -> ()) {
-    guard let keyManager = DJISDKManager.keyManager() else {
-      withCompletion(ErrorsToThrow.noKeyManager)
+  override init() {
+    super.init()
+    
+    NotificationCenter.default.addObserver(self, selector: #selector(processEvent), name: NSNotification.Name("DJIRealTimeDataLoggerEvent"), object: nil)
+  }
+  
+  public func invalidate() {
+    if (self.isLogging) {
+      self.stopLoggingInternal()
+      NotificationCenter.default.removeObserver(self)
+    }
+  }
+  
+  static func startLogging(fileName: String) {
+    NotificationCenter.default.post(name: Notification.Name("DJIRealTimeDataLoggerEvent"), object: nil, userInfo: ["fileName": fileName])
+  }
+  
+  static func stopLogging() {
+    NotificationCenter.default.post(name: Notification.Name("DJIRealTimeDataLoggerEvent"), object: nil, userInfo: ["stopLogging": true])
+  }
+  
+  @objc private func processEvent(payload: NSNotification) {
+    if let stopLogging = payload.userInfo!["stopLogging"] as? Bool {
+      self.stopLoggingInternal()
+    } else if let fileName = payload.userInfo!["fileName"] as? String {
+      self.startLoggingInternal(fileName)
+    }
+  }
+  
+  private func startLoggingInternal(_ fileName: String) {
+    
+    if (self.isLogging == true) {
+//      withCompletion(ErrorsToThrow.alreadyLogging)
       return
     }
     
-    //    guard let camera = DJISDKManager.product()?.camera else {
-    //      withCompletion(ErrorsToThrow.noCamera)
-    //      return
-    //    }
-    //    camera.delegate = self
+    guard let keyManager = DJISDKManager.keyManager() else {
+//      withCompletion(ErrorsToThrow.noKeyManager)
+      return
+    }
     
     NotificationCenter.default.addObserver(self, selector: #selector(cameraSystemStateUpdate), name: CameraEvent.didUpdateSystemState.notification, object: nil)
     
@@ -128,22 +159,22 @@ class DJIRealTimeDataLogger: NSObject {
       }
     }
     
-    withCompletion(nil)
+//    withCompletion(nil)
   }
   
-  public func stopLogging(withCompletion: (Error?) -> ()) {
+  private func stopLoggingInternal() {
     self.isLogging = false
     
     if let keyManager = DJISDKManager.keyManager() {
       keyManager.stopAllListening(ofListeners: self)
     } else {
-      withCompletion(ErrorsToThrow.noKeyManager)
+//      withCompletion(ErrorsToThrow.noKeyManager)
       return
     }
     
     NotificationCenter.default.removeObserver(self, name: NSNotification.Name("DJICameraEvent.didUpdateSystemState"), object: nil)
     
-    withCompletion(nil)
+//    withCompletion(nil)
   }
   
   @objc private func cameraSystemStateUpdate(payload: NSNotification) {

@@ -11,14 +11,14 @@ import DJISDK
 @objc(EventSender)
 public class EventSender: RCTEventEmitter, RCTInvalidating {
   
-  var eventSendFrequency = 10.0
+  var eventSendFrequency = 2.0
   var eventSendLimiterTimer: Timer
   
   // The event queue only holds the most recent event for each event type received, discarding older events of the same type
   var queuedEvents = [String: Any]()
   
   override init() {
-    self.eventSendLimiterTimer = Timer.init()
+    eventSendLimiterTimer = Timer.init()
     super.init()
     
     self.eventSendLimiterTimer = Timer.scheduledTimer(timeInterval: 1.0/self.eventSendFrequency, target: self, selector: #selector(self.sendQueuedEvents), userInfo: nil, repeats: true)
@@ -40,7 +40,7 @@ public class EventSender: RCTEventEmitter, RCTInvalidating {
   }
   
   @objc private func setNewEventSendFrequency(payload: NSNotification) {
-    self.eventSendFrequency = payload.userInfo!["frequency"] as! Double
+    self.eventSendFrequency = Double(payload.userInfo!["frequency"] as! Int)
     self.eventSendLimiterTimer.invalidate()
     self.eventSendLimiterTimer = Timer.scheduledTimer(timeInterval: 1.0/self.eventSendFrequency, target: self, selector: #selector(self.sendQueuedEvents), userInfo: nil, repeats: true)
   }
@@ -74,7 +74,6 @@ public class EventSender: RCTEventEmitter, RCTInvalidating {
   private func sendEventThroughBridge(_ type: String, _ value: Any?) {
     // Only send events if the JS bridge has loaded
     if (self.bridge != nil) {
-      print("SEND EVENT: \(type)")
       self.sendEvent(withName: "DJIEvent", body: [
         "type": type,
         "value": value,
