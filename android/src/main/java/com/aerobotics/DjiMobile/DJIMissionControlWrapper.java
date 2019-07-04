@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.aerobotics.DjiMobile.DJITimelineElements.RealTimeDataLoggerTimelineElement;
+import com.aerobotics.DjiMobile.DJITimelineElements.RunJSElementTimelineElement;
 import com.aerobotics.DjiMobile.DJITimelineElements.VirtualStickTimelineElement;
 import com.aerobotics.DjiMobile.DJITimelineElements.WaypointMissionTimelineElement;
 import com.facebook.react.bridge.Arguments;
@@ -56,6 +57,7 @@ enum TimelineElementType {
   GoHomeAction,
   VirtualStickTimelineElement,
   RealTimeDataLoggerTimelineElement,
+  RunJSElementTimelineElement,
 }
 
 public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
@@ -66,7 +68,6 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
   public DJIMissionControlWrapper(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
-    this.djiRealTimeDataLogger = new DJIRealTimeDataLogger(reactContext);
   }
 
   @ReactMethod
@@ -122,6 +123,10 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
       case RealTimeDataLoggerTimelineElement:
         newElement = buildRealTimeDataLoggerTimelineElement(parameters);
+        break;
+
+      case RunJSElementTimelineElement:
+        newElement = buildRunJSElementTimelineElement(reactContext, parameters);
         break;
 
       default:
@@ -301,7 +306,11 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
     if (djiRealTimeDataLogger == null) {
       djiRealTimeDataLogger = new DJIRealTimeDataLogger(reactContext);
     }
-    return new RealTimeDataLoggerTimelineElement(reactContext, djiRealTimeDataLogger, parameters);
+    return new RealTimeDataLoggerTimelineElement(djiRealTimeDataLogger, parameters);
+  }
+
+  public RunJSElementTimelineElement buildRunJSElementTimelineElement(ReactApplicationContext reactContext, ReadableMap parameters) {
+    return new RunJSElementTimelineElement(reactContext, parameters);
   }
 
   @ReactMethod
