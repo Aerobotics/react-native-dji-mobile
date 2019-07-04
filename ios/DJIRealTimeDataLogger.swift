@@ -251,4 +251,8 @@ class DJIRealTimeDataLogger: NSObject, RCTInvalidating {
       print(error)
     }
   }
+  
+  @objc static func requiresMainQueueSetup() -> Bool {
+    return true
+  }
 }

@@ -19,6 +19,7 @@ enum TimelineElement: String {
   case WaypointMissionTimelineElement
   case VirtualStickTimelineElement
   case RecordFlightData
+  case RunJSElement
   
 }
 
@@ -31,7 +32,7 @@ class DJIMissionControlWrapper: NSObject {
   
   @objc(scheduleElement:parameters:resolve:reject:)
   func scheduleElement(timelineElementName: String, parameters: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    
+        
     guard let missionControl = DJISDKManager.missionControl() else {
       reject("Schedule Element Error", "Could not schedule element as mission control could not be loaded", nil);
       return
@@ -70,6 +71,10 @@ class DJIMissionControlWrapper: NSObject {
       
     case .RecordFlightData:
       newElement = RecordFlightData(parameters)
+      
+    case .RunJSElement:
+      newElement = RunJSElement(parameters)
+    
     }
     
     if newElement != nil {
