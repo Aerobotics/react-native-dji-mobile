@@ -1,7 +1,6 @@
 package com.aerobotics.DjiMobile.DJITimelineElements;
 
 import com.aerobotics.DjiMobile.DJIRealTimeDataLogger;
-import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableMap;
 
 import dji.common.error.DJIError;
@@ -9,16 +8,14 @@ import dji.sdk.mission.timeline.actions.MissionAction;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 public class RealTimeDataLoggerTimelineElement extends MissionAction {
-    ReactApplicationContext reactApplicationContext;
-    DJIRealTimeDataLogger djiRealTimeDataLogger;
+    private DJIRealTimeDataLogger djiRealTimeDataLogger;
     private RealTimeDataLoggerTimelineElement self;
 
-    boolean stopRecordingFlightData = false;
-    String fileName;
+    private boolean stopRecordingFlightData = false;
+    private String fileName;
 
-    public RealTimeDataLoggerTimelineElement(ReactApplicationContext reactApplicationContext, DJIRealTimeDataLogger djiRealTimeDataLogger, ReadableMap parameters) {
+    public RealTimeDataLoggerTimelineElement(DJIRealTimeDataLogger djiRealTimeDataLogger, ReadableMap parameters) {
         this.self = this;
-        this.reactApplicationContext = reactApplicationContext;
         this.fileName = parameters.getString("fileName");
         this.stopRecordingFlightData = parameters.getBoolean("stopLogging");
         this.djiRealTimeDataLogger = djiRealTimeDataLogger;
