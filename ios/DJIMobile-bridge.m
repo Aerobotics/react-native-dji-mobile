@@ -7,8 +7,6 @@
 
 #import <Foundation/Foundation.h>
 #import <React/RCTBridgeModule.h>
-//#import <React/RCTEventEmitter.h>
-
 
 @interface RCT_EXTERN_MODULE(DJIMobile, NSObject)
 
@@ -18,15 +16,15 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
-                  registerAppAndUseBridge:  (NSString)bridgeIp
-                  resolve:                  (RCTPromiseResolveBlock)resolve
-                  reject:                   (RCTPromiseRejectBlock)reject
+                  registerAppAndUseBridge: (NSString)bridgeIp
+                  resolve:                 (RCTPromiseResolveBlock)resolve
+                  reject:                  (RCTPromiseRejectBlock)reject
                   )
 
 RCT_EXTERN_METHOD(
-                  startRecordRealTimeData: (NSString) fileName
-                  resolve:                 (RCTPromiseResolveBlock)resolve
-                  reject:                  (RCTPromiseRejectBlock)reject
+                  limitEventFrequency: (nonnull NSNumber)frequency
+                  resolve:             (RCTPromiseResolveBlock)resolve
+                  reject:              (RCTPromiseRejectBlock)reject
                   )
 
 RCT_EXTERN_METHOD(

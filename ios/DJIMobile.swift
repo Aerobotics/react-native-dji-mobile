@@ -10,7 +10,6 @@ import DJISDK
 @objc(DJIMobile)
 class DJIMobile: NSObject, RCTInvalidating {
   
-  let realTimeDataLogger = DJIRealTimeDataLogger()
   var cameraDelegateEventSender: DJICameraDelegateSender?
   //  var productConnectionListener
   
@@ -69,31 +68,37 @@ class DJIMobile: NSObject, RCTInvalidating {
     DJISDKManager.beginAppRegistration()
   }
   
-  @objc(startRecordRealTimeData:resolve:reject:)
-  func startRecordRealTimeData(fileName: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    self.realTimeDataLogger.startLogging(fileName: fileName) { (error: Error?) in
-      if (error != nil) {
-        self.sendReject(reject, "startRecordRealTimeData Error", nil)
-        return
-      } else {
-        resolve("startRecordRealTimeData Successful")
-        return
-      }
-    }
+  @objc(limitEventFrequency:resolve:reject:)
+  func limitEventFrequency(frequency: NSNumber, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    EventSender.limitEventSendFrequency(frequency: frequency.intValue)
+    resolve("limitEventFrequency Successful")
   }
   
-  @objc(stopRecordRealTimeData:reject:)
-  func stopRecordRealTimeData(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    self.realTimeDataLogger.stopLogging { (error: Error?) in
-      if (error != nil) {
-        self.sendReject(reject, "stopRecordRealTimeData Error", nil)
-        return
-      } else {
-        resolve("stopRecordRealTimeData Successful")
-        return
-      }
-    }
-  }
+//  @objc(startRecordRealTimeData:resolve:reject:)
+//  func startRecordRealTimeData(fileName: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+//    self.realTimeDataLogger.startLogging(fileName: fileName) { (error: Error?) in
+//      if (error != nil) {
+//        self.sendReject(reject, "startRecordRealTimeData Error", nil)
+//        return
+//      } else {
+//        resolve("startRecordRealTimeData Successful")
+//        return
+//      }
+//    }
+//  }
+//
+//  @objc(stopRecordRealTimeData:reject:)
+//  func stopRecordRealTimeData(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+//    self.realTimeDataLogger.stopLogging { (error: Error?) in
+//      if (error != nil) {
+//        self.sendReject(reject, "stopRecordRealTimeData Error", nil)
+//        return
+//      } else {
+//        resolve("stopRecordRealTimeData Successful")
+//        return
+//      }
+//    }
+//  }
   
   @objc(startProductConnectionListener:reject:)
   func startProductConnectionListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {

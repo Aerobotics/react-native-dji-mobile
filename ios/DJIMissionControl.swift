@@ -18,6 +18,7 @@ enum TimelineElement: String {
   
   case WaypointMissionTimelineElement
   case VirtualStickTimelineElement
+  case RecordFlightData
   
 }
 
@@ -66,21 +67,23 @@ class DJIMissionControlWrapper: NSObject {
       
     case .VirtualStickTimelineElement:
       newElement = VirtualStickTimelineElement(parameters)
+      
+    case .RecordFlightData:
+      newElement = RecordFlightData(parameters)
     }
     
     if newElement != nil {
       let validError: Error? = newElement?.checkValidity()
       if (validError != nil) {
         reject("Schedule Element Error", validError!.localizedDescription, validError!)
-        return
+      } else {
+        let error: Error? = missionControl.scheduleElement(newElement!)
+        if (error != nil) {
+          reject("Schedule Element Error", error!.localizedDescription, error!)
+        } else {
+          resolve("DJI Mission Control: Scheduled Element")
+        }
       }
-      let error: Error? = missionControl.scheduleElement(newElement!)
-      if (error != nil) {
-        reject("Schedule Element Error", error!.localizedDescription, error!)
-        return
-      }
-      resolve("DJI Mission Control: Scheduled Element")
-      return
     }
   }
   
@@ -167,12 +170,12 @@ class DJIMissionControlWrapper: NSObject {
     let stopRecord = parameters["stopRecord"] as? Bool
     
     if (stopRecord == true) {
-      return DJIRecordVideoAction(stopRecordVideo: ())
+      return DJIRecordVideoAction.init(stopRecordVideo: ())
     } else {
       if (duration != nil) {
-        return DJIRecordVideoAction(duration: duration!)
+        return DJIRecordVideoAction.init(duration: duration!)
       } else {
-        return DJIRecordVideoAction(startRecordVideo: ())
+        return DJIRecordVideoAction.init(startRecordVideo: ())
       }
     }
   }
@@ -197,7 +200,6 @@ class DJIMissionControlWrapper: NSObject {
     
     missionControl.startTimeline()
     resolve("DJI Mission Control: Start Timeline")
-    return
   }
   
   @objc(stopTimeline:reject:)
@@ -209,7 +211,6 @@ class DJIMissionControlWrapper: NSObject {
     
     missionControl.stopTimeline()
     resolve("DJI Mission Control: Stop Timeline")
-    return
   }
   
   @objc(startGoHome:reject:)
