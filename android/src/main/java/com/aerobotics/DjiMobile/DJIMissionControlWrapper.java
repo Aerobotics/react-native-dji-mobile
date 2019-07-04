@@ -56,8 +56,8 @@ enum TimelineElementType {
   GoToAction,
   GoHomeAction,
   VirtualStickTimelineElement,
-  RealTimeDataLoggerTimelineElement,
-  RunJSElementTimelineElement,
+  RecordFlightData,
+  RunJSElement,
 }
 
 public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
@@ -121,11 +121,11 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
         newElement = buildVirtualStickTimelineElement(parameters);
         break;
 
-      case RealTimeDataLoggerTimelineElement:
+        case RecordFlightData:
         newElement = buildRealTimeDataLoggerTimelineElement(parameters);
         break;
 
-      case RunJSElementTimelineElement:
+        case RunJSElement:
         newElement = buildRunJSElementTimelineElement(reactContext, parameters);
         break;
 

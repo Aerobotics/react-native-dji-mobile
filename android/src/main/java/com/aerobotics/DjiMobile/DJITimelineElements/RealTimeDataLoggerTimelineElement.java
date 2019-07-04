@@ -17,7 +17,11 @@ public class RealTimeDataLoggerTimelineElement extends MissionAction {
     public RealTimeDataLoggerTimelineElement(DJIRealTimeDataLogger djiRealTimeDataLogger, ReadableMap parameters) {
         this.self = this;
         this.fileName = parameters.getString("fileName");
-        this.stopRecordingFlightData = parameters.getBoolean("stopLogging");
+        try {
+            this.stopRecordingFlightData = parameters.getBoolean("stopLogging");
+        } catch (Exception e) {
+
+        }
         this.djiRealTimeDataLogger = djiRealTimeDataLogger;
     }
 
