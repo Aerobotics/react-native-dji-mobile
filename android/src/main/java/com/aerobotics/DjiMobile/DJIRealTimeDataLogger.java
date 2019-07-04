@@ -148,6 +148,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
 
     private ReactApplicationContext reactApplicationContext;
     private File logFile;
+    private boolean isLogging = false;
 
     public DJIRealTimeDataLogger(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -194,6 +195,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
         this.createLogFile(fileName);
         this.setUpKeyListeners();
         this.recordInitialValues();
+        this.isLogging = true;
     }
 
     private void createLogFile(String fileName) {
@@ -247,6 +249,11 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
 
     public void stopLogging() {
         this.tearDownKeyListeners();
+        this.isLogging = false;
+    }
+
+    public boolean isLogging() {
+        return isLogging;
     }
 
     private void writeStringToLogFile(String data) {
