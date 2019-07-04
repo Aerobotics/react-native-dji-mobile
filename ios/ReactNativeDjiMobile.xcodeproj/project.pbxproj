@@ -23,6 +23,7 @@
 		66DEB61F228BF8B90041EE40 /* DJIRealTimeDataLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66DEB61E228BF8B90041EE40 /* DJIRealTimeDataLogger.swift */; };
 		66F07A1522CCCB4D00CF428F /* RecordFlightData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66F07A1422CCCB4D00CF428F /* RecordFlightData.swift */; };
 		66F07A1922CCCEED00CF428F /* DJIRealTimeDataLogger-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 66F07A1822CCCEED00CF428F /* DJIRealTimeDataLogger-bridge.m */; };
+		66F07A1D22CCF52900CF428F /* RunJSElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66F07A1C22CCF52900CF428F /* RunJSElement.swift */; };
 		66F25E2722008D2100F00255 /* DJIMobile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66F25E2622008D2100F00255 /* DJIMobile.swift */; };
 /* End PBXBuildFile section */
 
@@ -61,6 +62,7 @@
 		66DEB61E228BF8B90041EE40 /* DJIRealTimeDataLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DJIRealTimeDataLogger.swift; sourceTree = "<group>"; };
 		66F07A1422CCCB4D00CF428F /* RecordFlightData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordFlightData.swift; sourceTree = "<group>"; };
 		66F07A1822CCCEED00CF428F /* DJIRealTimeDataLogger-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "DJIRealTimeDataLogger-bridge.m"; sourceTree = "<group>"; };
+		66F07A1C22CCF52900CF428F /* RunJSElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunJSElement.swift; sourceTree = "<group>"; };
 		66F25E2522008D2000F00255 /* ReactNativeDjiMobile-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ReactNativeDjiMobile-Bridging-Header.h"; sourceTree = "<group>"; };
 		66F25E2622008D2100F00255 /* DJIMobile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DJIMobile.swift; sourceTree = "<group>"; };
 		9D7A55877479F38A54D12890 /* Pods-ReactNativeDjiMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeDjiMobile.release.xcconfig"; path = "Pods/Target Support Files/Pods-ReactNativeDjiMobile/Pods-ReactNativeDjiMobile.release.xcconfig"; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 				669DFE33222FF24100BF901A /* WaypointMissionTimelineElement.swift */,
 				66802ECC228065040039A915 /* VirtualStickTimelineElement.swift */,
 				66F07A1422CCCB4D00CF428F /* RecordFlightData.swift */,
+				66F07A1C22CCF52900CF428F /* RunJSElement.swift */,
 			);
 			path = DJITimelineElements;
 			sourceTree = "<group>";
@@ -230,6 +233,7 @@
 				6638626722AFA5220085A552 /* CameraControl-bridge.m in Sources */,
 				669F8EE322145A9600CE1373 /* DroneVideoViewManager-bridge.m in Sources */,
 				669B3B162220347F00010E70 /* EventSender-bridge.m in Sources */,
+				66F07A1D22CCF52900CF428F /* RunJSElement.swift in Sources */,
 				66F07A1922CCCEED00CF428F /* DJIRealTimeDataLogger-bridge.m in Sources */,
 				66F25E2722008D2100F00255 /* DJIMobile.swift in Sources */,
 				66CDD8D4221D38730024AA39 /* DJIMissionControl.swift in Sources */,
