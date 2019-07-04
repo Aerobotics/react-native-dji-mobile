@@ -33,6 +33,7 @@ public class RunJSElementTimelineElement extends MissionAction {
 
     @Override
     public void run() {
+        DJISDKManager.getInstance().getMissionControl().onStart(self);
         WritableMap params = Arguments.createMap();
         WritableMap eventInfo = Arguments.createMap();
         eventInfo.putInt("callbackFuncId", callbackFuncId);
@@ -41,7 +42,7 @@ public class RunJSElementTimelineElement extends MissionAction {
         reactContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit("DJIEvent", params);
-        DJISDKManager.getInstance().getMissionControl().onStart(self);
+        DJISDKManager.getInstance().getMissionControl().onFinishWithError(self, null);
     }
 
     @Override

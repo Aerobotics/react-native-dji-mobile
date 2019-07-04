@@ -16,7 +16,11 @@ public class RealTimeDataLoggerTimelineElement extends MissionAction {
 
     public RealTimeDataLoggerTimelineElement(DJIRealTimeDataLogger djiRealTimeDataLogger, ReadableMap parameters) {
         this.self = this;
-        this.fileName = parameters.getString("fileName");
+        try {
+            this.fileName = parameters.getString("fileName");
+        } catch (Exception e) {
+
+        }
         try {
             this.stopRecordingFlightData = parameters.getBoolean("stopLogging");
         } catch (Exception e) {
@@ -37,16 +41,17 @@ public class RealTimeDataLoggerTimelineElement extends MissionAction {
 
     @Override
     public void run() {
+        DJISDKManager.getInstance().getMissionControl().onStart(self);
         if (this.stopRecordingFlightData) {
             djiRealTimeDataLogger.stopLogging();
-            DJISDKManager.getInstance().getMissionControl().onStopWithError(self, null);
+            DJISDKManager.getInstance().getMissionControl().onFinishWithError(self, null);
         } else {
             if (djiRealTimeDataLogger.isLogging()) {
                 djiRealTimeDataLogger.stopLogging();
-                DJISDKManager.getInstance().getMissionControl().onStopWithError(self, null);
+                DJISDKManager.getInstance().getMissionControl().onFinishWithError(self, null);
             }
             djiRealTimeDataLogger.startLogging(fileName);
-            DJISDKManager.getInstance().getMissionControl().onStart(self);
+            DJISDKManager.getInstance().getMissionControl().onFinishWithError(self, null);
         }
     }
 
