@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.aerobotics.DjiMobile.DJITimelineElements.RealTimeDataLoggerTimelineElement;
 import com.aerobotics.DjiMobile.DJITimelineElements.VirtualStickTimelineElement;
 import com.aerobotics.DjiMobile.DJITimelineElements.WaypointMissionTimelineElement;
 import com.facebook.react.bridge.Arguments;
@@ -39,7 +40,6 @@ import dji.common.mission.hotpoint.HotpointMission;
 import dji.common.mission.hotpoint.HotpointHeading;
 import dji.common.mission.hotpoint.HotpointStartPoint;
 import dji.sdk.mission.timeline.actions.AircraftYawAction;
-import dji.common.model.LocationCoordinate2D;
 import dji.sdk.mission.timeline.actions.TakeOffAction;
 import dji.sdk.sdkmanager.DJISDKManager;
 
@@ -55,15 +55,18 @@ enum TimelineElementType {
   GoToAction,
   GoHomeAction,
   VirtualStickTimelineElement,
+  RealTimeDataLoggerTimelineElement,
 }
 
 public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
+  private DJIRealTimeDataLogger djiRealTimeDataLogger;
 
   public DJIMissionControlWrapper(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
+    this.djiRealTimeDataLogger = new DJIRealTimeDataLogger(reactContext);
   }
 
   @ReactMethod
@@ -115,6 +118,10 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
       case VirtualStickTimelineElement:
         newElement = buildVirtualStickTimelineElement(parameters);
+        break;
+
+      case RealTimeDataLoggerTimelineElement:
+        newElement = buildRealTimeDataLoggerTimelineElement(parameters);
         break;
 
       default:
@@ -288,6 +295,13 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
   public VirtualStickTimelineElement buildVirtualStickTimelineElement(ReadableMap parameters) {
     return new VirtualStickTimelineElement(parameters);
+  }
+
+  public RealTimeDataLoggerTimelineElement buildRealTimeDataLoggerTimelineElement(ReadableMap parameters) {
+    if (djiRealTimeDataLogger == null) {
+      djiRealTimeDataLogger = new DJIRealTimeDataLogger(reactContext);
+    }
+    return new RealTimeDataLoggerTimelineElement(reactContext, djiRealTimeDataLogger, parameters);
   }
 
   @ReactMethod
