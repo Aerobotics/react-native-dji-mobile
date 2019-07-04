@@ -20,7 +20,7 @@ public class RealTimeDataLoggerTimelineElement extends MissionAction {
         this.self = this;
         this.reactApplicationContext = reactApplicationContext;
         this.fileName = parameters.getString("fileName");
-        this.stopRecordingFlightData = parameters.getBoolean("stopRecordFlightData");
+        this.stopRecordingFlightData = parameters.getBoolean("stopLogging");
         this.djiRealTimeDataLogger = djiRealTimeDataLogger;
     }
 
