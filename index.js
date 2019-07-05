@@ -150,11 +150,11 @@ const DJIMobileWrapper = {
     }
   },
 
-  startRecordRealTimeData: async (fileName: string) => {
-    await DJIMobile.startRecordRealTimeData(fileName);
+  startRecordFlightData: async (fileName: string) => {
+    await DJIMobile.startRecordFlightData(fileName);
   },
-  stopRecordRealTimeData: async () => {
-    await DJIMobile.stopRecordRealTimeData();
+  stopRecordFlightData: async () => {
+    await DJIMobile.stopRecordFlightData();
   },
 
   startNewMediaFileListener: async () => {

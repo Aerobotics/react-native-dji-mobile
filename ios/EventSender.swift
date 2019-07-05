@@ -11,7 +11,7 @@ import DJISDK
 @objc(EventSender)
 public class EventSender: RCTEventEmitter, RCTInvalidating {
   
-  var eventSendFrequency = 2.0
+  var eventSendFrequency = 1.5
   var eventSendLimiterTimer: Timer
   
   // The event queue only holds the most recent event for each event type received, discarding older events of the same type
