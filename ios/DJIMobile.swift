@@ -74,31 +74,15 @@ class DJIMobile: NSObject, RCTInvalidating {
     resolve("limitEventFrequency Successful")
   }
   
-//  @objc(startRecordRealTimeData:resolve:reject:)
-//  func startRecordRealTimeData(fileName: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-//    self.realTimeDataLogger.startLogging(fileName: fileName) { (error: Error?) in
-//      if (error != nil) {
-//        self.sendReject(reject, "startRecordRealTimeData Error", nil)
-//        return
-//      } else {
-//        resolve("startRecordRealTimeData Successful")
-//        return
-//      }
-//    }
-//  }
+  @objc(startRecordFlightData:resolve:reject:)
+  func startRecordFlightData(fileName: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    DJIRealTimeDataLogger.startLogging(fileName: fileName)
+  }
 //
-//  @objc(stopRecordRealTimeData:reject:)
-//  func stopRecordRealTimeData(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-//    self.realTimeDataLogger.stopLogging { (error: Error?) in
-//      if (error != nil) {
-//        self.sendReject(reject, "stopRecordRealTimeData Error", nil)
-//        return
-//      } else {
-//        resolve("stopRecordRealTimeData Successful")
-//        return
-//      }
-//    }
-//  }
+  @objc(stopRecordFlightData:reject:)
+  func stopRecordFlightData(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    DJIRealTimeDataLogger.stopLogging()
+  }
   
   @objc(startProductConnectionListener:reject:)
   func startProductConnectionListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {

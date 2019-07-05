@@ -28,8 +28,14 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
-                  stopRecordRealTimeData: (RCTPromiseResolveBlock)resolve
-                  reject:                 (RCTPromiseRejectBlock)reject
+                  startRecordFlightData: (NString)fileName
+                  resolve:               (RCTPromiseResolveBlock)resolve
+                  reject:                (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  stopRecordFlightData: (RCTPromiseResolveBlock)resolve
+                  reject:               (RCTPromiseRejectBlock)reject
                   )
 
 RCT_EXTERN_METHOD(
