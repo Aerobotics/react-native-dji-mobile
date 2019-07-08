@@ -69,21 +69,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   private SdkEventHandler sdkEventHandler;
   private BaseProduct product;
 
-//  private Observer newMediaFileObserver = new Observer() {
-//    @Override
-//    public void update(Observable observable, Object arg) {
-//      if (arg instanceof HashMap) {
-//        HashMap payload = (HashMap) arg;
-//        if (payload.get("name") == CameraEvent.DID_GENERATE_NEW_MEDIA_FILE.getEventName()) {
-//          MediaFile mediaFile = (MediaFile) payload.get("value");
-//          WritableMap params = Arguments.createMap();
-//          params.putString("fileName", mediaFile.getFileName());
-//          sendEvent("newMediaFile", params);
-//        }
-//      }
-//    }
-//  };
-
   private DJIRealTimeDataLogger djiRealTimeDataLogger;
 
   public DJIMobile(ReactApplicationContext reactContext) {
@@ -131,6 +116,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onProductConnect(BaseProduct baseProduct) {
         product = baseProduct;
+        Log.i("REACT", "connected");
       }
 
       @Override
@@ -357,13 +343,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     promise.resolve(null);
   }
 
-
-//  @ReactMethod
-//  public void startNewMediaFileListener(Promise promise) {
-//    cameraDelegateSender.addObserver(newMediaFileObserver);
-//    promise.resolve("startNewMediaFileListener");
-//  }
-
   @ReactMethod
   public void startNewMediaFileListener(Promise promise) {
     startEventListener(SDKEvent.CameraDidGenerateNewMediaFile, new EventListener() {
@@ -435,6 +414,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     Object eventSubscriptionObject = eventListeners.get(SDKEvent);
     if (eventSubscriptionObject != null) {
       sdkEventHandler.stopEventListener(SDKEvent, eventSubscriptionObject);
+      eventListeners.remove(SDKEvent);
     }
   }
 
