@@ -44,7 +44,6 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
         @Override
         public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
             if (newValue instanceof Boolean && oldValue instanceof Boolean) {
-                Log.i("REACT", oldValue.toString() + " " + newValue.toString());
                 // Check if isRecording value has changed from false to true
                 if (!((Boolean) oldValue) && (Boolean) newValue) {
                     writeStringToLogFile("camera: startCaptureVideo");
