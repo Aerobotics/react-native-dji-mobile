@@ -374,7 +374,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 //  }
 
   @ReactMethod
-  public void stopEventListener(String eventName) {
+  public void stopEventListener(String eventName, Promise promise) {
     if (eventName.equals("AircraftVelocity")) {
       SDKEvent[] velocityEvents = {
         SDKEvent.AircraftVelocityX,
@@ -392,6 +392,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         stopEventListenerInternal(sdkEvent);
       }
     }
+    promise.resolve(null);
   }
 
   private void startEventListener(SDKEvent SDKEvent, EventListener eventListener) {
