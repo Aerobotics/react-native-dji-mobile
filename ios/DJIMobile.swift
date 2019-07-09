@@ -70,7 +70,7 @@ class DJIMobile: NSObject, RCTInvalidating {
   
   @objc(limitEventFrequency:resolve:reject:)
   func limitEventFrequency(frequency: NSNumber, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    EventSender.limitEventSendFrequency(frequency: frequency.intValue)
+    EventSender.limitEventSendFrequency(frequency: frequency.doubleValue)
     resolve("limitEventFrequency Successful")
   }
   

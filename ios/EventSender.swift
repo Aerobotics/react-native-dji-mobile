@@ -11,11 +11,11 @@ import DJISDK
 @objc(EventSender)
 public class EventSender: RCTEventEmitter, RCTInvalidating {
   
-  var eventSendFrequency = 1.5
-  var eventSendLimiterTimer: Timer
+  private var eventSendFrequency = 1.0
+  private var eventSendLimiterTimer: Timer
   
   // The event queue only holds the most recent event for each event type received, discarding older events of the same type
-  var queuedEvents = [String: Any]()
+  private var queuedEvents = [String: Any]()
   
   override init() {
     eventSendLimiterTimer = Timer.init()
@@ -31,7 +31,7 @@ public class EventSender: RCTEventEmitter, RCTInvalidating {
     NotificationCenter.default.removeObserver(self)
   }
   
-  static func limitEventSendFrequency(frequency: Int) {
+  static func limitEventSendFrequency(frequency: Double) {
     NotificationCenter.default.post(name: Notification.Name("limitEventSendFrequency"), object: nil, userInfo: ["frequency": frequency])
   }
   
@@ -40,9 +40,10 @@ public class EventSender: RCTEventEmitter, RCTInvalidating {
   }
   
   @objc private func setNewEventSendFrequency(payload: NSNotification) {
-    self.eventSendFrequency = Double(payload.userInfo!["frequency"] as! Int)
+    self.eventSendFrequency = payload.userInfo!["frequency"] as! Double
     self.eventSendLimiterTimer.invalidate()
-    self.eventSendLimiterTimer = Timer.scheduledTimer(timeInterval: 1.0/self.eventSendFrequency, target: self, selector: #selector(self.sendQueuedEvents), userInfo: nil, repeats: true)
+    self.eventSendLimiterTimer = Timer.init(timeInterval: 1.0/self.eventSendFrequency, target: self, selector: #selector(self.sendQueuedEvents), userInfo: nil, repeats: true)
+    RunLoop.main.add(self.eventSendLimiterTimer, forMode: .common)
   }
   
   @objc private func sendQueuedEvents() {
