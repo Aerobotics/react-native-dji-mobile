@@ -3,9 +3,6 @@ package com.aerobotics.DjiMobile;
 
 import android.support.annotation.Nullable;
 
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.WritableMap;
-
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
@@ -15,7 +12,6 @@ import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
 import dji.keysdk.ProductKey;
 import dji.keysdk.callback.KeyListener;
-import dji.sdk.media.MediaFile;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 enum EventType {

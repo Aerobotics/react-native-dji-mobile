@@ -2,6 +2,7 @@ package com.aerobotics.DjiMobile;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -46,6 +47,8 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
                 // Check if isRecording value has changed from false to true
                 if (!((Boolean) oldValue) && (Boolean) newValue) {
                     writeStringToLogFile("camera: startCaptureVideo");
+                } else {
+                    writeStringToLogFile("camera: stopCaptureVideo");
                 }
             }
         }
