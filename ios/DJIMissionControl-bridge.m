@@ -36,8 +36,24 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  pauseTimeline: (RCTPromiseResolveBlock)resolve
+                  reject:        (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  resumeTimeline: (RCTPromiseResolveBlock)resolve
+                  reject:        (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
                   stopTimeline: (RCTPromiseResolveBlock)resolve
                   reject:       (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  setCurrentTimelineMarker: (NSUInteger)currentTimelineMarker
+                  resolve:                  (RCTPromiseResolveBlock)resolve
+                  reject:                   (RCTPromiseRejectBlock)reject
                   )
 
 RCT_EXTERN_METHOD(
