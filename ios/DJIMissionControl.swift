@@ -277,23 +277,26 @@ class DJIMissionControlWrapper: NSObject {
     missionControl.removeAllListeners()
     missionControl.addListener(self) { (timelineEvent: DJIMissionControlTimelineEvent, timelineElement: DJIMissionControlTimelineElement?, error: Error?, info: Any?) in
       var eventInfo: [String:Any] = [:]
-      var timelineIndex = Int(missionControl.currentTimelineMarker)
+      var timelineIndex = -1 // Any general timeline events get an index of -1
       
       if (timelineEvent.rawValue == 2) { // Skip any "Progressed events as they send uneccessary clutter & overload the bridge
         return
       }
       
       eventInfo["eventType"] = timelineEvent.rawValue
-      eventInfo["timelineIndex"] = timelineIndex
       
-      if (timelineElement == nil) { // This is a general timeline event (timeline start/stop, etc.)
-        timelineIndex = -1
-      } else {
+      if (timelineElement != nil) { // timelineElement is nil if it is a general timeline event (start timeline, stop, etc.)
+        timelineIndex = Int(missionControl.currentTimelineMarker)
         eventInfo["eventName"] = String(describing: type(of: timelineElement!))
       }
+      eventInfo["timelineIndex"] = timelineIndex
       
       if (error != nil) {
         eventInfo["error"] = error!.localizedDescription
+      }
+      
+      if (info != nil) {
+        eventInfo["info"] = info
       }
       
       EventSender.sendReactEvent(type: "missionControlEvent", value: eventInfo, realtime: true)
