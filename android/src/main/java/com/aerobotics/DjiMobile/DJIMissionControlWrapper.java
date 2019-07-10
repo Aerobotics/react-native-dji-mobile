@@ -372,7 +372,7 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
             eventInfo.putString("eventName", simpleName);
           }
         }
-        eventInfo.putString("eventType", timelineEvent.name());
+        eventInfo.putInt("eventType", timelineEvent.ordinal());
         eventInfo.putInt("timelineIndex", timelineIndex);
 
         if (djiError != null) {
