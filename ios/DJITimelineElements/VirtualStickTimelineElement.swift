@@ -198,12 +198,14 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
             withCompletion(true, nil)
             return
           } else {
+            print("ultrasonicError: \(ultrasonicError)")
             withCompletion(false, ultrasonicError)
             return
           }
         })
         
       } else {
+        print("isBeingUsedError: \(isBeingUsedError)")
         withCompletion(false, isBeingUsedError)
         return
       }
@@ -295,7 +297,15 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
               //              case UltrasonicSensorUnavailableError(String)
               //            }
               //            missionControl?.element(self, failedStartingWithError: UltrasonicSensorError.UltrasonicSensorUnavailableError("UltrasonicSensorUnavailable"))
-              missionControl?.element(self, failedStartingWithError: error!)
+              if (error == nil) {
+                enum UltrasonicSensorError: Error {
+                  case UltrasonicUnknownError(String)
+                }
+                missionControl?.element(self, failedStartingWithError: UltrasonicSensorError.UltrasonicUnknownError("Unknown Error"))
+              } else {
+                missionControl?.element(self, failedStartingWithError: error!)
+                
+              }
             }
             
           }

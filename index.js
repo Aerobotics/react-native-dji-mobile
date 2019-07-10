@@ -65,8 +65,8 @@ const DJIMobileWrapper = {
   },
 
   limitEventFrequency: async (frequency: number) => {
-    if (!Number.isInteger(frequency) || frequency < 1 || frequency > 10) {
-      throw Error('Please ensure frequency is an integer in the range [1, 10]');
+    if (frequency < 0 || frequency > 10) {
+      throw Error('Please ensure frequency is in the range (0, 10]');
     } else {
       await DJIMobile.limitEventFrequency(frequency);
     }

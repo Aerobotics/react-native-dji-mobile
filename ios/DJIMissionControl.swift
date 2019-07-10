@@ -207,6 +207,28 @@ class DJIMissionControlWrapper: NSObject {
     resolve("DJI Mission Control: Start Timeline")
   }
   
+  @objc(pauseTimeline:reject:)
+  func pauseTimeline(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    guard let missionControl = DJISDKManager.missionControl() else {
+      reject("Start Timeline Error", "Could not pause timeline as mission control could not be loaded", nil);
+      return
+    }
+    
+    missionControl.pauseTimeline()
+    resolve("DJI Mission Control: Pause Timeline")
+  }
+  
+  @objc(resumeTimeline:reject:)
+  func resumeTimeline(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    guard let missionControl = DJISDKManager.missionControl() else {
+      reject("Start Timeline Error", "Could not resume timeline as mission control could not be loaded", nil);
+      return
+    }
+    
+    missionControl.resumeTimeline()
+    resolve("DJI Mission Control: Resume Timeline")
+  }
+  
   @objc(stopTimeline:reject:)
   func stopTimeline(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     guard let missionControl = DJISDKManager.missionControl() else {
@@ -216,6 +238,17 @@ class DJIMissionControlWrapper: NSObject {
     
     missionControl.stopTimeline()
     resolve("DJI Mission Control: Stop Timeline")
+  }
+  
+  @objc(setCurrentTimelineMarker:resolve:reject:)
+  func setCurrentTimelineMarker(currentTimelineMarker: UInt, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    guard let missionControl = DJISDKManager.missionControl() else {
+      reject("Start Timeline Error", "Could not set current timeline marker as mission control could not be loaded", nil);
+      return
+    }
+    
+    missionControl.currentTimelineMarker = currentTimelineMarker
+    resolve("DJI Mission Control: Set Current Timeline Marker")
   }
   
   @objc(startGoHome:reject:)
@@ -246,20 +279,24 @@ class DJIMissionControlWrapper: NSObject {
       var eventInfo: [String:Any] = [:]
       var timelineIndex = Int(missionControl.currentTimelineMarker)
       
+      if (timelineEvent.rawValue == 2) { // Skip any "Progressed events as they send uneccessary clutter & overload the bridge
+        return
+      }
+      
+      eventInfo["eventType"] = timelineEvent.rawValue
+      eventInfo["timelineIndex"] = timelineIndex
+      
       if (timelineElement == nil) { // This is a general timeline event (timeline start/stop, etc.)
         timelineIndex = -1
       } else {
         eventInfo["eventName"] = String(describing: type(of: timelineElement!))
       }
       
-      eventInfo["eventType"] = timelineEvent.rawValue
-      eventInfo["timelineIndex"] = timelineIndex
-      
       if (error != nil) {
         eventInfo["error"] = error!.localizedDescription
       }
       
-      EventSender.sendReactEvent(type: "missionControlEvent", value: eventInfo)
+      EventSender.sendReactEvent(type: "missionControlEvent", value: eventInfo, realtime: true)
       
     }
     
