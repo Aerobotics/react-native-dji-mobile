@@ -130,57 +130,50 @@ public class DJIMedia extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void startFullResMediaFileDownload(final String nameOfFileToDownload, final Promise promise) {
-    Camera camera = null;
     final BaseProduct product = DJISDKManager.getInstance().getProduct();
     if (product instanceof Aircraft){
       camera = ((Aircraft) product).getCamera();
     }
 
     if (camera != null) {
-      final MediaManager mediaManager = camera.getMediaManager();
-      try {
-        MediaManager.FileListState fileListState = mediaManager.getSDCardFileListState();
-        if (fileListState == MediaManager.FileListState.UP_TO_DATE) {
-          List<MediaFile> mediaFiles = mediaManager.getSDCardFileListSnapshot();
-          for (MediaFile mediaFile: mediaFiles) {
-            final String fileName = mediaFile.getFileName();
-            if (nameOfFileToDownload.equals(fileName)) {
-              mediaFile.fetchFileData(reactContext.getFilesDir(), null, downloadListener);
-              promise.resolve(null);
-              break;
-            }
-          }
-          promise.reject(new Throwable("Error: File not found"));
-        } else {
-          mediaManager.refreshFileListOfStorageLocation(SettingsDefinitions.StorageLocation.SDCARD, new CommonCallbacks.CompletionCallback() {
-            @Override
-            public void onResult(DJIError djiError) {
-              if (djiError == null) {
-                MediaManager.FileListState fileListState = mediaManager.getSDCardFileListState();
-                if (fileListState == MediaManager.FileListState.UP_TO_DATE) {
-                  List<MediaFile> mediaFiles = mediaManager.getSDCardFileListSnapshot();
-                  for (MediaFile mediaFile: mediaFiles) {
-                    final String fileName = mediaFile.getFileName();
-                    if (nameOfFileToDownload.equals(fileName)) {
-                      mediaFile.fetchFileData(reactContext.getFilesDir(), null, downloadListener);
-                      promise.resolve(null);
+      camera.setMode(SettingsDefinitions.CameraMode.MEDIA_DOWNLOAD, new CommonCallbacks.CompletionCallback() {
+        @Override
+        public void onResult(DJIError djiError) {
+          if (djiError == null) {
+            final MediaManager mediaManager = camera.getMediaManager();
+            try {
+              mediaManager.refreshFileListOfStorageLocation(SettingsDefinitions.StorageLocation.SDCARD, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onResult(DJIError djiError) {
+                  if (djiError == null) {
+                    MediaManager.FileListState fileListState = mediaManager.getSDCardFileListState();
+                    if ((fileListState != MediaManager.FileListState.RESET) && (fileListState != MediaManager.FileListState.DELETING)) {
+                      List<MediaFile> mediaFiles = mediaManager.getSDCardFileListSnapshot();
+                      for (MediaFile mediaFile: mediaFiles) {
+                        final String fileName = mediaFile.getFileName();
+                        if (nameOfFileToDownload.equals(fileName)) {
+                          mediaFile.fetchFileData(reactContext.getFilesDir(), null, downloadListener);
+                          promise.resolve(null);
+                        }
+                      }
+                      promise.reject(new Throwable("Error: File not found"));
+                    } else {
+                      promise.reject(new Throwable("Error: Could not get file list"));
                     }
+                  } else {
+                    promise.reject(new Throwable("Error getting file list: " + djiError.getDescription()));
                   }
-                  promise.reject(new Throwable("Error: File not found"));
-                } else {
-                  promise.reject(new Throwable("Error: Could not get file list"));
                 }
-              } else {
-                Log.i("REACT", djiError.getDescription());
-                promise.reject(new Throwable("Error getting file list: " + djiError.getDescription()));
-              }
+              });
+            } catch (NullPointerException e) {
+              promise.reject(new Throwable("Error: " + e.getMessage()));
             }
-          });
+          } else {
+            promise.reject(djiError.toString(), djiError.getDescription());
+          }
         }
-      } catch (NullPointerException e) {
-        Log.e("REACT", e.getMessage());
-        promise.reject(new Throwable("Error: " + e.getMessage()));
-      }
+      });
+
     }
   }
 

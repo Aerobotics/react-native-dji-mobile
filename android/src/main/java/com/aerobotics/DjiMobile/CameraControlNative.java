@@ -1,5 +1,6 @@
 package com.aerobotics.DjiMobile;
 
+import android.graphics.Camera;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -183,4 +184,35 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
       });
     }
 
+    @ReactMethod
+    public void setVideoFileFormat(String videoFileFormat, final Promise promise) {
+        DJIKey videoFileFormatKey = CameraKey.create(CameraKey.VIDEO_FILE_FORMAT);
+        DJISDKManager.getInstance().getKeyManager().setValue(videoFileFormatKey, SettingsDefinitions.VideoFileFormat.valueOf(videoFileFormat), new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControlNative: Video file format set successfully");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject("CameraControlNative: Failed to set Video file format " + djiError.getDescription());
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setVideoFileCompressionStandard(String videoFileCompressionStandard, final Promise promise) {
+        DJIKey videoFileCompressionStandardKey = CameraKey.create(CameraKey.VIDEO_FILE_COMPRESSION_STANDARD);
+        DJISDKManager.getInstance().getKeyManager().setValue(videoFileCompressionStandardKey, SettingsDefinitions.VideoFileCompressionStandard.valueOf(videoFileCompressionStandard), new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControlNative: Video file compression standard set successfully");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject("CameraControlNative: Failed to set Video file compression standard " + djiError.getDescription());
+            }
+        });
+    }
 }
