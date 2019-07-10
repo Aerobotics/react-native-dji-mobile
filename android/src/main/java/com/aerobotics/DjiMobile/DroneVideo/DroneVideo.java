@@ -2,6 +2,7 @@ package com.aerobotics.DjiMobile.DroneVideo;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -37,6 +38,11 @@ public class DroneVideo extends RelativeLayout implements TextureView.SurfaceTex
     }
   }
 
+  private void cleanUpVideoFeed() {
+    VideoFeeder.getInstance().getPrimaryVideoFeed().destroy();
+    codecManager.destroyCodec();
+  }
+
   @Override
   public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
     if (codecManager == null) {
@@ -59,5 +65,11 @@ public class DroneVideo extends RelativeLayout implements TextureView.SurfaceTex
   @Override
   public void onSurfaceTextureUpdated(SurfaceTexture surface) {
 
+  }
+
+  @Override
+  protected void onDetachedFromWindow() {
+    super.onDetachedFromWindow();
+    cleanUpVideoFeed();
   }
 }
