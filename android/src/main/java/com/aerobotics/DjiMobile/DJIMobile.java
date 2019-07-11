@@ -170,7 +170,8 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void startProductConnectionListener(Promise promise) {
-    startEventListener(SDKEvent.ProductConnection, new EventListener() {
+      promise.resolve(null);
+      startEventListener(SDKEvent.ProductConnection, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue != null && newValue instanceof Boolean) {
@@ -178,7 +179,22 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
-    promise.resolve(null);
+      KeyManager.getInstance().getValue((DJIKey) SDKEvent.ProductConnection.getKey(), new GetCallback() {
+          @Override
+          public void onSuccess(@NonNull final Object newValue) {
+              if (newValue != null && newValue instanceof Boolean) {
+                  handler.postDelayed(new Runnable() {
+                      @Override
+                      public void run() {
+                          sendEvent(SDKEvent.ProductConnection, (boolean) newValue ? "connected" : "disconnected");
+                      }
+                  }, 300);
+              }
+          }
+          @Override
+          public void onFailure(@NonNull DJIError djiError) {
+          }
+      });
   }
 
   @ReactMethod
