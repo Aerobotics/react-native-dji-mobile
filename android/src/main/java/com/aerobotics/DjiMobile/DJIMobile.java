@@ -21,8 +21,10 @@ import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
+import dji.common.model.LocationCoordinate2D;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
+import dji.keysdk.KeyManager;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
@@ -363,6 +365,57 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       }
     });
     promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void startIsHomeLocationSetListener(Promise promise) {
+    promise.resolve(null);
+    startEventListener(SDKEvent.IsHomeLocationSet, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          WritableMap params = Arguments.createMap();
+          params.putBoolean("isHomeLocationSet", (Boolean) newValue);
+          sendEvent(SDKEvent.IsHomeLocationSet, params);
+        }
+      }
+    });
+    KeyManager.getInstance().getValue((DJIKey) SDKEvent.IsHomeLocationSet.getKey(), new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object newValue) {
+        if (newValue instanceof Boolean) {
+          WritableMap params = Arguments.createMap();
+          params.putBoolean("isHomeLocationSet", (Boolean) newValue);
+          sendEvent(SDKEvent.IsHomeLocationSet, params);
+        }
+      }
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getHomeLocation(final Promise promise) {
+    KeyManager.getInstance().getValue((DJIKey) SDKEvent.HomeLocation.getKey(), new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object newValue) {
+        if (newValue instanceof LocationCoordinate2D) {
+          LocationCoordinate2D location = (LocationCoordinate2D) newValue;
+          double longitude = location.getLongitude();
+          double latitude = location.getLatitude();
+          WritableMap params = Arguments.createMap();
+          params.putDouble("longitude", longitude);
+          params.putDouble("latitude", latitude);
+          promise.resolve(params);
+        }
+      }
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable(djiError.getDescription()));
+      }
+    });
   }
 
 //  @ReactMethod
