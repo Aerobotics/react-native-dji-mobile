@@ -11,18 +11,23 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
+import dji.keysdk.BatteryKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
+import dji.keysdk.KeyManager;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
@@ -70,10 +75,12 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   private BaseProduct product;
 
   private DJIRealTimeDataLogger djiRealTimeDataLogger;
+  private Handler handler;
 
   public DJIMobile(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
+    this.handler = new Handler(Looper.getMainLooper());
   }
 
   @ReactMethod
@@ -175,8 +182,9 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void startBatteryPercentChargeRemainingListener(Promise promise) {
-    startEventListener(SDKEvent.BatteryChargeRemaining, new EventListener() {
+  public void startBatteryPercentChargeRemainingListener(final Promise promise) {
+      promise.resolve(null);
+      startEventListener(SDKEvent.BatteryChargeRemaining, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue != null && newValue instanceof Integer) {
@@ -184,11 +192,30 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
-    promise.resolve(null);
+    BatteryKey batteryKey = BatteryKey.create(BatteryKey.CHARGE_REMAINING_IN_PERCENT);
+      // Send initial value
+      KeyManager.getInstance().getValue(batteryKey, new GetCallback() {
+        @Override
+        public void onSuccess(@NonNull final Object newValue) {
+            if (newValue != null && newValue instanceof Integer) {
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        sendEvent(SDKEvent.BatteryChargeRemaining, newValue);
+                    }
+                }, 300);
+            }
+        }
+
+        @Override
+        public void onFailure(@NonNull DJIError djiError) {
+        }
+    });
   }
 
   @ReactMethod
   public void startGPSSignalLevelListener(Promise promise) {
+      promise.resolve(null);
       startEventListener(SDKEvent.GPSSignalLevel, new EventListener() {
           @Override
           public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
@@ -204,15 +231,12 @@ public class DJIMobile extends ReactContextBaseJavaModule {
                           break;
                       case LEVEL_2:
                         params.putInt("gpsSignalLevel", 2);
-
                         break;
                       case LEVEL_3:
                         params.putInt("gpsSignalLevel", 3);
-
                         break;
                       case LEVEL_4:
                         params.putInt("gpsSignalLevel", 4);
-
                         break;
                       case LEVEL_5:
                         params.putInt("gpsSignalLevel", 5);
@@ -228,7 +252,27 @@ public class DJIMobile extends ReactContextBaseJavaModule {
               }
           }
       });
-      promise.resolve(null);
+      // Send initial value
+      KeyManager.getInstance().getValue((DJIKey) SDKEvent.GPSSignalLevel.getKey(), new GetCallback() {
+          @Override
+          public void onSuccess(@NonNull final Object newValue) {
+              if (newValue instanceof GPSSignalLevel) {
+                  handler.postDelayed(new Runnable() {
+                      @Override
+                      public void run() {
+                          WritableMap params = Arguments.createMap();
+                          params.putInt("gpsSignalLevel", ((GPSSignalLevel) newValue).value());
+                          sendEvent(SDKEvent.GPSSignalLevel, params);
+                      }
+                  }, 300);
+              }
+          }
+
+          @Override
+          public void onFailure(@NonNull DJIError djiError) {
+
+          }
+      });
   }
 
   @ReactMethod
