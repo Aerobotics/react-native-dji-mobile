@@ -194,31 +194,37 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
               if (newValue != null && newValue instanceof GPSSignalLevel) {
                   GPSSignalLevel gpsSignalLevel = (GPSSignalLevel) newValue;
-                  switch (gpsSignalLevel) {
+                WritableMap params = Arguments.createMap();
+                switch (gpsSignalLevel) {
                       case LEVEL_0:
-                          sendEvent(SDKEvent.GPSSignalLevel, 0);
+                        params.putInt("gpsSignalLevel", 0);
                           break;
                       case LEVEL_1:
-                          sendEvent(SDKEvent.GPSSignalLevel, 1);
+                        params.putInt("gpsSignalLevel", 1);
                           break;
                       case LEVEL_2:
-                          sendEvent(SDKEvent.GPSSignalLevel, 2);
-                          break;
+                        params.putInt("gpsSignalLevel", 2);
+
+                        break;
                       case LEVEL_3:
-                          sendEvent(SDKEvent.GPSSignalLevel, 3);
-                          break;
+                        params.putInt("gpsSignalLevel", 3);
+
+                        break;
                       case LEVEL_4:
-                          sendEvent(SDKEvent.GPSSignalLevel, 4);
-                          break;
+                        params.putInt("gpsSignalLevel", 4);
+
+                        break;
                       case LEVEL_5:
-                          sendEvent(SDKEvent.GPSSignalLevel, 5);
-                          break;
+                        params.putInt("gpsSignalLevel", 5);
+
+                        break;
                       case NONE:
-                          sendEvent(SDKEvent.GPSSignalLevel, null);
-                          break;
+                        params.putNull("gpsSignalLevel");
+                        break;
                       default:
                           break;
                   }
+                sendEvent(SDKEvent.GPSSignalLevel, params);
               }
           }
       });
@@ -359,6 +365,22 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           WritableMap params = Arguments.createMap();
           params.putString("fileName", mediaFile.getFileName());
           sendEvent(SDKEvent.CameraDidGenerateNewMediaFile, params);
+        }
+      }
+    });
+    promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void startUltrasonicHeightListener(Promise promise) {
+    startEventListener(SDKEvent.UltrasonicHeight, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue != null && newValue instanceof Float) {
+          Float height = (Float) newValue;
+          WritableMap params = Arguments.createMap();
+          params.putDouble("height", height);
+          sendEvent(SDKEvent.UltrasonicHeight, params);
         }
       }
     });
