@@ -294,7 +294,8 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void startAircraftLocationListener(Promise promise) {
-    startEventListener(SDKEvent.AircraftLocation, new EventListener() {
+      promise.resolve(null);
+      startEventListener(SDKEvent.AircraftLocation, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue != null && newValue instanceof LocationCoordinate3D) {
@@ -312,7 +313,34 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
-    promise.resolve(null);
+      KeyManager.getInstance().getValue((DJIKey) SDKEvent.AircraftLocation.getKey(), new GetCallback() {
+          @Override
+          public void onSuccess(@NonNull final Object value) {
+              if (value instanceof LocationCoordinate3D) {
+                  handler.postDelayed(new Runnable() {
+                      @Override
+                      public void run() {
+                          LocationCoordinate3D location = (LocationCoordinate3D) value;
+                          double longitude = location.getLongitude();
+                          double latitude = location.getLatitude();
+                          double altitude = location.getAltitude();
+                          if (!Double.isNaN(longitude) && !Double.isNaN(latitude)) {
+                              WritableMap params = Arguments.createMap();
+                              params.putDouble("longitude", longitude);
+                              params.putDouble("latitude", latitude);
+                              params.putDouble("altitude", altitude);
+                              sendEvent(SDKEvent.AircraftLocation, params);
+                          }
+                      }
+                  },300);
+              }
+          }
+
+          @Override
+          public void onFailure(@NonNull DJIError djiError) {
+
+          }
+      });
   }
 
   // TODO: (Adam) Update to new method!
@@ -447,11 +475,16 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     });
     KeyManager.getInstance().getValue((DJIKey) SDKEvent.IsHomeLocationSet.getKey(), new GetCallback() {
       @Override
-      public void onSuccess(@NonNull Object newValue) {
+      public void onSuccess(@NonNull final Object newValue) {
         if (newValue instanceof Boolean) {
-          WritableMap params = Arguments.createMap();
-          params.putBoolean("isHomeLocationSet", (Boolean) newValue);
-          sendEvent(SDKEvent.IsHomeLocationSet, params);
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    WritableMap params = Arguments.createMap();
+                    params.putBoolean("isHomeLocationSet", (Boolean) newValue);
+                    sendEvent(SDKEvent.IsHomeLocationSet, params);
+                }
+            }, 300);
         }
       }
       @Override
@@ -485,6 +518,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void startUltrasonicHeightListener(Promise promise) {
+        promise.resolve(null);
         startEventListener(SDKEvent.UltrasonicHeight, new EventListener() {
             @Override
             public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
@@ -496,7 +530,27 @@ public class DJIMobile extends ReactContextBaseJavaModule {
                 }
             }
         });
-        promise.resolve(null);
+        KeyManager.getInstance().getValue((DJIKey) SDKEvent.UltrasonicHeight.getKey(), new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull final Object newValue) {
+                if (newValue instanceof Float) {
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Float height = (Float) newValue;
+                            WritableMap params = Arguments.createMap();
+                            params.putDouble("height", height);
+                            sendEvent(SDKEvent.UltrasonicHeight, params);
+                        }
+                    }, 300);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+
+            }
+        });
     }
 
 //  @ReactMethod
