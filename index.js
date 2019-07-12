@@ -172,6 +172,17 @@ const DJIMobileWrapper = {
   getFileList: async () => {
     return await DJIMobile.getFileList();
   },
+  startUplinkSignalQualityListener: async () => {
+    await DJIMobile.startUplinkSignalQualityListener();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'LightBridgeUplinkSignalQuality')).asObservable();
+  },
+  startIsHomeLocationSetListener: async () => {
+    await DJIMobile.startIsHomeLocationSetListener();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'IsHomeLocationSet')).asObservable();
+  },
+  getHomeLocation: async () => {
+    return await DJIMobile.getHomeLocation();
+  }
 };
 
 export default DJIMobileWrapper;
