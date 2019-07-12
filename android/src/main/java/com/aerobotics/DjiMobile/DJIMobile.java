@@ -24,6 +24,7 @@ import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
+import dji.keysdk.AirLinkKey;
 import dji.common.model.LocationCoordinate2D;
 import dji.keysdk.BatteryKey;
 import dji.keysdk.DJIKey;
@@ -606,6 +607,52 @@ public class DJIMobile extends ReactContextBaseJavaModule {
             djiRealTimeDataLogger.stopLogging();
         }
     }
+
+    @ReactMethod
+    public void startUplinkSignalQualityListener(Promise promise) {
+      promise.resolve(null);
+      KeyManager.getInstance().getValue(AirLinkKey.create(AirLinkKey.IS_LIGHTBRIDGE_LINK_SUPPORTED), new GetCallback() {
+          @Override
+          public void onSuccess(@NonNull Object isSupported) {
+              if (isSupported instanceof Boolean) {
+                  Log.i("REACT", "is supported " + isSupported.toString());
+                  if ((Boolean) isSupported) {
+                      startEventListener(SDKEvent.LightBridgeUplinkSignalQuality, new EventListener() {
+                          @Override
+                          public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+                              if (newValue instanceof Integer) {
+                                  WritableMap params = Arguments.createMap();
+                                  params.putInt("percentage", (Integer) newValue);
+                                  sendEvent(SDKEvent.LightBridgeUplinkSignalQuality, params);
+                              }
+                          }
+                      });
+                      KeyManager.getInstance().getValue((DJIKey) SDKEvent.LightBridgeUplinkSignalQuality.getKey(), new GetCallback() {
+                          @Override
+                          public void onSuccess(@NonNull Object newValue) {
+                              Log.i("REACT", newValue.toString());
+                              if (newValue instanceof Integer) {
+                                  WritableMap params = Arguments.createMap();
+                                  params.putInt("percentage", (Integer) newValue);
+                                  sendEvent(SDKEvent.LightBridgeUplinkSignalQuality, params);
+                              }
+                          }
+
+                          @Override
+                          public void onFailure(@NonNull DJIError djiError) {
+                              Log.i("REACT", djiError.getDescription());
+                          }
+                      });
+                  }
+              }
+          }
+
+          @Override
+          public void onFailure(@NonNull DJIError djiError) {
+              Log.i("REACT", djiError.getDescription());
+          }
+      });
+   }
 
   @Override
   public String getName() {
