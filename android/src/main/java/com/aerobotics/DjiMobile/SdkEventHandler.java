@@ -31,6 +31,7 @@ enum SDKEvent {
   AircraftAttitudePitch(FlightControllerKey.create(FlightControllerKey.ATTITUDE_PITCH), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftAttitudeRoll(FlightControllerKey.create(FlightControllerKey.ATTITUDE_ROLL), EventType.DJI_KEY_MANAGER_EVENT),
   GPSSignalLevel(FlightControllerKey.create(FlightControllerKey.GPS_SIGNAL_LEVEL), EventType.DJI_KEY_MANAGER_EVENT),
+  UltrasonicHeight(FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS), EventType.DJI_KEY_MANAGER_EVENT),
 
   CameraDidUpdateSystemState(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
   CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT);
