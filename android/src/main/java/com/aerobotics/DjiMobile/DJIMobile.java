@@ -24,6 +24,7 @@ import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
+import dji.common.model.LocationCoordinate2D;
 import dji.keysdk.BatteryKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
@@ -432,20 +433,71 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void startUltrasonicHeightListener(Promise promise) {
-    startEventListener(SDKEvent.UltrasonicHeight, new EventListener() {
+  public void startIsHomeLocationSetListener(Promise promise) {
+    promise.resolve(null);
+    startEventListener(SDKEvent.IsHomeLocationSet, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue != null && newValue instanceof Float) {
-          Float height = (Float) newValue;
+        if (newValue instanceof Boolean) {
           WritableMap params = Arguments.createMap();
-          params.putDouble("height", height);
-          sendEvent(SDKEvent.UltrasonicHeight, params);
+          params.putBoolean("isHomeLocationSet", (Boolean) newValue);
+          sendEvent(SDKEvent.IsHomeLocationSet, params);
         }
       }
     });
-    promise.resolve(null);
+    KeyManager.getInstance().getValue((DJIKey) SDKEvent.IsHomeLocationSet.getKey(), new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object newValue) {
+        if (newValue instanceof Boolean) {
+          WritableMap params = Arguments.createMap();
+          params.putBoolean("isHomeLocationSet", (Boolean) newValue);
+          sendEvent(SDKEvent.IsHomeLocationSet, params);
+        }
+      }
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+
+      }
+    });
   }
+
+  @ReactMethod
+  public void getHomeLocation(final Promise promise) {
+    KeyManager.getInstance().getValue((DJIKey) SDKEvent.HomeLocation.getKey(), new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object newValue) {
+        if (newValue instanceof LocationCoordinate2D) {
+          LocationCoordinate2D location = (LocationCoordinate2D) newValue;
+          double longitude = location.getLongitude();
+          double latitude = location.getLatitude();
+          WritableMap params = Arguments.createMap();
+          params.putDouble("longitude", longitude);
+          params.putDouble("latitude", latitude);
+          promise.resolve(params);
+        }
+      }
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable(djiError.getDescription()));
+      }
+    });
+  }
+
+    @ReactMethod
+    public void startUltrasonicHeightListener(Promise promise) {
+        startEventListener(SDKEvent.UltrasonicHeight, new EventListener() {
+            @Override
+            public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+                if (newValue != null && newValue instanceof Float) {
+                    Float height = (Float) newValue;
+                    WritableMap params = Arguments.createMap();
+                    params.putDouble("height", height);
+                    sendEvent(SDKEvent.UltrasonicHeight, params);
+                }
+            }
+        });
+        promise.resolve(null);
+    }
 
 //  @ReactMethod
 //  public void stopCameraDelegateListener(String eventName, Promise promise) {
