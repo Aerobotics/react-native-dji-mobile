@@ -182,7 +182,7 @@ const DJIMobileWrapper = {
   },
   getHomeLocation: async () => {
     return await DJIMobile.getHomeLocation();
-  }
+  },
   startGPSSignalLevelListener: async () => {
     await DJIMobile.startGPSSignalLevelListener();
     return DJIEventSubject.pipe($filter(evt => evt.type === 'GPSSignalLevel')).asObservable();
