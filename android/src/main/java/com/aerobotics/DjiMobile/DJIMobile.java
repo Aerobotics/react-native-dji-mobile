@@ -19,17 +19,15 @@ import android.util.Log;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
-import dji.keysdk.AirLinkKey;
 import dji.common.model.LocationCoordinate2D;
-import dji.keysdk.BatteryKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
-import dji.keysdk.KeyManager;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
@@ -37,34 +35,6 @@ import dji.sdk.base.BaseProduct;
 import dji.sdk.media.MediaFile;
 import dji.sdk.sdkmanager.DJISDKManager;
 
-class ValidKeyInfo {
-  String keyParam;
-  Class keyClass;
-  Method createMethod;
-
-  public ValidKeyInfo(String keyParam, Class keyClass) {
-    this.keyParam = keyParam;
-    this.keyClass = keyClass;
-    try {
-      this.createMethod = keyClass.getMethod("create", String.class);
-    } catch (NoSuchMethodException e) {
-      e.printStackTrace();
-    }
-  }
-
-  public DJIKey createDJIKey() {
-    try {
-//      Object KeyClass = this.keyClass.newInstance();
-//      String args[] = {this.keyParam};
-      // As the .create() method is a static method, no object instance needs to be passed to .invoke(), hence the null value
-      DJIKey createdKey = (DJIKey)this.createMethod.invoke(null, this.keyParam);
-      return createdKey;
-    } catch (Exception e) {
-      Log.i("EXCEPTION", e.getLocalizedMessage());
-      return null;
-    }
-  }
-}
 
 public class DJIMobile extends ReactContextBaseJavaModule {
 
@@ -72,7 +42,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   private HashMap eventListeners = new HashMap();
 
-  ; // This must only be initialized once the SDK has registered, as it uses the SDK
+  // This must only be initialized once the SDK has registered, as it uses the SDK
   private SdkEventHandler sdkEventHandler;
   private BaseProduct product;
 
@@ -171,9 +141,66 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void startProductConnectionListener(Promise promise) {
+  public void startEventListener(String eventName, Promise promise) {
+    try {
+      SDKEvent validEvent = SDKEvent.valueOf(eventName);
+
+      switch (validEvent) {
+        case ProductConnection:
+          startProductConnectionListener();
+          break;
+
+        case BatteryChargeRemaining:
+          startBatteryPercentChargeRemainingListener();
+          break;
+
+        case AircraftCompassHeading:
+          startAircraftCompassHeadingListener();
+          break;
+
+        case AircraftLocation:
+          startAircraftLocationListener();
+          break;
+
+        case AircraftVelocity:
+          startAircraftVelocityListener();
+          break;
+
+        case AircraftAttitude:
+          startAircraftAttitudeListener();
+          break;
+
+        case AircraftGpsSignalLevel:
+          startGPSSignalLevelListener();
+          break;
+
+        case AirLinkUplinkSignalQuality:
+          startAirlinkUplinkSignalQualityListener();
+          break;
+
+        case AircraftHomeLocation:
+          startAircraftHomeLocationListener();
+          break;
+
+        case AircraftUltrasonicHeight:
+          startUltrasonicHeightListener();
+          break;
+
+        default:
+          promise.reject("Invalid Key", "Invalid Key");
+          break;
+      }
+
       promise.resolve(null);
-      startEventListener(SDKEvent.ProductConnection, new EventListener() {
+
+    } catch (IllegalArgumentException exc) {
+      promise.reject("Invalid Key", "Invalid Key");
+    }
+
+  }
+
+  private void startProductConnectionListener() {
+    startEventListener(SDKEvent.ProductConnection, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue != null && newValue instanceof Boolean) {
@@ -181,139 +208,54 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
-      KeyManager.getInstance().getValue((DJIKey) SDKEvent.ProductConnection.getKey(), new GetCallback() {
-          @Override
-          public void onSuccess(@NonNull final Object newValue) {
-              if (newValue != null && newValue instanceof Boolean) {
-                  handler.postDelayed(new Runnable() {
-                      @Override
-                      public void run() {
-                          sendEvent(SDKEvent.ProductConnection, (boolean) newValue ? "connected" : "disconnected");
-                      }
-                  }, 300);
-              }
-          }
-          @Override
-          public void onFailure(@NonNull DJIError djiError) {
-          }
-      });
   }
 
-  @ReactMethod
-  public void startBatteryPercentChargeRemainingListener(final Promise promise) {
-      promise.resolve(null);
-      startEventListener(SDKEvent.BatteryChargeRemaining, new EventListener() {
+  private void startBatteryPercentChargeRemainingListener() {
+    startEventListener(SDKEvent.BatteryChargeRemaining, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue != null && newValue instanceof Integer) {
-          sendEvent(SDKEvent.BatteryChargeRemaining, newValue);
+      if (newValue != null && newValue instanceof Integer) {
+        sendEvent(SDKEvent.BatteryChargeRemaining, newValue);
+      }
+      }
+  });
+  }
+
+  private void startGPSSignalLevelListener() {
+    startEventListener(SDKEvent.AircraftGpsSignalLevel, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue != null && newValue instanceof GPSSignalLevel) {
+          GPSSignalLevel gpsSignalLevel = (GPSSignalLevel) newValue;
+          Integer signalValue = gpsSignalLevel.value();
+          if (gpsSignalLevel == GPSSignalLevel.NONE) {
+            signalValue = null;
+          }
+          sendEvent(SDKEvent.AircraftGpsSignalLevel, signalValue);
         }
       }
     });
-    BatteryKey batteryKey = BatteryKey.create(BatteryKey.CHARGE_REMAINING_IN_PERCENT);
-      // Send initial value
-      KeyManager.getInstance().getValue(batteryKey, new GetCallback() {
-        @Override
-        public void onSuccess(@NonNull final Object newValue) {
-            if (newValue != null && newValue instanceof Integer) {
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        sendEvent(SDKEvent.BatteryChargeRemaining, newValue);
-                    }
-                }, 300);
-            }
-        }
-
-        @Override
-        public void onFailure(@NonNull DJIError djiError) {
-        }
-    });
   }
 
-  @ReactMethod
-  public void startGPSSignalLevelListener(Promise promise) {
-      promise.resolve(null);
-      startEventListener(SDKEvent.GPSSignalLevel, new EventListener() {
-          @Override
-          public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-              if (newValue != null && newValue instanceof GPSSignalLevel) {
-                  GPSSignalLevel gpsSignalLevel = (GPSSignalLevel) newValue;
-                WritableMap params = Arguments.createMap();
-                switch (gpsSignalLevel) {
-                      case LEVEL_0:
-                        params.putInt("gpsSignalLevel", 0);
-                          break;
-                      case LEVEL_1:
-                        params.putInt("gpsSignalLevel", 1);
-                          break;
-                      case LEVEL_2:
-                        params.putInt("gpsSignalLevel", 2);
-                        break;
-                      case LEVEL_3:
-                        params.putInt("gpsSignalLevel", 3);
-                        break;
-                      case LEVEL_4:
-                        params.putInt("gpsSignalLevel", 4);
-                        break;
-                      case LEVEL_5:
-                        params.putInt("gpsSignalLevel", 5);
-
-                        break;
-                      case NONE:
-                        params.putNull("gpsSignalLevel");
-                        break;
-                      default:
-                          break;
-                  }
-                sendEvent(SDKEvent.GPSSignalLevel, params);
-              }
-          }
-      });
-      // Send initial value
-      KeyManager.getInstance().getValue((DJIKey) SDKEvent.GPSSignalLevel.getKey(), new GetCallback() {
-          @Override
-          public void onSuccess(@NonNull final Object newValue) {
-              if (newValue instanceof GPSSignalLevel) {
-                  handler.postDelayed(new Runnable() {
-                      @Override
-                      public void run() {
-                          WritableMap params = Arguments.createMap();
-                          params.putInt("gpsSignalLevel", ((GPSSignalLevel) newValue).value());
-                          sendEvent(SDKEvent.GPSSignalLevel, params);
-                      }
-                  }, 300);
-              }
-          }
-
-          @Override
-          public void onFailure(@NonNull DJIError djiError) {
-
-          }
-      });
-  }
-
-  @ReactMethod
-  public void startAircraftLocationListener(Promise promise) {
+  private void startAircraftLocationListener() {
     startEventListener(SDKEvent.AircraftLocation, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue != null && newValue instanceof LocationCoordinate3D) {
-          LocationCoordinate3D location = (LocationCoordinate3D) newValue;
-          double longitude = location.getLongitude();
-          double latitude = location.getLatitude();
-          double altitude = location.getAltitude();
-          if (!Double.isNaN(longitude) && !Double.isNaN(latitude)) {
-            WritableMap params = Arguments.createMap();
-            params.putDouble("longitude", longitude);
-            params.putDouble("latitude", latitude);
-            params.putDouble("altitude", altitude);
-            sendEvent(SDKEvent.AircraftLocation, params);
-          }
+      if (newValue != null && newValue instanceof LocationCoordinate3D) {
+        LocationCoordinate3D location = (LocationCoordinate3D) newValue;
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+        double altitude = location.getAltitude();
+        if (!Double.isNaN(longitude) && !Double.isNaN(latitude)) {
+          WritableMap params = Arguments.createMap();
+          params.putDouble("longitude", longitude);
+          params.putDouble("latitude", latitude);
+          params.putDouble("altitude", altitude);
+          sendEvent(SDKEvent.AircraftLocation, params);
         }
       }
+      }
     });
-    promise.resolve(null);
   }
 
   // TODO: (Adam) Update to new method!
@@ -343,8 +285,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     });
   }
 
-  @ReactMethod
-  public void startAircraftVelocityListener(Promise promise) {
+  private void startAircraftVelocityListener() {
     SDKEvent[] velocityEvents = {
       SDKEvent.AircraftVelocityX,
       SDKEvent.AircraftVelocityY,
@@ -357,23 +298,20 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       startEventListener(velocityEvents[i], new EventListener() {
         @Override
         public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-          if (newValue != null && newValue instanceof Float) {
-            velocityVector[finalI] = (float)newValue;
-            WritableMap params = Arguments.createMap();
-            params.putDouble("x", velocityVector[0]);
-            params.putDouble("y", velocityVector[1]);
-            params.putDouble("z", velocityVector[2]);
-            sendEvent("AircraftVelocity", params);
-          }
+        if (newValue != null && newValue instanceof Float) {
+          velocityVector[finalI] = (float)newValue;
+          WritableMap params = Arguments.createMap();
+          params.putDouble("x", velocityVector[0]);
+          params.putDouble("y", velocityVector[1]);
+          params.putDouble("z", velocityVector[2]);
+          sendEvent(SDKEvent.AircraftVelocity, params);
+        }
         }
       });
     }
-
-    promise.resolve(null);
   }
 
-  @ReactMethod
-  public void startAircraftAttitudeListener(Promise promise) {
+  private void startAircraftAttitudeListener() {
     SDKEvent[] attitudeEvents = {
       SDKEvent.AircraftAttitudeYaw,
       SDKEvent.AircraftAttitudePitch,
@@ -386,34 +324,28 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       startEventListener(attitudeEvents[i], new EventListener() {
         @Override
         public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-          if (newValue != null && newValue instanceof Double) {
-            attitudeVector[finalI] = (double)newValue;
-            WritableMap params = Arguments.createMap();
-            params.putDouble("yaw", attitudeVector[0]);
-            params.putDouble("pitch", attitudeVector[1]);
-            params.putDouble("roll", attitudeVector[2]);
-            sendEvent("AircraftAttitude", params);
-          }
+        if (newValue != null && newValue instanceof Double) {
+          attitudeVector[finalI] = (double)newValue;
+          WritableMap params = Arguments.createMap();
+          params.putDouble("yaw", attitudeVector[0]);
+          params.putDouble("pitch", attitudeVector[1]);
+          params.putDouble("roll", attitudeVector[2]);
+          sendEvent(SDKEvent.AircraftAttitude, params);
+        }
         }
       });
     }
-
-    promise.resolve(null);
   }
 
-  @ReactMethod
-  public void startAircraftCompassHeadingListener(Promise promise) {
+  private void startAircraftCompassHeadingListener() {
     startEventListener(SDKEvent.AircraftCompassHeading, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue != null && newValue instanceof Float) {
-          WritableMap params = Arguments.createMap();
-          params.putDouble("heading", (float)newValue);
-          sendEvent(SDKEvent.AircraftCompassHeading, params);
-        }
+      if (newValue != null && newValue instanceof Float) {
+        sendEvent(SDKEvent.AircraftCompassHeading, newValue);
+      }
       }
     });
-    promise.resolve(null);
   }
 
   @ReactMethod
@@ -430,43 +362,12 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
-    promise.resolve(null);
   }
 
-  @ReactMethod
-  public void startIsHomeLocationSetListener(Promise promise) {
-    promise.resolve(null);
-    startEventListener(SDKEvent.IsHomeLocationSet, new EventListener() {
+  private void startAircraftHomeLocationListener() {
+    startEventListener(SDKEvent.AircraftHomeLocation, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue instanceof Boolean) {
-          WritableMap params = Arguments.createMap();
-          params.putBoolean("isHomeLocationSet", (Boolean) newValue);
-          sendEvent(SDKEvent.IsHomeLocationSet, params);
-        }
-      }
-    });
-    KeyManager.getInstance().getValue((DJIKey) SDKEvent.IsHomeLocationSet.getKey(), new GetCallback() {
-      @Override
-      public void onSuccess(@NonNull Object newValue) {
-        if (newValue instanceof Boolean) {
-          WritableMap params = Arguments.createMap();
-          params.putBoolean("isHomeLocationSet", (Boolean) newValue);
-          sendEvent(SDKEvent.IsHomeLocationSet, params);
-        }
-      }
-      @Override
-      public void onFailure(@NonNull DJIError djiError) {
-
-      }
-    });
-  }
-
-  @ReactMethod
-  public void getHomeLocation(final Promise promise) {
-    KeyManager.getInstance().getValue((DJIKey) SDKEvent.HomeLocation.getKey(), new GetCallback() {
-      @Override
-      public void onSuccess(@NonNull Object newValue) {
         if (newValue instanceof LocationCoordinate2D) {
           LocationCoordinate2D location = (LocationCoordinate2D) newValue;
           double longitude = location.getLongitude();
@@ -474,48 +375,26 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           WritableMap params = Arguments.createMap();
           params.putDouble("longitude", longitude);
           params.putDouble("latitude", latitude);
-          promise.resolve(params);
+          sendEvent(SDKEvent.AircraftHomeLocation, params);
         }
-      }
-      @Override
-      public void onFailure(@NonNull DJIError djiError) {
-        promise.reject(new Throwable(djiError.getDescription()));
       }
     });
   }
 
-    @ReactMethod
-    public void startUltrasonicHeightListener(Promise promise) {
-        startEventListener(SDKEvent.UltrasonicHeight, new EventListener() {
-            @Override
-            public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-                if (newValue != null && newValue instanceof Float) {
-                    Float height = (Float) newValue;
-                    WritableMap params = Arguments.createMap();
-                    params.putDouble("height", height);
-                    sendEvent(SDKEvent.UltrasonicHeight, params);
-                }
-            }
-        });
-        promise.resolve(null);
-    }
-
-//  @ReactMethod
-//  public void stopCameraDelegateListener(String eventName, Promise promise) {
-//    switch (eventName) {
-//      case "DJICameraEvent.didGenerateNewMediaFile":
-//        cameraDelegateSender.removeObserver(newMediaFileObserver);
-//        break;
-//
-//      default:
-//        break;
-//    }
-//    promise.resolve("stopCameraDelegateListener");
-//  }
+  private void startUltrasonicHeightListener() {
+    startEventListener(SDKEvent.AircraftUltrasonicHeight, new EventListener() {
+          @Override
+          public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+      if (newValue != null && newValue instanceof Float) {
+        sendEvent(SDKEvent.AircraftUltrasonicHeight, newValue);
+      }
+          }
+    });
+  }
 
   @ReactMethod
   public void stopEventListener(String eventName, Promise promise) {
-    if (eventName.equals("AircraftVelocity")) {
+    if (eventName.equals(SDKEvent.AircraftVelocity)) {
       SDKEvent[] velocityEvents = {
         SDKEvent.AircraftVelocityX,
         SDKEvent.AircraftVelocityY,
@@ -608,49 +487,14 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
     }
 
-    @ReactMethod
-    public void startUplinkSignalQualityListener(Promise promise) {
-      promise.resolve(null);
-      KeyManager.getInstance().getValue(AirLinkKey.create(AirLinkKey.IS_LIGHTBRIDGE_LINK_SUPPORTED), new GetCallback() {
-          @Override
-          public void onSuccess(@NonNull Object isSupported) {
-              if (isSupported instanceof Boolean) {
-                  Log.i("REACT", "is supported " + isSupported.toString());
-                  if ((Boolean) isSupported) {
-                      startEventListener(SDKEvent.LightBridgeUplinkSignalQuality, new EventListener() {
-                          @Override
-                          public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-                              if (newValue instanceof Integer) {
-                                  WritableMap params = Arguments.createMap();
-                                  params.putInt("percentage", (Integer) newValue);
-                                  sendEvent(SDKEvent.LightBridgeUplinkSignalQuality, params);
-                              }
-                          }
-                      });
-                      KeyManager.getInstance().getValue((DJIKey) SDKEvent.LightBridgeUplinkSignalQuality.getKey(), new GetCallback() {
-                          @Override
-                          public void onSuccess(@NonNull Object newValue) {
-                              Log.i("REACT", newValue.toString());
-                              if (newValue instanceof Integer) {
-                                  WritableMap params = Arguments.createMap();
-                                  params.putInt("percentage", (Integer) newValue);
-                                  sendEvent(SDKEvent.LightBridgeUplinkSignalQuality, params);
-                              }
-                          }
-
-                          @Override
-                          public void onFailure(@NonNull DJIError djiError) {
-                              Log.i("REACT", djiError.getDescription());
-                          }
-                      });
-                  }
-              }
+    private void startAirlinkUplinkSignalQualityListener() {
+      startEventListener(SDKEvent.AirLinkUplinkSignalQuality, new EventListener() {
+        @Override
+        public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+          if (newValue instanceof Integer) {
+            sendEvent(SDKEvent.AirLinkUplinkSignalQuality, newValue);
           }
-
-          @Override
-          public void onFailure(@NonNull DJIError djiError) {
-              Log.i("REACT", djiError.getDescription());
-          }
+        }
       });
    }
 
@@ -658,4 +502,14 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   public String getName() {
     return "DJIMobile";
   }
+
+  @Override
+  public Map<String, Object> getConstants() {
+    final Map<String, Object> constants = new HashMap<>();
+    for (SDKEvent sdkEvent : SDKEvent.values()) {
+      constants.put(sdkEvent.name(), sdkEvent.name());
+    }
+    return constants;
+  }
+
 }
