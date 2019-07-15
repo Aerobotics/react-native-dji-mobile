@@ -615,7 +615,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           @Override
           public void onSuccess(@NonNull Object isSupported) {
               if (isSupported instanceof Boolean) {
-                  Log.i("REACT", "is supported " + isSupported.toString());
                   if ((Boolean) isSupported) {
                       startEventListener(SDKEvent.LightBridgeUplinkSignalQuality, new EventListener() {
                           @Override
@@ -630,7 +629,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
                       KeyManager.getInstance().getValue((DJIKey) SDKEvent.LightBridgeUplinkSignalQuality.getKey(), new GetCallback() {
                           @Override
                           public void onSuccess(@NonNull Object newValue) {
-                              Log.i("REACT", newValue.toString());
                               if (newValue instanceof Integer) {
                                   WritableMap params = Arguments.createMap();
                                   params.putInt("percentage", (Integer) newValue);

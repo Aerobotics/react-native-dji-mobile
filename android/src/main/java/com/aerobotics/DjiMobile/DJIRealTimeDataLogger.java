@@ -39,6 +39,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
     private FlightControllerKey attitudeRollKey = FlightControllerKey.create(FlightControllerKey.ATTITUDE_ROLL);
     private FlightControllerKey attitudeYawKey = FlightControllerKey.create(FlightControllerKey.ATTITUDE_YAW);
     private CameraKey isRecordingKey = CameraKey.create(CameraKey.IS_RECORDING);
+    private FlightControllerKey ultrasonicKey = FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS);
 
     private KeyListener isRecordingListener = new KeyListener() {
         @Override
@@ -149,6 +150,16 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
         }
     };
 
+    private KeyListener ultrasonicHeightListener = new KeyListener() {
+        @Override
+        public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+            if (newValue instanceof Float) {
+                Float height = (Float) newValue;
+                writeStringToLogFile("ultrasonic_height:" + height.toString());
+            }
+        }
+    };
+
     private ReactApplicationContext reactApplicationContext;
     private File logFile;
     private boolean isLogging = false;
@@ -176,6 +187,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
         KeyManager.getInstance().addListener(attitudeRollKey, attitudeRollListener);
         KeyManager.getInstance().addListener(attitudeYawKey, attitudeYawListener);
         KeyManager.getInstance().addListener(isRecordingKey, isRecordingListener);
+        KeyManager.getInstance().addListener(ultrasonicKey, ultrasonicHeightListener);
     }
 
     private void tearDownKeyListeners() {
@@ -191,6 +203,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
             KeyManager.getInstance().removeListener(attitudeRollListener);
             KeyManager.getInstance().removeListener(attitudeYawListener);
             KeyManager.getInstance().removeListener(isRecordingListener);
+            KeyManager.getInstance().removeListener(ultrasonicHeightListener);
         }
     }
 
