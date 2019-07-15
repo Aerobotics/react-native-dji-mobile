@@ -459,7 +459,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     if (value instanceof Integer) {
       params.putInt("value", (Integer)value);
     } else if (value instanceof Double) {
-      params.putDouble("value", (Double)value);
+      params.putDouble("value", (Double) value);
     } else if (value instanceof String) {
       params.putString("value", (String)value);
     } else if (value instanceof Boolean) {
@@ -468,6 +468,8 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       params.putMap("value", (WritableMap)value);
     } else if (value instanceof WritableArray) {
       params.putArray("value", (WritableArray) value);
+    } else if (value instanceof Float) {
+      params.putDouble("value", Double.valueOf((Float) value));
     }
     return params;
   }
