@@ -25,9 +25,21 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
-                  setExposureMode: (NSUInteger)exposureMode
+                  setExposureMode: (NSUInteger)exposureModeIndex
                   resolve:         (RCTPromiseResolveBlock)resolve
                   reject:          (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  setVideoFileFormat: (NSUInteger)fileFormatIndex
+                  resolve:            (RCTPromiseResolveBlock)resolve
+                  reject:             (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  setVideoFileCompressionStandard: (NSUInteger)compressionStandardIndex
+                  resolve:                         (RCTPromiseResolveBlock)resolve
+                  reject:                          (RCTPromiseRejectBlock)reject
                   )
 
 @end
