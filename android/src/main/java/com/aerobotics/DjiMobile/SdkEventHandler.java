@@ -1,17 +1,21 @@
 package com.aerobotics.DjiMobile;
 
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
+import dji.common.error.DJIError;
 import dji.keysdk.AirLinkKey;
 import dji.keysdk.BatteryKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
+import dji.keysdk.KeyManager;
 import dji.keysdk.ProductKey;
+import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.KeyListener;
 import dji.sdk.sdkmanager.DJISDKManager;
 
@@ -25,17 +29,23 @@ enum SDKEvent {
   BatteryChargeRemaining(BatteryKey.create(BatteryKey.CHARGE_REMAINING_IN_PERCENT), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftCompassHeading(FlightControllerKey.create(FlightControllerKey.COMPASS_HEADING), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftLocation(FlightControllerKey.create(FlightControllerKey.AIRCRAFT_LOCATION), EventType.DJI_KEY_MANAGER_EVENT),
+
+  // This is not a real DJI Key event, it is used to start listening to the x, y, and z velocity events
+  AircraftVelocity(null, EventType.DJI_KEY_MANAGER_EVENT),
   AircraftVelocityX(FlightControllerKey.create(FlightControllerKey.VELOCITY_X), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftVelocityY(FlightControllerKey.create(FlightControllerKey.VELOCITY_Y), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftVelocityZ(FlightControllerKey.create(FlightControllerKey.VELOCITY_Z), EventType.DJI_KEY_MANAGER_EVENT),
+
+  // This is not a real DJI Key event, it is used to start listening to the yaw, pitch, and roll attitude events
+  AircraftAttitude(null, EventType.DJI_KEY_MANAGER_EVENT),
   AircraftAttitudeYaw(FlightControllerKey.create(FlightControllerKey.ATTITUDE_YAW), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftAttitudePitch(FlightControllerKey.create(FlightControllerKey.ATTITUDE_PITCH), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftAttitudeRoll(FlightControllerKey.create(FlightControllerKey.ATTITUDE_ROLL), EventType.DJI_KEY_MANAGER_EVENT),
-  GPSSignalLevel(FlightControllerKey.create(FlightControllerKey.GPS_SIGNAL_LEVEL), EventType.DJI_KEY_MANAGER_EVENT),
-  LightBridgeUplinkSignalQuality(AirLinkKey.createLightbridgeLinkKey(AirLinkKey.UPLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
-  IsHomeLocationSet(FlightControllerKey.create(FlightControllerKey.IS_HOME_LOCATION_SET), EventType.DJI_KEY_MANAGER_EVENT),
-  HomeLocation(FlightControllerKey.create(FlightControllerKey.HOME_LOCATION), EventType.DJI_KEY_MANAGER_EVENT),
-  UltrasonicHeight(FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS), EventType.DJI_KEY_MANAGER_EVENT),
+
+  AircraftGpsSignalLevel(FlightControllerKey.create(FlightControllerKey.GPS_SIGNAL_LEVEL), EventType.DJI_KEY_MANAGER_EVENT),
+  AirLinkUplinkSignalQuality(AirLinkKey.createLightbridgeLinkKey(AirLinkKey.UPLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
+  AircraftHomeLocation(FlightControllerKey.create(FlightControllerKey.HOME_LOCATION), EventType.DJI_KEY_MANAGER_EVENT),
+  AircraftUltrasonicHeight(FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS), EventType.DJI_KEY_MANAGER_EVENT),
 
   CameraDidUpdateSystemState(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
   CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT);
@@ -83,6 +93,7 @@ public class SdkEventHandler {
         }
       };
       DJISDKManager.getInstance().getKeyManager().addListener((DJIKey)key, keyListener);
+      getInitialDJIKeyValue((DJIKey)key, eventListener);
       return keyListener;
 
     } else if (eventType == EventType.DJI_CAMERA_DELEGATE_EVENT) {
@@ -106,9 +117,9 @@ public class SdkEventHandler {
     return null;
   }
 
-  public void stopEventListener(SDKEvent SDKEvent, @Nullable Object eventSubscriptionObject) {
-    EventType eventType = SDKEvent.getEventType();
-    Object key = SDKEvent.getKey();
+  public void stopEventListener(SDKEvent sdkEvent, @Nullable Object eventSubscriptionObject) {
+    EventType eventType = sdkEvent.getEventType();
+    Object key = sdkEvent.getKey();
 
     if (eventType == EventType.DJI_KEY_MANAGER_EVENT) {
       DJISDKManager.getInstance().getKeyManager().removeListener((KeyListener)eventSubscriptionObject);
@@ -116,6 +127,24 @@ public class SdkEventHandler {
     } else if (eventType == EventType.DJI_CAMERA_DELEGATE_EVENT) {
       cameraEventDelegate.removeObserver((Observer)eventSubscriptionObject);
     }
+  }
+
+  /**
+   * This allows us to get the initial value for a DJI key when starting a listener, as sometimes the initial value is only sent through
+   * when a new event occurs and calls the listener.
+   */
+  private void getInitialDJIKeyValue(DJIKey key, final EventListener eventListener) {
+    KeyManager.getInstance().getValue((DJIKey)key, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        eventListener.onValueChange(null, value);
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        // An initial value couldn't be gotten
+      }
+    });
   }
 
 

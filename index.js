@@ -20,6 +20,15 @@ import {
   DJIEventSubject,
 } from './lib/utilities';
 
+const startListener = (eventName: string) => async () => {
+  await DJIMobile.startEventListener(eventName);
+  return DJIEventSubject.pipe($filter(evt => evt.type === eventName)).asObservable();
+};
+
+const stopListener = (eventName: string) => async () => {
+  await DJIMobile.stopEventListener(eventName);
+};
+
 const {
   DJIMobile,
 } = NativeModules;
@@ -74,80 +83,38 @@ const DJIMobileWrapper = {
 
   // TODO: (Adam) What should happen if these functions are called and the SDK is not registered?
 
-  startProductConnectionListener: async () => {
-    await DJIMobile.startProductConnectionListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'ProductConnection')).asObservable();
-  },
-  stopProductConnectionListener: async () => {
-    if (Platform.OS === 'android') {
-      await DJIMobile.stopEventListener('ProductConnection');
-    } else {
-      // TODO: (Adam) this key could potentially be used for different types (product, gimbal, etc.) so how to differentiate?
-      await DJIMobile.stopKeyListener('DJIParamConnection');
-    }
-  },
+  startProductConnectionListener: startListener(DJIMobile.ProductConnection),
+  stopProductConnectionListener: stopListener(DJIMobile.ProductConnection),
 
-  startBatteryPercentChargeRemainingListener: async () => {
-    await DJIMobile.startBatteryPercentChargeRemainingListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'BatteryChargeRemaining')).asObservable();
-  },
-  stopBatteryPercentChargeRemainingListener: async () => {
-    if (Platform.OS === 'android') {
-      await DJIMobile.stopEventListener('BatteryChargeRemaining');
-    } else {
-      await DJIMobile.stopKeyListener('DJIBatteryParamChargeRemainingInPercent');
-    }
-  },
+  startBatteryPercentChargeRemainingListener: startListener(DJIMobile.BatteryChargeRemaining),
+  stopBatteryPercentChargeRemainingListener: stopListener(DJIMobile.BatteryChargeRemaining),
 
-  startAircraftLocationListener: async () => {
-    await DJIMobile.startAircraftLocationListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'AircraftLocation')).asObservable();
-  },
-  stopAircraftLocationListener: async () => {
-    if (Platform.OS === 'android') {
-      await DJIMobile.stopEventListener('AircraftLocation');
-    } else {
-      await DJIMobile.stopKeyListener('DJIFlightControllerParamAircraftLocation');
-    }
-  },
+  startAircraftLocationListener: startListener(DJIMobile.AircraftLocation),
+  stopAircraftLocationListener: stopListener(DJIMobile.AircraftLocation),
+
+  startAircraftVelocityListener: startListener(DJIMobile.AircraftVelocity),
+  stopAircraftVelocityListener: stopListener(DJIMobile.AircraftVelocity),
+
+  startAircraftAttitudeListener: startListener(DJIMobile.AircraftAttitude),
+  stopAircraftAttitudeListener: stopListener(DJIMobile.AircraftAttitude),
+
+  startAircraftCompassHeadingListener: startListener(DJIMobile.AircraftCompassHeading),
+  stopAircraftCompassHeadingListener: stopListener(DJIMobile.AircraftCompassHeading),
+
+  startAirLinkUplinkSignalQualityListener: startListener(DJIMobile.AirLinkUplinkSignalQuality),
+  stopAirLinkUplinkSignalQualityListener: stopListener(DJIMobile.AirLinkUplinkSignalQuality),
+
+  startHomeLocationListener: startListener(DJIMobile.AircraftHomeLocation),
+  stopHomeLocationListener: stopListener(DJIMobile.AircraftHomeLocation),
+
+  startGpsSignalLevelListener: startListener(DJIMobile.AircraftGpsSignalLevel),
+  stopGpsSignalLevelListener: stopListener(DJIMobile.AircraftGpsSignalLevel),
+
+  startUltrasonicHeightListener: startListener(DJIMobile.AircraftUltrasonicHeight),
+  stopUltrasonicHeightListener: stopListener(DJIMobile.AircraftUltrasonicHeight),
+
   getAircraftLocation: async () => {
     return await DJIMobile.getAircraftLocation();
-  },
-
-  startAircraftVelocityListener: async () => {
-    await DJIMobile.startAircraftVelocityListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'AircraftVelocity')).asObservable();
-  },
-  stopAircraftVelocityListener: async () => {
-    if (Platform.OS === 'android') {
-      await DJIMobile.stopEventListener('AircraftVelocity');
-    } else {
-      await DJIMobile.stopKeyListener('DJIFlightControllerParamVelocity');
-    }
-  },
-
-  startAircraftAttitudeListener: async () => {
-    await DJIMobile.startAircraftAttitudeListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'AircraftAttitude')).asObservable();
-  },
-  stopAircraftAttitudeListener: async () => {
-    if (Platform.OS === 'android') {
-      await DJIMobile.stopEventListener('AircraftAttitude');
-    } else {
-      await DJIMobile.stopKeyListener('DJIFlightControllerParamAttitude');
-    }
-  },
-
-  startAircraftCompassHeadingListener: async () => {
-    await DJIMobile.startAircraftCompassHeadingListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'AircraftCompassHeading')).asObservable();
-  },
-  stopAircraftCompassHeadingListener: async () => {
-    if (Platform.OS === 'android') {
-      await DJIMobile.stopEventListener('AircraftCompassHeading');
-    } else {
-      await DJIMobile.stopKeyListener('DJIFlightControllerParamCompassHeading');
-    }
   },
 
   startRecordFlightData: async (fileName: string) => {
@@ -169,28 +136,11 @@ const DJIMobileWrapper = {
       await DJIMobile.stopEventListener('CameraDidGenerateNewMediaFile');
     }
   },
+
   getFileList: async () => {
     return await DJIMobile.getFileList();
   },
-  startUplinkSignalQualityListener: async () => {
-    await DJIMobile.startUplinkSignalQualityListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'LightBridgeUplinkSignalQuality')).asObservable();
-  },
-  startIsHomeLocationSetListener: async () => {
-    await DJIMobile.startIsHomeLocationSetListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'IsHomeLocationSet')).asObservable();
-  },
-  getHomeLocation: async () => {
-    return await DJIMobile.getHomeLocation();
-  },
-  startGPSSignalLevelListener: async () => {
-    await DJIMobile.startGPSSignalLevelListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'GPSSignalLevel')).asObservable();
-  },
-  startUltrasonicHeightListener: async () => {
-    await DJIMobile.startUltrasonicHeightListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'UltrasonicHeight')).asObservable();
-  }
+
 };
 
 export default DJIMobileWrapper;

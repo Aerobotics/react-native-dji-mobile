@@ -43,12 +43,34 @@ class CameraControlNative: NSObject {
   }
   
   @objc(setExposureMode:resolve:reject:)
-  func setExposureMode(exposureMode: UInt, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    DJISDKManager.keyManager()?.setValue(exposureMode, for: DJICameraKey(param: DJICameraParamExposureMode)!, withCompletion: { (error: Error?) in
+  func setExposureMode(exposureModeIndex: UInt, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(exposureModeIndex, for: DJICameraKey(param: DJICameraParamExposureMode)!, withCompletion: { (error: Error?) in
       if (error == nil) {
         resolve("CameraControl: Exposure mode set successfully")
       } else {
         reject("CameraControl: Exposure mode error", error?.localizedDescription, error)
+      }
+    })
+  }
+  
+  @objc(setVideoFileFormat:resolve:reject:)
+  func setVideoFileFormat(fileFormatIndex: UInt, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(fileFormatIndex, for: DJICameraKey(param: DJICameraParamVideoFileFormat)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: Video file format set successfully")
+      } else {
+        reject("CameraControl: Video file format error", error?.localizedDescription, error)
+      }
+    })
+  }
+  
+  @objc(setVideoFileCompressionStandard:resolve:reject:)
+  func setVideoFileCompressionStandard(compressionStandardIndex: UInt, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(compressionStandardIndex, for: DJICameraKey(param: DJICameraParamVideoFileCompressionStandard)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: Video file compression standard set successfully")
+      } else {
+        reject("CameraControl: Video file compression standard error", error?.localizedDescription, error)
       }
     })
   }
