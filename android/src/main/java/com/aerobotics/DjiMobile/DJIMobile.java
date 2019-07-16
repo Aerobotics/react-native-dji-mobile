@@ -368,14 +368,16 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     startEventListener(SDKEvent.AircraftHomeLocation, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue instanceof LocationCoordinate2D) {
+        if (newValue != null && newValue instanceof LocationCoordinate2D) {
           LocationCoordinate2D location = (LocationCoordinate2D) newValue;
-          double longitude = location.getLongitude();
-          double latitude = location.getLatitude();
-          WritableMap params = Arguments.createMap();
-          params.putDouble("longitude", longitude);
-          params.putDouble("latitude", latitude);
-          sendEvent(SDKEvent.AircraftHomeLocation, params);
+          Double longitude = location.getLongitude();
+          Double latitude = location.getLatitude();
+          if (!latitude.isNaN() && !latitude.isInfinite() && !longitude.isNaN() && !longitude.isInfinite()) {
+              WritableMap params = Arguments.createMap();
+              params.putDouble("longitude", longitude);
+              params.putDouble("latitude", latitude);
+              sendEvent(SDKEvent.AircraftHomeLocation, params);
+          }
         }
       }
     });
@@ -417,7 +419,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   private void startEventListener(SDKEvent SDKEvent, EventListener eventListener) {
 
     Object existingEventListener = eventListeners.get(SDKEvent);
-
     if (sdkEventHandler == null) {
         sdkEventHandler = new SdkEventHandler();
     }
@@ -493,7 +494,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       startEventListener(SDKEvent.AirLinkUplinkSignalQuality, new EventListener() {
         @Override
         public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-          if (newValue instanceof Integer) {
+          if (newValue != null && newValue instanceof Integer) {
             sendEvent(SDKEvent.AirLinkUplinkSignalQuality, newValue);
           }
         }
