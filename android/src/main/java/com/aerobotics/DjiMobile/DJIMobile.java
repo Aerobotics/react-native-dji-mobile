@@ -11,6 +11,8 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 
+import android.os.Environment;
+import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -48,6 +50,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   private DJIRealTimeDataLogger djiRealTimeDataLogger;
   private Handler handler;
+  private FileObserver flightLogObserver;
 
   public DJIMobile(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -488,6 +491,30 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         if (djiRealTimeDataLogger != null) {
             djiRealTimeDataLogger.stopLogging();
         }
+    }
+
+    @ReactMethod
+    public void getLogPath(Promise promise) {
+       String path = DJISDKManager.getInstance().getLogPath();
+       promise.resolve(path);
+    }
+
+    @ReactMethod
+    public void startFlightLogListener(Promise promise) {
+      String path = DJISDKManager.getInstance().getLogPath();
+      if (flightLogObserver == null) {
+        flightLogObserver = new FileObserverDelegate(path, reactContext);
+        flightLogObserver.startWatching();
+      }
+      promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void stopFlightLogListener(Promise promise) {
+      if (flightLogObserver != null) {
+        flightLogObserver.stopWatching();
+      }
+      promise.resolve(null);
     }
 
     private void startAirlinkUplinkSignalQualityListener() {
