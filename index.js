@@ -41,6 +41,19 @@ const throwIfSDKNotRegistered = () => {
   }
 };
 
+export const FlightLogListenerEventNames = Object.freeze({
+  create: 'create',
+  modify: 'modify',
+});
+
+export type FlightLogListenerEvent = {
+  value: {
+    eventName: $Values<typeof FlightLogListenerEventNames>,
+    fileName: string,
+  },
+  type: string,
+}
+
 const DJIMobileWrapper = {
 
   registerApp: async (bridgeIp?: string) => {
@@ -140,7 +153,16 @@ const DJIMobileWrapper = {
   getFileList: async () => {
     return await DJIMobile.getFileList();
   },
-
+  getLogPath: async () => {
+    return await DJIMobile.getLogPath();
+  },
+  startFlightLogListener: async () => {
+    await DJIMobile.startFlightLogListener();
+    return DJIEventSubject.pipe($filter((evt: FlightLogListenerEvent) => evt.type === 'DJIFlightLogEvent')).asObservable();
+  },
+  stopFlightLogListener: async () => {
+    await DJIMobile.stopFlightLogListener();
+  },
 };
 
 export default DJIMobileWrapper;
