@@ -81,7 +81,6 @@ public class RecursiveFileObserver extends FileObserver {
 
     @Override
     public void onEvent(int event, String filePath) {
-        Log.i("REACT", "event occurred:"+filePath + " " + event);
         WritableMap eventInfo = Arguments.createMap();
         switch (event) {
             case FileObserver.CREATE:

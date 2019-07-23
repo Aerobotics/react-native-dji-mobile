@@ -502,7 +502,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     public void startFlightLogListener(Promise promise) {
       String pathToFlightLogs = DJISDKManager.getInstance().getLogPath();
       if (flightLogObserver == null) {
-        flightLogObserver = new RecursiveFileObserver(pathToFlightLogs, "DJIFightLogEvent", reactContext);
+        flightLogObserver = new RecursiveFileObserver(pathToFlightLogs, "DJIFlightLogEvent", reactContext);
         flightLogObserver.startWatching();
       }
       promise.resolve(null);
