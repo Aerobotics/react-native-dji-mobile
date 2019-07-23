@@ -11,7 +11,6 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 
-import android.os.Environment;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,7 +18,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -499,11 +497,12 @@ public class DJIMobile extends ReactContextBaseJavaModule {
        promise.resolve(path);
     }
 
+    //Listener for creation and modification of flight logs
     @ReactMethod
     public void startFlightLogListener(Promise promise) {
-      String path = DJISDKManager.getInstance().getLogPath();
+      String pathToFlightLogs = DJISDKManager.getInstance().getLogPath();
       if (flightLogObserver == null) {
-        flightLogObserver = new FileObserverDelegate(path, reactContext);
+        flightLogObserver = new RecursiveFileObserver(pathToFlightLogs, "DJIFightLogEvent", reactContext);
         flightLogObserver.startWatching();
       }
       promise.resolve(null);

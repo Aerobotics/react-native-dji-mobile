@@ -1,7 +1,6 @@
 package com.aerobotics.DjiMobile;
 
 import android.os.FileObserver;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
@@ -14,24 +13,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-public class FileObserverDelegate extends FileObserver {
-    public static final int CHANGES_ONLY = CREATE | DELETE | CLOSE_WRITE | MOVE_SELF | MOVED_FROM | MOVED_TO;
+public class RecursiveFileObserver extends FileObserver {
 
-    List<SingleFileObserver> mObservers;
-    String mPath;
-    int mMask;
-    public String directoryPath;
-    ReactApplicationContext reactApplicationContext;
-    public FileObserverDelegate(String path, ReactApplicationContext reactApplicationContext) {
+    private List<SingleFileObserver> mObservers;
+    private String mPath;
+    private int mMask;
+    private ReactApplicationContext reactApplicationContext;
+    private String eventType;
+
+    public RecursiveFileObserver(String path, String eventType, ReactApplicationContext reactApplicationContext) {
         this(path, ALL_EVENTS);
         this.reactApplicationContext = reactApplicationContext;
-        directoryPath = path;
+        this.eventType = eventType;
     }
 
-    public FileObserverDelegate(String path, int mask) {
+    public RecursiveFileObserver(String path, int mask) {
         super(path, mask);
         mPath = path;
         mMask = mask;
+    }
+
+    private void postEvent(WritableMap eventData) {
+        WritableMap params = Arguments.createMap();
+        params.putMap("value", eventData);
+        params.putString("type", this.eventType);
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit("DJIEvent", params);
     }
 
     @Override
@@ -74,26 +82,17 @@ public class FileObserverDelegate extends FileObserver {
     @Override
     public void onEvent(int event, String filePath) {
         Log.i("REACT", "event occurred:"+filePath + " " + event);
-        WritableMap params = Arguments.createMap();
         WritableMap eventInfo = Arguments.createMap();
         switch (event) {
             case FileObserver.CREATE:
                 eventInfo.putString("eventName", "create");
                 eventInfo.putString("fileName", filePath);
-                params.putMap("value", eventInfo);
-                params.putString("type", "DJIFlightLogEvent");
-                reactApplicationContext
-                        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                        .emit("DJIEvent", params);
+                postEvent(eventInfo);
                 break;
             case FileObserver.MODIFY:
                 eventInfo.putString("eventName", "modify");
                 eventInfo.putString("fileName", filePath);
-                params.putMap("value", eventInfo);
-                params.putString("type", "DJIFlightLogEvent");
-                reactApplicationContext
-                        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                        .emit("DJIEvent", params);
+                postEvent(eventInfo);
                 break;
             default:
                 break;
@@ -117,7 +116,7 @@ public class FileObserverDelegate extends FileObserver {
         @Override
         public void onEvent(int event, String path) {
             String newPath = mPath + "/" + path;
-            FileObserverDelegate.this.onEvent(event, newPath);
+            RecursiveFileObserver.this.onEvent(event, newPath);
         }
     }
 }
