@@ -220,9 +220,11 @@ class DJIMobile: NSObject, RCTInvalidating {
     let event = SdkEventName.AircraftGpsSignalLevel
     startKeyListener(event) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if var signalLevel = newValue?.value as? UInt8? { // DJI doesn't set the value as a DJIGPSSignalLevel enum!
-        let GpsSignal = DJIGPSSignalLevel(rawValue: signalLevel!)
-        if (GpsSignal == .levelNone) {
-          signalLevel = nil
+        if (signalLevel != nil) {
+          let GpsSignal = DJIGPSSignalLevel(rawValue: signalLevel!)
+          if (GpsSignal == .levelNone) {
+            signalLevel = nil
+          }
         }
         EventSender.sendReactEvent(type: event.rawValue, value: signalLevel)
       }
