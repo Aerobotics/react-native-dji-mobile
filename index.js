@@ -140,7 +140,16 @@ const DJIMobileWrapper = {
   getFileList: async () => {
     return await DJIMobile.getFileList();
   },
-
+  getLogPath: async () => {
+    return await DJIMobile.getLogPath();
+  },
+  startFlightLogListener: async () => {
+    await DJIMobile.startFlightLogListener();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'DJIFlightLogEvent')).asObservable();
+  },
+  stopFlightLogListener: async () => {
+    await DJIMobile.stopFlightLogListener();
+  },
 };
 
 export default DJIMobileWrapper;
