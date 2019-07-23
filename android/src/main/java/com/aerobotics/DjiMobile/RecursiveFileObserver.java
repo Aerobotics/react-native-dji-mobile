@@ -85,12 +85,12 @@ public class RecursiveFileObserver extends FileObserver {
         switch (event) {
             case FileObserver.CREATE:
                 eventInfo.putString("eventName", "create");
-                eventInfo.putString("fileName", filePath);
+                eventInfo.putString("filePath", filePath);
                 postEvent(eventInfo);
                 break;
             case FileObserver.MODIFY:
                 eventInfo.putString("eventName", "modify");
-                eventInfo.putString("fileName", filePath);
+                eventInfo.putString("filePath", filePath);
                 postEvent(eventInfo);
                 break;
             default:
