@@ -72,7 +72,6 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void scheduleElement(String timelineElementType, ReadableMap parameters, Promise promise) {
-    Log.i("REACT", "Element type " + timelineElementType);
     MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
 
     TimelineElement newElement = null;
@@ -393,6 +392,12 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
   @ReactMethod
   public void stopTimelineListener(Promise promise) {
     DJISDKManager.getInstance().getMissionControl().removeAllListeners();
+    promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void setCurrentTimelineMarker(Integer currentTimelineMarker, Promise promise) {
+    DJISDKManager.getInstance().getMissionControl().setCurrentTimelineMarker(currentTimelineMarker);
     promise.resolve(null);
   }
 
