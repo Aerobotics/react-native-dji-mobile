@@ -11,7 +11,7 @@ import DJISDK
 @objc(EventSender)
 public class EventSender: RCTEventEmitter, RCTInvalidating {
   
-  private var eventSendFrequency = 1.0
+  private static var eventSendFrequency = 1.0
   private var eventSendLimiterTimer: Timer
   
   // The event queue only holds the most recent event for each event type received, discarding older events of the same type
@@ -21,9 +21,13 @@ public class EventSender: RCTEventEmitter, RCTInvalidating {
     eventSendLimiterTimer = Timer.init()
     super.init()
     
-    self.eventSendLimiterTimer = Timer.scheduledTimer(timeInterval: 1.0/self.eventSendFrequency, target: self, selector: #selector(self.sendQueuedEvents), userInfo: nil, repeats: true)
+    self.eventSendLimiterTimer = Timer.scheduledTimer(timeInterval: 1.0/EventSender.eventSendFrequency, target: self, selector: #selector(self.sendQueuedEvents), userInfo: nil, repeats: true)
     NotificationCenter.default.addObserver(self, selector: #selector(processEvent), name: NSNotification.Name("DJIEvent"), object: nil)
     NotificationCenter.default.addObserver(self, selector: #selector(setNewEventSendFrequency), name: NSNotification.Name("limitEventSendFrequency"), object: nil)
+  }
+  
+  public static func getEventSendFrequency() -> Double {
+    return eventSendFrequency
   }
   
   public func invalidate() {
@@ -40,9 +44,9 @@ public class EventSender: RCTEventEmitter, RCTInvalidating {
   }
   
   @objc private func setNewEventSendFrequency(payload: NSNotification) {
-    self.eventSendFrequency = payload.userInfo!["frequency"] as! Double
+    EventSender.eventSendFrequency = payload.userInfo!["frequency"] as! Double
     self.eventSendLimiterTimer.invalidate()
-    self.eventSendLimiterTimer = Timer.init(timeInterval: 1.0/self.eventSendFrequency, target: self, selector: #selector(self.sendQueuedEvents), userInfo: nil, repeats: true)
+    self.eventSendLimiterTimer = Timer.init(timeInterval: 1.0/EventSender.eventSendFrequency, target: self, selector: #selector(self.sendQueuedEvents), userInfo: nil, repeats: true)
     RunLoop.main.add(self.eventSendLimiterTimer, forMode: .common)
   }
   
