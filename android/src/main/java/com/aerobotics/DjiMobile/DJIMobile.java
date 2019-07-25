@@ -363,6 +363,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
+    promise.resolve(null);
   }
 
   private void startAircraftHomeLocationListener() {
