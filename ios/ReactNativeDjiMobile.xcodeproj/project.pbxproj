@@ -10,6 +10,8 @@
 		6638626522AFA4D80085A552 /* CameraControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6638626422AFA4D80085A552 /* CameraControl.swift */; };
 		6638626722AFA5220085A552 /* CameraControl-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 6638626622AFA5220085A552 /* CameraControl-bridge.m */; };
 		6639AE9D228EA18B0033B214 /* DJICameraDelegateSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6639AE9C228EA18B0033B214 /* DJICameraDelegateSender.swift */; };
+		664A2BB722E9CB500057ADB1 /* DJIMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 664A2BB622E9CB500057ADB1 /* DJIMedia.swift */; };
+		664A2BB922E9CB930057ADB1 /* DJIMedia-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 664A2BB822E9CB930057ADB1 /* DJIMedia-bridge.m */; };
 		665EE7802200A40F00753E42 /* DJIMobile-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 665EE77F2200A40E00753E42 /* DJIMobile-bridge.m */; };
 		66610ECE2215513E00146F86 /* DroneVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66610ECD2215513E00146F86 /* DroneVideoView.swift */; };
 		66802ECD228065040039A915 /* VirtualStickTimelineElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66802ECC228065040039A915 /* VirtualStickTimelineElement.swift */; };
@@ -44,6 +46,8 @@
 		6638626422AFA4D80085A552 /* CameraControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraControl.swift; sourceTree = "<group>"; };
 		6638626622AFA5220085A552 /* CameraControl-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CameraControl-bridge.m"; sourceTree = "<group>"; };
 		6639AE9C228EA18B0033B214 /* DJICameraDelegateSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DJICameraDelegateSender.swift; sourceTree = "<group>"; };
+		664A2BB622E9CB500057ADB1 /* DJIMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DJIMedia.swift; sourceTree = "<group>"; };
+		664A2BB822E9CB930057ADB1 /* DJIMedia-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "DJIMedia-bridge.m"; sourceTree = "<group>"; };
 		665EE77F2200A40E00753E42 /* DJIMobile-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "DJIMobile-bridge.m"; sourceTree = "<group>"; };
 		66610ECD2215513E00146F86 /* DroneVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DroneVideoView.swift; sourceTree = "<group>"; };
 		66610EEB2215819700146F86 /* ReactNativeDJIMobile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactNativeDJIMobile.h; sourceTree = "<group>"; };
@@ -91,6 +95,8 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				664A2BB822E9CB930057ADB1 /* DJIMedia-bridge.m */,
+				664A2BB622E9CB500057ADB1 /* DJIMedia.swift */,
 				6638626622AFA5220085A552 /* CameraControl-bridge.m */,
 				6638626422AFA4D80085A552 /* CameraControl.swift */,
 				6639AE9C228EA18B0033B214 /* DJICameraDelegateSender.swift */,
@@ -229,8 +235,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				665EE7802200A40F00753E42 /* DJIMobile-bridge.m in Sources */,
+				664A2BB922E9CB930057ADB1 /* DJIMedia-bridge.m in Sources */,
 				66CDD8D6221D39490024AA39 /* DJIMissionControl-bridge.m in Sources */,
 				6638626722AFA5220085A552 /* CameraControl-bridge.m in Sources */,
+				664A2BB722E9CB500057ADB1 /* DJIMedia.swift in Sources */,
 				669F8EE322145A9600CE1373 /* DroneVideoViewManager-bridge.m in Sources */,
 				669B3B162220347F00010E70 /* EventSender-bridge.m in Sources */,
 				66F07A1D22CCF52900CF428F /* RunJSElement.swift in Sources */,
