@@ -5,7 +5,9 @@
 **Developed by [Aerobotics](https://www.aerobotics.com)**
 
 <p align='center'>
+<a href='https://github.com/Aerobotics/react-native-dji-mobile/blob/develop/LICENCE.MIT'>
     <img src='https://img.shields.io/badge/licence-MIT-blue.svg?style=flat-square'>
+  </a>
   <a href='https://www.npmjs.com/package/react-native-dji-mobile'>
     <img src='https://img.shields.io/npm/v/react-native-dji-mobile.svg?style=flat-square'>
   </a>
@@ -40,7 +42,7 @@ react-native link react-native-dji-mobile
     ```
 
     1. Add `:modular_headers => false` to the pod dependencies for `DoubleConversion`, `glog`, and `Folly` in your podfile.
-  
+
     After applying these changes your podfile should look similar to this:
     ```ruby
     platform :ios, '9.0'
@@ -70,7 +72,7 @@ react-native link react-native-dji-mobile
 
       pod 'DJIWidget', '~> 1.5', :modular_headers => false
       pod 'react-native-dji-mobile', :path => '../node_modules/react-native-dji-mobile'
-      
+
       ...
 
     end
@@ -94,11 +96,11 @@ If you are unable to add `use_modular_headers!` to your Podfile as it breaks you
    ```
 
    1. Navigate to **[YourProjectName]/node_modules/react-native-dji-mobile/ios**
-   
+
    2. Drag the **ReactNativeDjiMobile.xcodeproj** file into your Xcode project into the **Libraries** folder.
-   
+
    3. Go to the **Link Binary With Libraries** build phase for your Xcode project, and add the **libReactNativeDjiMobile.a**.
-  
+
 
 ---
 
