@@ -162,6 +162,9 @@ const DJIMobileWrapper = {
   stopFlightLogListener: async () => {
     await DJIMobile.stopFlightLogListener();
   },
+  getAircraftIsFlying: async () => {
+    return await DJIMobile.getAircraftIsFlying();
+  },
 };
 
 export default DJIMobileWrapper;
