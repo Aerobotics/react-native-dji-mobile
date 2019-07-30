@@ -65,6 +65,9 @@ class DJIMedia: NSObject {
                       let fileUrl = documentsDirectory.appendingPathComponent(nameOfFileToDownload)
                       do {
                         try fileData.write(to: fileUrl)
+                        EventSender.sendReactEvent(type: "mediaFileDownloadEvent", value: [
+                          "eventName": "onSuccess",
+                        ])
                         resolve(nil)
                       } catch {
                         reject("startFullResMediaFileDownload Error", nil, error);
@@ -94,6 +97,10 @@ class DJIMedia: NSObject {
       }
     }
     
+  }
+  
+  @objc static func requiresMainQueueSetup() -> Bool {
+    return true
   }
   
 }

@@ -237,6 +237,7 @@ class DJIRealTimeDataLogger: NSObject, RCTInvalidating {
       
       let currentDate = Date()
       let df = DateFormatter()
+      df.locale = Locale(identifier: "en_US_POSIX")
       df.dateFormat =  "yyyy-MM-dd'T'HH:mm:ss.SSSS"
       
       for (key, value) in data {

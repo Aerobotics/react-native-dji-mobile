@@ -280,7 +280,8 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
       } else {
         if (self.endTrigger == .ultrasonic) {
           self.isUltrasonicEnabled { (isUltrasonicEnabled: Bool, error: Error?) in
-            if (isUltrasonicEnabled == true) {
+//            if (isUltrasonicEnabled == true) {
+            if (true) {
               self.stopAtUltrasonicHeight(stopHeight: self.ultrasonicEndDistance!)
               
               flightController?.setVirtualStickModeEnabled(true, withCompletion: { (error: Error?) in
