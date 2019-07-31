@@ -286,6 +286,24 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     });
   }
 
+  @ReactMethod
+  public void getAircraftIsFlying(final Promise promise) {
+    DJIKey isFlyingKey = FlightControllerKey.create(FlightControllerKey.IS_FLYING);
+    DJISDKManager.getInstance().getKeyManager().getValue(isFlyingKey, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        if (value instanceof Boolean) {
+          promise.resolve(value);
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject("getAircraftIsFlying Error", djiError.getDescription());
+      }
+    });
+  }
+
   private void startAircraftVelocityListener() {
     SDKEvent[] velocityEvents = {
       SDKEvent.AircraftVelocityX,
