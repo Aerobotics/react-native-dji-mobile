@@ -50,16 +50,22 @@ class DroneVideoView: UIView, RCTInvalidating {
 }
 
 extension DroneVideoView: DJIVideoFeedListener {
-  func videoFeed(_ videoFeed: DJIVideoFeed, didUpdateVideoData rawData: Data) {
+  func videoFeed(_ videoFeed: DJIVideoFeed, didUpdateVideoData videoData: Data) {
     //    rawData.withUnsafeBytes { (ptr: UnsafePointer<UInt8>) in
     //      let p = UnsafeMutablePointer<UInt8>.init(mutating: ptr)
     //      DJIVideoPreviewer.instance()?.push(p, length: Int32(rawData.count))
     //
     //    }
-    let videoData = rawData as NSData
-    let videoBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: videoData.length)
-    videoData.getBytes(videoBuffer, length: videoData.length)
-    DJIVideoPreviewer.instance()?.push(videoBuffer, length: Int32(videoData.length))
+    
+    videoData.withUnsafeBytes { (ptr: UnsafePointer<UInt8>) in
+      let p = UnsafeMutablePointer<UInt8>.init(mutating: ptr)
+      DJIVideoPreviewer.instance()?.push(p, length: Int32(videoData.count))
+    }
+    
+    //    let videoData = rawData as NSData
+    //    let videoBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: videoData.length)
+    //    videoData.getBytes(videoBuffer, length: videoData.length)
+    //    DJIVideoPreviewer.instance()?.push(videoBuffer, length: Int32(videoData.length))
   }
   
   
