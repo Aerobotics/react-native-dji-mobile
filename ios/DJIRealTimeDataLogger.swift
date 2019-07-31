@@ -59,12 +59,12 @@ class DJIRealTimeDataLogger: NSObject, RCTInvalidating {
   private func startLoggingInternal(_ fileName: String) {
     
     if (self.isLogging == true) {
-//      withCompletion(ErrorsToThrow.alreadyLogging)
+      //      withCompletion(ErrorsToThrow.alreadyLogging)
       return
     }
     
     guard let keyManager = DJISDKManager.keyManager() else {
-//      withCompletion(ErrorsToThrow.noKeyManager)
+      //      withCompletion(ErrorsToThrow.noKeyManager)
       return
     }
     
@@ -97,6 +97,14 @@ class DJIRealTimeDataLogger: NSObject, RCTInvalidating {
       }
     }
     
+    keyManager.startListeningForChanges(on: DJIFlightControllerKey(param: DJIFlightControllerParamUltrasonicHeightInMeters)!, withListener: self) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      if let ultrasonicHeight = newValue?.doubleValue {
+        self.writeDataToLogFile(fileName: fileName, data: [
+          "ultrasonic_height": self.roundDecimalPlaces(number: ultrasonicHeight, decimalPlaces: 2),
+          ])
+      }
+    }
+    
     keyManager.startListeningForChanges(on: DJIFlightControllerKey(param: DJIFlightControllerParamAttitude)!, withListener: self) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let attitude = newValue?.value as? DJISDKVector3D {
         // attitude.x = aircraft roll (left is -ve)
@@ -113,9 +121,9 @@ class DJIRealTimeDataLogger: NSObject, RCTInvalidating {
     keyManager.startListeningForChanges(on: DJIFlightControllerKey(param: DJIFlightControllerParamVelocity)!, withListener: self) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let velocity = newValue?.value as? DJISDKVector3D {
         self.writeDataToLogFile(fileName: fileName, data: [
-          "velocity_n": self.roundDecimalPlaces(number: velocity.x, decimalPlaces: 2),
-          "velocity_e": self.roundDecimalPlaces(number: velocity.y, decimalPlaces: 2),
-          "velocity_d": self.roundDecimalPlaces(number: velocity.z, decimalPlaces: 2),
+          "velocity_n": self.roundDecimalPlaces(number: velocity.x, decimalPlaces: 4),
+          "velocity_e": self.roundDecimalPlaces(number: velocity.y, decimalPlaces: 4),
+          "velocity_d": self.roundDecimalPlaces(number: velocity.z, decimalPlaces: 4),
           ])
       }
     }
@@ -159,7 +167,7 @@ class DJIRealTimeDataLogger: NSObject, RCTInvalidating {
       }
     }
     
-//    withCompletion(nil)
+    //    withCompletion(nil)
   }
   
   private func stopLoggingInternal() {
@@ -168,13 +176,13 @@ class DJIRealTimeDataLogger: NSObject, RCTInvalidating {
     if let keyManager = DJISDKManager.keyManager() {
       keyManager.stopAllListening(ofListeners: self)
     } else {
-//      withCompletion(ErrorsToThrow.noKeyManager)
+      //      withCompletion(ErrorsToThrow.noKeyManager)
       return
     }
     
     NotificationCenter.default.removeObserver(self, name: NSNotification.Name("DJICameraEvent.didUpdateSystemState"), object: nil)
     
-//    withCompletion(nil)
+    //    withCompletion(nil)
   }
   
   @objc private func cameraSystemStateUpdate(payload: NSNotification) {
