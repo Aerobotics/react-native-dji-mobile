@@ -10,6 +10,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 
+import dji.common.camera.ResolutionAndFrameRate;
 import dji.common.camera.SettingsDefinitions;
 import dji.common.camera.WhiteBalance;
 import dji.common.error.DJIError;
@@ -212,6 +213,23 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             @Override
             public void onFailure(@NonNull DJIError djiError) {
                 promise.reject("CameraControlNative: Failed to set Video file compression standard " + djiError.getDescription());
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setVideoResolutionAndFrameRate(String resolution, String frameRate, final Promise promise) {
+        DJIKey videoResolutionAndFrameRateKey = CameraKey.create(CameraKey.RESOLUTION_FRAME_RATE);
+        ResolutionAndFrameRate resolutionAndFrameRate = new ResolutionAndFrameRate(SettingsDefinitions.VideoResolution.valueOf(resolution), SettingsDefinitions.VideoFrameRate.valueOf(frameRate));
+        DJISDKManager.getInstance().getKeyManager().setValue(videoResolutionAndFrameRateKey, resolutionAndFrameRate, new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControlNative: Video file resolution and frame rate set successfully");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set video resolution and frame rate " + djiError.getDescription());
             }
         });
     }
