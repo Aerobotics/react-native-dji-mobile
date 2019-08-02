@@ -393,7 +393,7 @@ public class VirtualStickTimelineElement extends MissionAction {
   @Override
   public void pause() {
     super.pause();
-    sendVirtualStickDataBlock.cancel();
+    sendVirtualStickDataTimer.cancel();
     if (endTriggerTimer != null) {
       endTriggerTimer.cancel();
     }
@@ -408,7 +408,7 @@ public class VirtualStickTimelineElement extends MissionAction {
 
   @Override
   public void stop() {
-    sendVirtualStickDataBlock.cancel();
+    sendVirtualStickDataTimer.cancel();
     if (endTriggerTimer != null) {
       endTriggerTimer.cancel();
     }

@@ -4,11 +4,21 @@ import android.graphics.Camera;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeArray;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Array;
 
 import dji.common.camera.ResolutionAndFrameRate;
 import dji.common.camera.SettingsDefinitions;
@@ -224,12 +234,39 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         DJISDKManager.getInstance().getKeyManager().setValue(videoResolutionAndFrameRateKey, resolutionAndFrameRate, new SetCallback() {
             @Override
             public void onSuccess() {
+                Log.i("REACT", "videoSet");
                 promise.resolve("CameraControlNative: Video file resolution and frame rate set successfully");
             }
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
+                Log.i("REACT", djiError.getDescription());
                 promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set video resolution and frame rate " + djiError.getDescription());
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getVideoResolutionAndFrameRateRange(final Promise promise) {
+        DJIKey videoResolutionAndFrameRateRange = CameraKey.create(CameraKey.VIDEO_RESOLUTION_FRAME_RATE_RANGE);
+        DJISDKManager.getInstance().getKeyManager().getValue(videoResolutionAndFrameRateRange, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object value) {
+                if (value instanceof ResolutionAndFrameRate[]) {
+                    ResolutionAndFrameRate[] resolutionAndFrameRates = (ResolutionAndFrameRate[]) value;
+                    WritableArray array = new WritableNativeArray();
+                    for (int i = 0; i < resolutionAndFrameRates.length; i++) {
+                        ResolutionAndFrameRate resolutionAndFrameRate = resolutionAndFrameRates[i];
+                        String resolutionAndFrameRateString = resolutionAndFrameRate.toString();
+                        array.pushString(resolutionAndFrameRateString);
+                    }
+                    promise.resolve(array);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to get video resolution and frame rate range " + djiError.getDescription());
             }
         });
     }
