@@ -165,6 +165,9 @@ const DJIMobileWrapper = {
   getAircraftIsFlying: async () => {
     return await DJIMobile.getAircraftIsFlying();
   },
+  setCollisionAvoidanceEnabled: async (enabled: boolean) => {
+    return await DJIMobile.setCollisionAvoidanceEnabled(enabled)
+  }
 };
 
 export default DJIMobileWrapper;
