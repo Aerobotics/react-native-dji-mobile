@@ -86,6 +86,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     }
     
     DJISDKManager.beginAppRegistration()
+    
   }
   
   @objc(limitEventFrequency:resolve:reject:)
@@ -359,13 +360,19 @@ class DJIMobile: NSObject, RCTInvalidating {
       // If there is an existing listener, don't create a new one
     }
     // Get an initial value for the listener to send
-    DJISDKManager.keyManager()?.getValueFor(key, withCompletion: { (value: DJIKeyedValue?, error: Error?) in
-      if (error != nil) {
-        // Could not get initial value for some reason
-      } else {
-        updateBlock(nil, value)
-      }
-    })
+    
+    if (eventName == .ProductConnection) { // The product connection key cannot be used with getValueFor
+      EventSender.sendReactEvent(type: eventName.rawValue, value: DJISDKManager.product() != nil ? "connected" : "disconnected")
+    } else {
+      DJISDKManager.keyManager()?.getValueFor(key, withCompletion: { (value: DJIKeyedValue?, error: Error?) in
+        if (error != nil) {
+          print(error)
+          // Could not get initial value for some reason
+        } else {
+          updateBlock(nil, value)
+        }
+      })
+    }
   }
   
   private func getKeyValue(_ key: DJIKey, updateBlock: @escaping DJIKeyedGetCompletionBlock) {
