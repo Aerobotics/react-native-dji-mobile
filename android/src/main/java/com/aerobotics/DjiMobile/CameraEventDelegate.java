@@ -93,9 +93,6 @@ public class CameraEventDelegate implements SystemState.Callback, MediaFile.Call
         }
       }, 2000);
 
-
-
-
     }
   }
 
