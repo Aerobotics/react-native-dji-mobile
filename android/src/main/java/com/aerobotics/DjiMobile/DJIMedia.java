@@ -14,6 +14,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import dji.common.camera.SettingsDefinitions;
@@ -41,6 +42,9 @@ public class DJIMedia extends ReactContextBaseJavaModule {
       currentFileListState = state;
     }
   };
+
+//  private HashMap<String, Promise> fileDownloadPromises = new HashMap<>();
+  private Promise fileDownloadPromise;
 
   DJIMedia(ReactApplicationContext reactContext){
     super(reactContext);
@@ -153,7 +157,10 @@ public class DJIMedia extends ReactContextBaseJavaModule {
                         final String fileName = mediaFile.getFileName();
                         if (nameOfFileToDownload.equals(fileName)) {
                           mediaFile.fetchFileData(reactContext.getFilesDir(), null, downloadListener);
-                          promise.resolve(null);
+//                          fileDownloadPromises.put(nameOfFileToDownload, promise);
+                          fileDownloadPromise = promise;
+                          return; // Do not reject with the file not found error
+//                          promise.resolve(null);
                         }
                       }
                       promise.reject(new Throwable("Error: File not found"));
@@ -174,6 +181,8 @@ public class DJIMedia extends ReactContextBaseJavaModule {
         }
       });
 
+    } else {
+      promise.reject(new Throwable("Error: Camera not connected"));
     }
   }
 
@@ -224,7 +233,7 @@ public class DJIMedia extends ReactContextBaseJavaModule {
 
     @Override
     public void onSuccess(String s) {
-      // Log.i("REACT", "Successful file download: " + s);
+//       Log.i("REACT", "Successful file download: " + s);
       WritableMap params = Arguments.createMap();
       WritableMap eventInfo = Arguments.createMap();
       eventInfo.putString("eventName", "onSuccess");
@@ -233,6 +242,8 @@ public class DJIMedia extends ReactContextBaseJavaModule {
       reactContext
               .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
               .emit("DJIEvent", params);
+
+      fileDownloadPromise.resolve(null);
     }
 
     @Override
@@ -247,6 +258,8 @@ public class DJIMedia extends ReactContextBaseJavaModule {
       reactContext
               .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
               .emit("DJIEvent", params);
+
+      fileDownloadPromise.reject(new Throwable("Error: " + djiError.getDescription()));
     }
   };
 
