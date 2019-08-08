@@ -42,4 +42,11 @@ RCT_EXTERN_METHOD(
                   reject:                          (RCTPromiseRejectBlock)reject
                   )
 
+RCT_EXTERN_METHOD(
+                  setVideoResolutionAndFrameRate: (NSUInteger)resolution
+                  frameRate:                      (NSUInteger)frameRate
+                  resolve:                         (RCTPromiseResolveBlock)resolve
+                  reject:                          (RCTPromiseRejectBlock)reject
+                  )
+
 @end
