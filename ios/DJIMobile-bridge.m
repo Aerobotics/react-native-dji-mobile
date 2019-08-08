@@ -55,8 +55,8 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
-                  getLogPath: (RCTPromiseResolveBlock)resolve
-                  reject:     (RCTPromiseRejectBlock)reject
+                  getFlightLogPath: (RCTPromiseResolveBlock)resolve
+                  reject:           (RCTPromiseRejectBlock)reject
                   )
 
 RCT_EXTERN_METHOD(

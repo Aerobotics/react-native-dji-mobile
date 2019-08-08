@@ -303,8 +303,8 @@ class DJIMobile: NSObject, RCTInvalidating {
     }
   }
   
-  @objc(getLogPath:reject:)
-  func getLogPath(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+  @objc(getFlightLogPath:reject:)
+  func getFlightLogPath(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     resolve(DJISDKManager.getLogPath())
   }
   
