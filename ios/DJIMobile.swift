@@ -303,6 +303,11 @@ class DJIMobile: NSObject, RCTInvalidating {
     }
   }
   
+  @objc(getLogPath:reject:)
+  func getLogPath(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    resolve(DJISDKManager.getLogPath())
+  }
+  
   @objc(startNewMediaFileListener:reject:)
   func startNewMediaFileListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     NotificationCenter.default.addObserver(self, selector: #selector(newMediaFileUpdate), name: CameraEvent.didGenerateNewMediaFile.notification, object: nil)
