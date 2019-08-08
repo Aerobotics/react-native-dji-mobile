@@ -11,6 +11,7 @@ import DJISDK
 class DJIMobile: NSObject, RCTInvalidating {
   
   var cameraDelegateEventSender: DJICameraDelegateSender?
+  var folderMonitor = FolderMonitor()
   //  var productConnectionListener
   
   func invalidate() {
@@ -34,6 +35,8 @@ class DJIMobile: NSObject, RCTInvalidating {
     
     case CameraDidUpdateSystemState
     case CameraDidGenerateNewMediaFile
+    
+    case DJIFlightLogEvent
   }
   
   private let implementedEvents: [SdkEventName: [Any]] = [
@@ -308,6 +311,22 @@ class DJIMobile: NSObject, RCTInvalidating {
     resolve(DJISDKManager.getLogPath())
   }
   
+  @objc(startFlightLogListener:reject:)
+  func startFlightLogListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    self.folderMonitor.startMonitoring(pathToMonitor: DJISDKManager.getLogPath()) { (newFileName: String) in
+      EventSender.sendReactEvent(type: SdkEventName.DJIFlightLogEvent.rawValue, value: [
+        "eventName": "create",
+        "filePath": newFileName,
+        ])
+    }
+    resolve(nil)
+  }
+  
+  @objc(stopFlightLogListener:reject:)
+  func stopFlightLogListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    self.folderMonitor.stopMonitoring()
+    resolve(nil)
+  }
   @objc(startNewMediaFileListener:reject:)
   func startNewMediaFileListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     NotificationCenter.default.addObserver(self, selector: #selector(newMediaFileUpdate), name: CameraEvent.didGenerateNewMediaFile.notification, object: nil)

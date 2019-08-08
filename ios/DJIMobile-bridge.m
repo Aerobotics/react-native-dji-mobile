@@ -60,6 +60,11 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  startFlightLogListener: (RCTPromiseResolveBlock)resolve
+                  reject:                 (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
                   startNewMediaFileListener: (RCTPromiseResolveBlock)resolve
                   reject:                    (RCTPromiseRejectBlock)reject
                   )
