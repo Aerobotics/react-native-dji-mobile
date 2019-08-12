@@ -1,6 +1,6 @@
 {
   "name": "react-native-dji-mobile",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "A React Native wrapper for DJI's Mobile SDK.",
   "main": "index.js",
   "scripts": {
