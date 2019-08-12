@@ -33,6 +33,7 @@ import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
 import dji.sdk.media.MediaFile;
+import dji.sdk.sdkmanager.DJISDKInitEvent;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 
@@ -102,6 +103,11 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent baseComponent, BaseComponent baseComponent1) {
         // TODO
+      }
+
+      @Override
+      public void onInitProcess(DJISDKInitEvent djisdkInitEvent, int i) {
+
       }
     });
   }
