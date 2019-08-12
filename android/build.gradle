@@ -40,6 +40,12 @@ allprojects {
 
 dependencies {
   implementation 'com.facebook.react:react-native:+'
-  implementation 'com.dji:dji-sdk:4.9'
-  compileOnly 'com.dji:dji-sdk-provided:4.9'
+  implementation ('com.dji:dji-sdk:4.10', {
+//             Uncomment the following line if your app does not need Anti Distortion for
+//             Mavic 2 Pro and Mavic 2 Zoom. It will greatly reducing the size of the APK:
+    exclude module: 'library-anti-distortion'
+//             Uncomment the following line if your APP does not need network RTK
+    exclude module: 'library-networkrtk-helper'
+  })
+  compileOnly 'com.dji:dji-sdk-provided:4.10'
 }
