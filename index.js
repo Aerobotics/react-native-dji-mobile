@@ -152,8 +152,8 @@ const DJIMobileWrapper = {
   getFileList: async () => {
     return await DJIMobile.getFileList();
   },
-  getLogPath: async () => {
-    return await DJIMobile.getLogPath();
+  getFlightLogPath: async () => {
+    return await DJIMobile.getFlightLogPath();
   },
   startFlightLogListener: async () => {
     await DJIMobile.startFlightLogListener();

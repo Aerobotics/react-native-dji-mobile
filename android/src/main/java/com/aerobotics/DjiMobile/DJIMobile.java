@@ -511,7 +511,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getLogPath(Promise promise) {
+    public void getFlightLogPath(Promise promise) {
        String path = DJISDKManager.getInstance().getLogPath();
        promise.resolve(path);
     }
