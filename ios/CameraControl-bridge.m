@@ -13,7 +13,7 @@
 @interface RCT_EXTERN_MODULE(CameraControlNative, NSObject)
 
 RCT_EXTERN_METHOD(
-                  setPhotoAspectRatio: (NSUInteger)photoAspectRatio
+                  setPhotoAspectRatio: (NSString)photoAspectRatio
                   resolve:             (RCTPromiseResolveBlock)resolve
                   reject:              (RCTPromiseRejectBlock)reject
                   )
@@ -25,28 +25,28 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
-                  setExposureMode: (NSUInteger)exposureModeIndex
+                  setExposureMode: (NSString)exposureMode
                   resolve:         (RCTPromiseResolveBlock)resolve
                   reject:          (RCTPromiseRejectBlock)reject
                   )
 
 RCT_EXTERN_METHOD(
-                  setVideoFileFormat: (NSUInteger)fileFormatIndex
+                  setVideoFileFormat: (NSString)videoFileFormat
                   resolve:            (RCTPromiseResolveBlock)resolve
                   reject:             (RCTPromiseRejectBlock)reject
                   )
 
 RCT_EXTERN_METHOD(
-                  setVideoFileCompressionStandard: (NSUInteger)compressionStandardIndex
+                  setVideoFileCompressionStandard: (NSString)videoFileCompressionStandard
                   resolve:                         (RCTPromiseResolveBlock)resolve
                   reject:                          (RCTPromiseRejectBlock)reject
                   )
 
 RCT_EXTERN_METHOD(
-                  setVideoResolutionAndFrameRate: (NSUInteger)resolution
-                  frameRate:                      (NSUInteger)frameRate
-                  resolve:                         (RCTPromiseResolveBlock)resolve
-                  reject:                          (RCTPromiseRejectBlock)reject
+                  setVideoResolutionAndFrameRate: (NSString)resolution
+                  frameRate:                      (NSString)frameRate
+                  resolve:                        (RCTPromiseResolveBlock)resolve
+                  reject:                         (RCTPromiseRejectBlock)reject
                   )
 
 @end
