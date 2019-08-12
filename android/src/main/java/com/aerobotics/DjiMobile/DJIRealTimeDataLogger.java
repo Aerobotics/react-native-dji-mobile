@@ -100,7 +100,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
         @Override
         public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
             if (newValue instanceof Float) {
-                writeStringToLogFile("velocity_x:" + newValue.toString());
+                writeStringToLogFile("velocity_n:" + newValue.toString());
             }
         }
     };
@@ -109,7 +109,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
         @Override
         public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
             if (newValue instanceof Float) {
-                writeStringToLogFile("velocity_y:" + newValue.toString());
+                writeStringToLogFile("velocity_e:" + newValue.toString());
             }
         }
     };
@@ -118,7 +118,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
         @Override
         public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
             if (newValue instanceof Float) {
-                writeStringToLogFile("velocity_z:" + newValue.toString());
+                writeStringToLogFile("velocity_d:" + newValue.toString());
             }
         }
     };
@@ -223,6 +223,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
     private void recordInitialValues() {
         this.recordModelName();
         this.recordInitialGimbalPosition();
+        this.recordInitialVelocities();
     }
 
     private void recordModelName() {
@@ -252,6 +253,48 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
                     writeStringToLogFile("gimbal_pitch:" + gimbalPitch);
                     writeStringToLogFile("gimbal_roll:" + gimbalRoll);
                     writeStringToLogFile("gimbal_yaw:" + gimbalYaw);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+
+            }
+        });
+    }
+
+    private void recordInitialVelocities() {
+        KeyManager.getInstance().getValue(velocityXKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object newValue) {
+                if (newValue instanceof Float) {
+                    writeStringToLogFile("velocity_n:" + newValue.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+
+            }
+        });
+        KeyManager.getInstance().getValue(velocityYKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object newValue) {
+                if (newValue instanceof Float) {
+                    writeStringToLogFile("velocity_e:" + newValue.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+
+            }
+        });
+        KeyManager.getInstance().getValue(velocityZKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object newValue) {
+                if (newValue instanceof Float) {
+                    writeStringToLogFile("velocity_d:" + newValue.toString());
                 }
             }
 
