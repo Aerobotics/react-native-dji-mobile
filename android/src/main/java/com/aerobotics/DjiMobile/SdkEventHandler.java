@@ -150,8 +150,7 @@ public class SdkEventHandler {
 
       @Override
       public void onFailure(@NonNull DJIError djiError) {
-        Log.d("REACT", djiError.getDescription());
-        // An initial value couldn't be gotten
+          // An initial value couldn't be gotten
       }
     });
   }
