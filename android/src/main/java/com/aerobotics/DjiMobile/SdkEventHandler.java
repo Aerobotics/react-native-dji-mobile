@@ -1,8 +1,10 @@
 package com.aerobotics.DjiMobile;
 
 
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Observable;
@@ -75,6 +77,7 @@ interface EventListener {
 public class SdkEventHandler {
 
   private CameraEventDelegate cameraEventDelegate = new CameraEventDelegate();
+  private Handler handler;
 
   private class EventInfo {
     String key;
@@ -133,15 +136,21 @@ public class SdkEventHandler {
    * This allows us to get the initial value for a DJI key when starting a listener, as sometimes the initial value is only sent through
    * when a new event occurs and calls the listener.
    */
-  private void getInitialDJIKeyValue(DJIKey key, final EventListener eventListener) {
+  private void getInitialDJIKeyValue(final DJIKey key, final EventListener eventListener) {
     KeyManager.getInstance().getValue((DJIKey)key, new GetCallback() {
       @Override
-      public void onSuccess(@NonNull Object value) {
-        eventListener.onValueChange(null, value);
+      public void onSuccess(@NonNull final Object value) {
+        handler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            eventListener.onValueChange(null, value);
+          }
+        }, 500);
       }
 
       @Override
       public void onFailure(@NonNull DJIError djiError) {
+        Log.d("REACT", djiError.getDescription());
         // An initial value couldn't be gotten
       }
     });
