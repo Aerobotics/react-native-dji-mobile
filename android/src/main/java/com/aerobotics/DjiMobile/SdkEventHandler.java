@@ -2,6 +2,7 @@ package com.aerobotics.DjiMobile;
 
 
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -82,6 +83,10 @@ public class SdkEventHandler {
   private class EventInfo {
     String key;
     EventType eventType;
+  }
+
+  public SdkEventHandler() {
+    handler = new Handler(Looper.getMainLooper());
   }
 
   public Object startEventListener(final SDKEvent sdkEvent, final EventListener eventListener) {
