@@ -126,6 +126,9 @@ const DJIMobileWrapper = {
   startUltrasonicHeightListener: startListener(DJIMobile.AircraftUltrasonicHeight),
   stopUltrasonicHeightListener: stopListener(DJIMobile.AircraftUltrasonicHeight),
 
+  startCameraIsRecordingListener: startListener(DJIMobile.CameraIsRecording),
+  stopCameraIsRecordingListener: stopListener(DJIMobile.CameraIsRecording),
+
   getAircraftLocation: async () => {
     return await DJIMobile.getAircraftLocation();
   },
@@ -167,7 +170,7 @@ const DJIMobileWrapper = {
   },
   setCollisionAvoidanceEnabled: async (enabled: boolean) => {
     return await DJIMobile.setCollisionAvoidanceEnabled(enabled)
-  }
+  },
 };
 
 export default DJIMobileWrapper;

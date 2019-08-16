@@ -11,6 +11,7 @@ import java.util.Observer;
 import dji.common.error.DJIError;
 import dji.keysdk.AirLinkKey;
 import dji.keysdk.BatteryKey;
+import dji.keysdk.CameraKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
 import dji.keysdk.KeyManager;
@@ -46,6 +47,8 @@ enum SDKEvent {
   AirLinkUplinkSignalQuality(AirLinkKey.createLightbridgeLinkKey(AirLinkKey.UPLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftHomeLocation(FlightControllerKey.create(FlightControllerKey.HOME_LOCATION), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftUltrasonicHeight(FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS), EventType.DJI_KEY_MANAGER_EVENT),
+
+  CameraIsRecording(CameraKey.create(CameraKey.IS_RECORDING), EventType.DJI_KEY_MANAGER_EVENT),
 
   CameraDidUpdateSystemState(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
   CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT);

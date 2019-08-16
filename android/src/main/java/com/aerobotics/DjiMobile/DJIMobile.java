@@ -193,6 +193,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startUltrasonicHeightListener();
           break;
 
+        case CameraIsRecording:
+          startIsRecordingListener();
+          break;
+
         default:
           promise.reject("Invalid Key", "Invalid Key");
           break;
@@ -417,6 +421,17 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         sendEvent(SDKEvent.AircraftUltrasonicHeight, newValue);
       }
           }
+    });
+  }
+
+  private void startIsRecordingListener() {
+    startEventListener(SDKEvent.CameraIsRecording, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.CameraIsRecording, newValue);
+        }
+      }
     });
   }
 
