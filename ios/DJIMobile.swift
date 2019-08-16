@@ -35,6 +35,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     
     case CameraDidUpdateSystemState
     case CameraDidGenerateNewMediaFile
+    case CameraIsRecording
     
     case DJIFlightLogEvent
   }
@@ -146,6 +147,9 @@ class DJIMobile: NSObject, RCTInvalidating {
       
     case .AircraftUltrasonicHeight:
       startAircraftUltrasonicHeightListener()
+      
+    case .CameraIsRecording:
+      startCameraIsRecordingListener()
       
     default:
       reject("Invalid Key", nil, nil)
@@ -268,6 +272,14 @@ class DJIMobile: NSObject, RCTInvalidating {
         EventSender.sendReactEvent(type: event.rawValue, value: ultrasonicHeight)
       }
     }
+  }
+  
+  func startCameraIsRecordingListener() {
+    let event = SdkEventName.CameraIsRecording
+    startKeyListener(event) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      if let isRecording = newValue?.booleanValue {
+        EventSender.sendReactEvent(type: event.rawValue, value: isRecording)
+      }
   }
   
   
