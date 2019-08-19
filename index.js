@@ -158,21 +158,34 @@ const DJIMobileWrapper = {
   getFileList: async () => {
     return await DJIMobile.getFileList();
   },
+
   getFlightLogPath: async () => {
     return await DJIMobile.getFlightLogPath();
   },
+
   startFlightLogListener: async () => {
     await DJIMobile.startFlightLogListener();
     return DJIEventSubject.pipe($filter((evt: FlightLogListenerEvent) => evt.type === 'DJIFlightLogEvent')).asObservable();
   },
+
   stopFlightLogListener: async () => {
     await DJIMobile.stopFlightLogListener();
   },
+
+  /**
+   * ANDROID ONLY
+   */
   getAircraftIsFlying: async () => {
     return await DJIMobile.getAircraftIsFlying();
   },
+
+
   setCollisionAvoidanceEnabled: async (enabled: boolean) => {
-    return await DJIMobile.setCollisionAvoidanceEnabled(enabled)
+    return await DJIMobile.setCollisionAvoidanceEnabled(enabled);
+  },
+
+  setVirtualStickAdvancedModeEnabled: async (enabled: boolean) => {
+    return await DJIMobile.setVirtualStickAdvancedModeEnabled(enabled);
   },
 };
 
