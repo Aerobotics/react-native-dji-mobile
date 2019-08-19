@@ -277,7 +277,7 @@ class DJIMobile: NSObject, RCTInvalidating {
   func startCameraIsRecordingListener() {
     let event = SdkEventName.CameraIsRecording
     startKeyListener(event) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
-      if let isRecording = newValue?.booleanValue {
+      if let isRecording = newValue?.boolValue {
         EventSender.sendReactEvent(type: event.rawValue, value: isRecording)
       }
     }
