@@ -270,4 +270,22 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             }
         });
     }
+
+    @ReactMethod
+    public void isSDCardInserted(final Promise promise) {
+        DJIKey sdCardIsInsertedKey = CameraKey.create(CameraKey.SDCARD_IS_INSERTED);
+        DJISDKManager.getInstance().getKeyManager().getValue(sdCardIsInsertedKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object value) {
+                if (value instanceof Boolean) {
+                    promise.resolve(value);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject("CameraControlNativeError", djiError.getDescription());
+            }
+        });
+    }
 }
