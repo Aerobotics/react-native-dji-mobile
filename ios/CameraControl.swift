@@ -100,7 +100,7 @@ class CameraControlNative: NSObject {
       "UNKNOWN": DJICameraVideoFrameRate.rateUnknown.rawValue,
     ],
     
-  ]
+    ]
   
   @objc(setPhotoAspectRatio:resolve:reject:)
   func setPhotoAspectRatio(photoAspectRatio: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
@@ -173,6 +173,17 @@ class CameraControlNative: NSObject {
         resolve("CameraControl: Set video resolution & framerate successfully")
       } else {
         reject("CameraControl: Set video resolution & framerate error", error?.localizedDescription, error)
+      }
+    })
+  }
+  
+  @objc(stopRecording:reject:)
+  func stopRecording(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.performAction(for: DJICameraKey(param: DJICameraParamStopRecordVideo)!, withArguments: nil, andCompletion: { (finished: Bool, response: DJIKeyedValue?, error: Error?) in
+      if (error == nil) {
+        resolve(nil)
+      } else {
+        reject("CameraControl: stop recording failed", nil, error)
       }
     })
   }
