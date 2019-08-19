@@ -33,9 +33,10 @@ class DJIMobile: NSObject, RCTInvalidating {
     case AircraftHomeLocation
     case AircraftUltrasonicHeight
     
+    case CameraIsRecording
+    
     case CameraDidUpdateSystemState
     case CameraDidGenerateNewMediaFile
-    case CameraIsRecording
     
     case DJIFlightLogEvent
   }
@@ -51,6 +52,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     .AirLinkUplinkSignalQuality: [DJIAirLinkParamUplinkSignalQuality, DJIAirLinkKey.self],
     .AircraftHomeLocation: [DJIFlightControllerParamHomeLocation, DJIFlightControllerKey.self],
     .AircraftUltrasonicHeight: [DJIFlightControllerParamUltrasonicHeightInMeters, DJIFlightControllerKey.self],
+    .CameraIsRecording: [DJICameraParamIsRecording, DJICameraKey.self],
   ]
   
   private var eventsBeingListenedTo: [SdkEventName] = []
@@ -406,7 +408,6 @@ class DJIMobile: NSObject, RCTInvalidating {
   }
   
   private func startKeyListener(_ eventName: SdkEventName, updateBlock: @escaping DJIKeyedListenerUpdateBlock) {
-    
     let validKeyInfo = implementedEvents[eventName]!
     let keyType = validKeyInfo[1] as! DJIKey.Type
     let keyParam = validKeyInfo[0] as! String
