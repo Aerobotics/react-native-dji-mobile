@@ -174,6 +174,9 @@ const DJIMobileWrapper = {
   setCollisionAvoidanceEnabled: async (enabled: boolean) => {
     return await DJIMobile.setCollisionAvoidanceEnabled(enabled)
   },
+  setVirtualStickAdvancedModeEnabled: async (enabled: boolean) => {
+    return await DJIMobile.setVirtualStickAdvancedModeEnabled(enabled);
+  }
 };
 
 export default DJIMobileWrapper;

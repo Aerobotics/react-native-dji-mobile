@@ -32,7 +32,9 @@ import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
+import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.media.MediaFile;
+import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKInitEvent;
 import dji.sdk.sdkmanager.DJISDKManager;
 
@@ -145,6 +147,19 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         promise.reject(new Throwable(djiError.getDescription()));
       }
     });
+  }
+
+  @ReactMethod
+  public void setVirtualStickAdvancedModeEnabled(Boolean enabled, Promise promise) {
+    BaseProduct baseProduct = DJISDKManager.getInstance().getProduct();
+    if (baseProduct instanceof Aircraft) {
+      Aircraft aircraft = (Aircraft) baseProduct;
+      FlightController flightController = aircraft.getFlightController();
+      flightController.setVirtualStickAdvancedModeEnabled(enabled);
+      promise.resolve(null);
+    } else {
+      promise.reject("Error: Failed to get flight controller instance");
+    }
   }
 
   @ReactMethod
