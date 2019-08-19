@@ -188,6 +188,19 @@ class CameraControlNative: NSObject {
     })
   }
   
+  @objc(isSDCardInserted:reject:)
+  func isSDCardInserted(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.getValueFor(DJICameraKey(param: DJICameraParamSDCardIsInserted)!, withCompletion: { (value: DJIKeyedValue?, error: Error?) in
+      if (error == nil) {
+        if let isCardInserted = value?.boolValue {
+          resolve(isCardInserted)
+          return
+        }
+      }
+      reject("CameraControl: isSDCardInserted failed", nil, error)
+    })
+  }
+  
   @objc static func requiresMainQueueSetup() -> Bool {
     return true
   }
