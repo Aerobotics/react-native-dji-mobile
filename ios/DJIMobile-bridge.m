@@ -65,6 +65,23 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  stopFlightLogListener: (RCTPromiseResolveBlock)resolve
+                  reject:                (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  setCollisionAvoidanceEnabled: (BOOL)enabled
+                  resolve:                      (RCTPromiseResolveBlock)resolve
+                  reject:                       (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  setVirtualStickAdvancedModeEnabled: (BOOL)enabled
+                  resolve:                            (RCTPromiseResolveBlock)resolve
+                  reject:                             (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
                   startNewMediaFileListener: (RCTPromiseResolveBlock)resolve
                   reject:                    (RCTPromiseRejectBlock)reject
                   )

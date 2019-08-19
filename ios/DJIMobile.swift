@@ -277,9 +277,10 @@ class DJIMobile: NSObject, RCTInvalidating {
   func startCameraIsRecordingListener() {
     let event = SdkEventName.CameraIsRecording
     startKeyListener(event) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
-      if let isRecording = newValue?.booleanValue {
+      if let isRecording = newValue?.boolValue {
         EventSender.sendReactEvent(type: event.rawValue, value: isRecording)
       }
+    }
   }
   
   
@@ -339,6 +340,29 @@ class DJIMobile: NSObject, RCTInvalidating {
     self.folderMonitor.stopMonitoring()
     resolve(nil)
   }
+  
+  @objc(setCollisionAvoidanceEnabled:resolve:reject:)
+  func setCollisionAvoidanceEnabled(enabled: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(enabled, for: DJIFlightControllerKey(param: DJIFlightAssistantParamCollisionAvoidanceEnabled)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        reject("Could not change collision avoidance state", nil, error)
+      } else {
+        resolve(nil)
+      }
+    })
+  }
+  
+  @objc(setVirtualStickAdvancedModeEnabled:resolve:reject:)
+  func setVirtualStickAdvancedModeEnabled(enabled: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(enabled, for: DJIFlightControllerKey(param: DJIFlightControllerParamVirtualStickAdvancedControlModeEnabled)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        reject("Could not change virtual stick advanced mode state", nil, error)
+      } else {
+        resolve(nil)
+      }
+    })
+  }
+  
   @objc(startNewMediaFileListener:reject:)
   func startNewMediaFileListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     NotificationCenter.default.addObserver(self, selector: #selector(newMediaFileUpdate), name: CameraEvent.didGenerateNewMediaFile.notification, object: nil)
@@ -449,9 +473,5 @@ class DJIMobile: NSObject, RCTInvalidating {
     
     return constants
   }
-  
-}
-
-class RealTimeDataRecorder: NSObject {
   
 }
