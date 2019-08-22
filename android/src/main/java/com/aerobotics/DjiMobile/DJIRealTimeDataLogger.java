@@ -40,6 +40,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
     private FlightControllerKey attitudeYawKey = FlightControllerKey.create(FlightControllerKey.ATTITUDE_YAW);
     private CameraKey isRecordingKey = CameraKey.create(CameraKey.IS_RECORDING);
     private FlightControllerKey ultrasonicKey = FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS);
+    private FlightControllerKey compassHeadingKey = FlightControllerKey.create(FlightControllerKey.COMPASS_HEADING)
 
     private KeyListener isRecordingListener = new KeyListener() {
         @Override
@@ -160,6 +161,16 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
         }
     };
 
+    private KeyListener compassHeadingListener = new KeyListener() {
+        @Override
+        public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+            if (newValue instanceof Float) {
+                Float compassHeading = (Float) newValue;
+                writeStringToLogFile("compass_heading:" + newValue.toString());
+            }
+        }
+    }
+
     private ReactApplicationContext reactApplicationContext;
     private File logFile;
     private boolean isLogging = false;
@@ -188,6 +199,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
         KeyManager.getInstance().addListener(attitudeYawKey, attitudeYawListener);
         KeyManager.getInstance().addListener(isRecordingKey, isRecordingListener);
         KeyManager.getInstance().addListener(ultrasonicKey, ultrasonicHeightListener);
+        KeyManager.getInstance().addListener(compassHeadingKey, compassHeadingListener);
     }
 
     private void tearDownKeyListeners() {
@@ -204,6 +216,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
             KeyManager.getInstance().removeListener(attitudeYawListener);
             KeyManager.getInstance().removeListener(isRecordingListener);
             KeyManager.getInstance().removeListener(ultrasonicHeightListener);
+            KeyManager.getInstance().removeListener(compassHeadingListener);
         }
     }
 
@@ -224,6 +237,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
         this.recordModelName();
         this.recordInitialGimbalPosition();
         this.recordInitialVelocities();
+        this.recordInitialCompassHeading();
     }
 
     private void recordModelName() {
@@ -295,6 +309,23 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
             public void onSuccess(@NonNull Object newValue) {
                 if (newValue instanceof Float) {
                     writeStringToLogFile("velocity_d:" + newValue.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+
+            }
+        });
+    }
+
+    private void recordInitialCompassHeading() {
+        KeyManager.getInstance().getValue(compassHeadingKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object value) {
+                if (value instanceof Float) {
+                    float compassHeading = (Float) value;
+                    writeStringToLogFile("compass_heading:" + compassHeading);
                 }
             }
 

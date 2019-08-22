@@ -155,14 +155,21 @@ class DJIRealTimeDataLogger: NSObject, RCTInvalidating {
       }
     }
     
-    keyManager.startListeningForChanges(on: DJIGimbalKey(param: DJIGimbalParamAttitudeInDegrees)!, withListener: self) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
-      if let value = newValue?.value as? NSValue {
-        var gimbalAttitude = DJIGimbalAttitude(pitch: 0, roll: 0, yaw: 0)
-        value.getValue(&gimbalAttitude)
+    // Get initial compass heading for same reason as gimbal attitude
+    keyManager.getValueFor(DJIFlightControllerKey(param: DJIFlightControllerParamCompassHeading)!) { (value: DJIKeyedValue?, error: Error?) in
+      if (error == nil) {
+        if let heading = value?.doubleValue {
+          self.writeDataToLogFile(fileName: fileName, data: [
+            "compass_heading": self.roundDecimalPlaces(number: heading, decimalPlaces: 2),
+            ])
+        }
+      }
+    }
+    
+    keyManager.startListeningForChanges(on: DJIFlightControllerKey(param: DJIFlightControllerParamCompassHeading)!, withListener: self) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      if let heading = newValue?.doubleValue {
         self.writeDataToLogFile(fileName: fileName, data: [
-          "gimbal_pitch": self.roundDecimalPlaces(number: Double(gimbalAttitude.pitch), decimalPlaces: 2),
-          "gimbal_roll": self.roundDecimalPlaces(number: Double(gimbalAttitude.roll), decimalPlaces: 2),
-          "gimbal_yaw": self.roundDecimalPlaces(number: Double(gimbalAttitude.yaw), decimalPlaces: 2),
+          "compass_heading": self.roundDecimalPlaces(number: heading, decimalPlaces: 2),
           ])
       }
     }
