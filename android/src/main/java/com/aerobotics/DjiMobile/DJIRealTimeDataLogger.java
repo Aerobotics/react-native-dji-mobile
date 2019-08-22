@@ -237,6 +237,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
         this.recordModelName();
         this.recordInitialGimbalPosition();
         this.recordInitialVelocities();
+        this.recordInitialCompassHeading();
     }
 
     private void recordModelName() {
@@ -308,6 +309,23 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
             public void onSuccess(@NonNull Object newValue) {
                 if (newValue instanceof Float) {
                     writeStringToLogFile("velocity_d:" + newValue.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+
+            }
+        });
+    }
+
+    private void recordInitialCompassHeading() {
+        KeyManager.getInstance().getValue(compassHeadingKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object value) {
+                if (value instanceof Float) {
+                    float compassHeading = (Float) value;
+                    writeStringToLogFile("compass_heading:" + compassHeading);
                 }
             }
 
