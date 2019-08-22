@@ -40,7 +40,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
     private FlightControllerKey attitudeYawKey = FlightControllerKey.create(FlightControllerKey.ATTITUDE_YAW);
     private CameraKey isRecordingKey = CameraKey.create(CameraKey.IS_RECORDING);
     private FlightControllerKey ultrasonicKey = FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS);
-    private FlightControllerKey compassHeadingKey = FlightControllerKey.create(FlightControllerKey.COMPASS_HEADING)
+    private FlightControllerKey compassHeadingKey = FlightControllerKey.create(FlightControllerKey.COMPASS_HEADING);
 
     private KeyListener isRecordingListener = new KeyListener() {
         @Override
@@ -169,7 +169,7 @@ public class DJIRealTimeDataLogger extends ReactContextBaseJavaModule {
                 writeStringToLogFile("compass_heading:" + newValue.toString());
             }
         }
-    }
+    };
 
     private ReactApplicationContext reactApplicationContext;
     private File logFile;
