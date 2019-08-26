@@ -157,7 +157,6 @@ public class DJIMedia extends ReactContextBaseJavaModule {
                         final String fileName = mediaFile.getFileName();
                         if (nameOfFileToDownload.equals(fileName)) {
                           mediaFile.fetchFileData(reactContext.getFilesDir(), null, downloadListener);
-//                          fileDownloadPromises.put(nameOfFileToDownload, promise);
                           fileDownloadPromise = promise;
                           return; // Do not reject with the file not found error
 //                          promise.resolve(null);
