@@ -133,7 +133,7 @@ public class DJIMedia extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void startFullResMediaFileDownload(final String nameOfFileToDownload, final Promise promise) {
+  public void startFullResMediaFileDownload(final String nameOfFileToDownload, @Nullable final String newFileName, final Promise promise) {
     final BaseProduct product = DJISDKManager.getInstance().getProduct();
     if (product instanceof Aircraft){
       camera = ((Aircraft) product).getCamera();
@@ -156,7 +156,7 @@ public class DJIMedia extends ReactContextBaseJavaModule {
                       for (MediaFile mediaFile: mediaFiles) {
                         final String fileName = mediaFile.getFileName();
                         if (nameOfFileToDownload.equals(fileName)) {
-                          mediaFile.fetchFileData(reactContext.getFilesDir(), null, downloadListener);
+                          mediaFile.fetchFileData(reactContext.getFilesDir(), newFileName, downloadListener);
 //                          fileDownloadPromises.put(nameOfFileToDownload, promise);
                           fileDownloadPromise = promise;
                           return; // Do not reject with the file not found error
