@@ -108,26 +108,7 @@ public class VirtualStickTimelineElement extends MissionAction {
   private ArrayList<KeyListener> runningKeyListeners = new ArrayList<KeyListener>();
 
   private TimerTask sendVirtualStickDataBlock;
-
-  private TimerTask endTriggerTimerBlock = new TimerTask() {
-    @Override
-    public void run() {
-
-      secondsUntilEndTrigger -= END_TRIGGER_TIMER_UPDATE_SECONDS;
-
-      if (secondsUntilEndTrigger <= 0) {
-        sendVirtualStickDataTimer.cancel();
-        endTriggerTimer.cancel();
-        cleanUp(new CompletionCallback() {
-          @Override
-          public void complete(@Nullable DJIError djiError) {
-            DJISDKManager.getInstance().getMissionControl().onFinishWithError(self, djiError);
-          }
-        });
-      }
-
-    }
-  };
+  private TimerTask endTriggerTimerBlock;
 
   public VirtualStickTimelineElement(ReadableMap parameters) {
 
@@ -368,6 +349,25 @@ public class VirtualStickTimelineElement extends MissionAction {
             if (endTrigger == EndTrigger.timer && timerEndTime != null) {
               endTriggerTimer = new Timer();
               // NB if the period
+              endTriggerTimerBlock = new TimerTask() {
+                @Override
+                public void run() {
+
+                  secondsUntilEndTrigger -= END_TRIGGER_TIMER_UPDATE_SECONDS;
+
+                  if (secondsUntilEndTrigger <= 0) {
+                    sendVirtualStickDataTimer.cancel();
+                    endTriggerTimer.cancel();
+                    cleanUp(new CompletionCallback() {
+                      @Override
+                      public void complete(@Nullable DJIError djiError) {
+                        DJISDKManager.getInstance().getMissionControl().onFinishWithError(self, djiError);
+                      }
+                    });
+                  }
+
+                }
+              };
               endTriggerTimer.scheduleAtFixedRate(endTriggerTimerBlock, 0, (long)(END_TRIGGER_TIMER_UPDATE_SECONDS * 1000));
             } else if (endTrigger == EndTrigger.ultrasonic && ultrasonicEndDistance != null) {
               isUltrasonicEnabled(new CompletionCallback() {
