@@ -22,7 +22,7 @@ public class RealTimeDataLoggerTimelineElement extends MissionAction {
 
         }
         try {
-            this.stopRecordingFlightData = parameters.getBoolean("stopLogging");
+            this.stopRecordingFlightData = parameters.getBoolean("stopRecordFlightData");
         } catch (Exception e) {
 
         }
