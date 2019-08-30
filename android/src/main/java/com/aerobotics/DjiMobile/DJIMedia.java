@@ -142,11 +142,12 @@ public class DJIMedia extends ReactContextBaseJavaModule {
 
     String newFileNameWithoutExtension = null;
     if (newFileName != null) {
-      newFileNameWithoutExtension = newFileName.split(".")[0];
+      newFileNameWithoutExtension = newFileName.split("\\.")[0];
     }
 
     if (camera != null) {
-      camera.setMode(SettingsDefinitions.CameraMode.MEDIA_DOWNLOAD, new CommonCallbacks.CompletionCallback() {
+        final String finalNewFileNameWithoutExtension = newFileNameWithoutExtension;
+        camera.setMode(SettingsDefinitions.CameraMode.MEDIA_DOWNLOAD, new CommonCallbacks.CompletionCallback() {
         @Override
         public void onResult(DJIError djiError) {
           if (djiError == null) {
@@ -162,7 +163,7 @@ public class DJIMedia extends ReactContextBaseJavaModule {
                       for (MediaFile mediaFile: mediaFiles) {
                         final String fileName = mediaFile.getFileName();
                         if (nameOfFileToDownload.equals(fileName)) {
-                          mediaFile.fetchFileData(reactContext.getFilesDir(), newFileNameWithoutExtension, downloadListener);
+                          mediaFile.fetchFileData(reactContext.getFilesDir(), finalNewFileNameWithoutExtension, downloadListener);
                           fileDownloadPromise = promise;
                           return; // Do not reject with the file not found error
                         }
