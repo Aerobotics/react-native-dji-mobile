@@ -86,12 +86,13 @@ public class CameraEventDelegate implements SystemState.Callback, MediaFile.Call
         public void run() {
             Camera camera = DJISDKManager.getInstance().getProduct().getCamera();
             Log.i("REACT", "SETTING CALLBACKS!");
-
-            // Add additional callbacks here as required
-            camera.setSystemStateCallback(cameraDelegateSenderInstance);
-            camera.setMediaFileCallback(cameraDelegateSenderInstance);
+            if (camera != null) {
+              // Add additional callbacks here as required
+              camera.setSystemStateCallback(cameraDelegateSenderInstance);
+              camera.setMediaFileCallback(cameraDelegateSenderInstance);
+            }
         }
-      }, 2000);
+      }, 3000);
 
     }
   }
