@@ -1,5 +1,6 @@
 package com.aerobotics.DjiMobile;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
@@ -133,10 +134,15 @@ public class DJIMedia extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void startFullResMediaFileDownload(final String nameOfFileToDownload, final Promise promise) {
+  public void startFullResMediaFileDownload(final String nameOfFileToDownload, @Nullable final String newFileName, final Promise promise) {
     final BaseProduct product = DJISDKManager.getInstance().getProduct();
     if (product instanceof Aircraft){
       camera = ((Aircraft) product).getCamera();
+    }
+
+    String newFileNameWithoutExtension = null;
+    if (newFileName != null) {
+      newFileNameWithoutExtension = newFileName.split(".")[0];
     }
 
     if (camera != null) {
@@ -156,10 +162,9 @@ public class DJIMedia extends ReactContextBaseJavaModule {
                       for (MediaFile mediaFile: mediaFiles) {
                         final String fileName = mediaFile.getFileName();
                         if (nameOfFileToDownload.equals(fileName)) {
-                          mediaFile.fetchFileData(reactContext.getFilesDir(), null, downloadListener);
+                          mediaFile.fetchFileData(reactContext.getFilesDir(), newFileNameWithoutExtension, downloadListener);
                           fileDownloadPromise = promise;
                           return; // Do not reject with the file not found error
-//                          promise.resolve(null);
                         }
                       }
                       promise.reject(new Throwable("Error: File not found"));

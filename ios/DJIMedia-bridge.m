@@ -13,6 +13,7 @@
 
 RCT_EXTERN_METHOD(
                   startFullResMediaFileDownload: (NSString)nameOfFileToDownload
+                  newFileName:                   (NSString)newFileName
                   resolve:                       (RCTPromiseResolveBlock)resolve
                   reject:                        (RCTPromiseRejectBlock)reject
                   )
