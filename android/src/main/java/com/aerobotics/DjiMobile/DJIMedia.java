@@ -1,5 +1,6 @@
 package com.aerobotics.DjiMobile;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
@@ -156,7 +157,8 @@ public class DJIMedia extends ReactContextBaseJavaModule {
                       for (MediaFile mediaFile: mediaFiles) {
                         final String fileName = mediaFile.getFileName();
                         if (nameOfFileToDownload.equals(fileName)) {
-                          mediaFile.fetchFileData(reactContext.getFilesDir(), newFileName, downloadListener);
+                          String fileNameWithoutExtension = nameOfFileToDownload.split(".")[0];
+                          mediaFile.fetchFileData(reactContext.getFilesDir(), fileNameWithoutExtension, downloadListener);
 //                          fileDownloadPromises.put(nameOfFileToDownload, promise);
                           fileDownloadPromise = promise;
                           return; // Do not reject with the file not found error
