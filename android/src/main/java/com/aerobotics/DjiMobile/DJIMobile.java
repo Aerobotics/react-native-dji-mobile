@@ -26,8 +26,10 @@ import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
 import dji.common.model.LocationCoordinate2D;
+import dji.keysdk.AirLinkKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
+import dji.keysdk.KeyManager;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
@@ -572,14 +574,43 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     }
 
     private void startAirlinkUplinkSignalQualityListener() {
-      startEventListener(SDKEvent.AirLinkUplinkSignalQuality, new EventListener() {
+      DJIKey isLightbridgeSupportedKey = AirLinkKey.create(AirLinkKey.IS_LIGHTBRIDGE_LINK_SUPPORTED);
+      KeyManager.getInstance().getValue(isLightbridgeSupportedKey, new GetCallback() {
         @Override
-        public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-          if (newValue != null && newValue instanceof Integer) {
-            sendEvent(SDKEvent.AirLinkUplinkSignalQuality, newValue);
-          }
+        public void onSuccess(@NonNull Object value) {
+            if (value instanceof Boolean) {
+                if ((Boolean) value) {
+                    startEventListener(SDKEvent.AirLinkLightbridgeUplinkSignalQuality, new EventListener() {
+                        @Override
+                        public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+                            if (newValue != null && newValue instanceof Integer) {
+                                sendEvent(SDKEvent.AirLinkUplinkSignalQuality, newValue);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(@NonNull DJIError djiError) {
+
         }
       });
+      if (product != null) {
+        Boolean isOcuSyncLinkSupported = product.getAirLink().isOcuSyncLinkSupported();
+        if (isOcuSyncLinkSupported) {
+          startEventListener(SDKEvent.AirLinkOcuSyncUplinkSignalQuality, new EventListener() {
+            @Override
+            public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+              if (newValue != null && newValue instanceof Integer) {
+                sendEvent(SDKEvent.AirLinkUplinkSignalQuality, newValue);
+              }
+            }
+          });
+        }
+      }
+
    }
 
   @Override
