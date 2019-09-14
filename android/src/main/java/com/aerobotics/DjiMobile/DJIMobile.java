@@ -597,8 +597,8 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
         }
       });
-      if (product != null) {
-        Boolean isOcuSyncLinkSupported = product.getAirLink().isOcuSyncLinkSupported();
+      if (product != null && product.getAirLink() != null) {
+        boolean isOcuSyncLinkSupported = product.getAirLink().isOcuSyncLinkSupported();
         if (isOcuSyncLinkSupported) {
           startEventListener(SDKEvent.AirLinkOcuSyncUplinkSignalQuality, new EventListener() {
             @Override
@@ -610,7 +610,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           });
         }
       }
-
    }
 
   @Override

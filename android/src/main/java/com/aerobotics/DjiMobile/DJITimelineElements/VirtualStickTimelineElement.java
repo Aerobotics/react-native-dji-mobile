@@ -330,19 +330,23 @@ public class VirtualStickTimelineElement extends MissionAction {
             sendVirtualStickDataBlock = new TimerTask() {
               @Override
               public void run() {
-                FlightController flightController = ((Aircraft)DJISDKManager.getInstance().getProduct()).getFlightController();
-                double pitch = baseVirtualStickControlValues.get(VirtualStickControl.pitch) + virtualStickAdjustmentValues.get(VirtualStickControl.pitch);
-                double roll = baseVirtualStickControlValues.get(VirtualStickControl.roll) + virtualStickAdjustmentValues.get(VirtualStickControl.roll);
-                double yaw = baseVirtualStickControlValues.get(VirtualStickControl.yaw) + virtualStickAdjustmentValues.get(VirtualStickControl.yaw);
-                double verticalThrottle = baseVirtualStickControlValues.get(VirtualStickControl.verticalThrottle) + virtualStickAdjustmentValues.get(VirtualStickControl.verticalThrottle);
+                try {
+                  FlightController flightController = ((Aircraft)DJISDKManager.getInstance().getProduct()).getFlightController();
+                  double pitch = baseVirtualStickControlValues.get(VirtualStickControl.pitch) + virtualStickAdjustmentValues.get(VirtualStickControl.pitch);
+                  double roll = baseVirtualStickControlValues.get(VirtualStickControl.roll) + virtualStickAdjustmentValues.get(VirtualStickControl.roll);
+                  double yaw = baseVirtualStickControlValues.get(VirtualStickControl.yaw) + virtualStickAdjustmentValues.get(VirtualStickControl.yaw);
+                  double verticalThrottle = baseVirtualStickControlValues.get(VirtualStickControl.verticalThrottle) + virtualStickAdjustmentValues.get(VirtualStickControl.verticalThrottle);
 
-                flightController.sendVirtualStickFlightControlData(new FlightControlData(
-                        // In the coordinate system we use for the drone, roll and pitch are swapped
-                        (float)roll,
-                        (float)pitch,
-                        (float)yaw,
-                        (float)verticalThrottle
-                ), null);
+                  flightController.sendVirtualStickFlightControlData(new FlightControlData(
+                          // In the coordinate system we use for the drone, roll and pitch are swapped
+                          (float)roll,
+                          (float)pitch,
+                          (float)yaw,
+                          (float)verticalThrottle
+                  ), null);
+                } catch (NullPointerException e) {
+                  Log.e("REACT", "sendVirtualStickDataBlock Error");
+                }
               }
             };
             sendVirtualStickDataTimer.scheduleAtFixedRate(sendVirtualStickDataBlock, 0, 50);
