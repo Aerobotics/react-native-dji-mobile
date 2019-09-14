@@ -40,7 +40,9 @@ public class DroneVideo extends RelativeLayout implements TextureView.SurfaceTex
 
   private void cleanUpVideoFeed() {
     VideoFeeder.getInstance().getPrimaryVideoFeed().destroy();
-    codecManager.destroyCodec();
+    if (codecManager != null) {
+      codecManager.destroyCodec();
+    }
   }
 
   @Override
