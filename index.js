@@ -179,7 +179,6 @@ const DJIMobileWrapper = {
     return await DJIMobile.getAircraftIsFlying();
   },
 
-
   setCollisionAvoidanceEnabled: async (enabled: boolean) => {
     return await DJIMobile.setCollisionAvoidanceEnabled(enabled);
   },
@@ -187,6 +186,14 @@ const DJIMobileWrapper = {
   setVirtualStickAdvancedModeEnabled: async (enabled: boolean) => {
     return await DJIMobile.setVirtualStickAdvancedModeEnabled(enabled);
   },
+
+  setVisionAssistedPositioningEnabled: async (enabled: boolean) => {
+    return await DJIMobile.setVisionAssistedPositioningEnabled(enabled);
+  },
+
+  setLandingProtectionEnabled: async (enabled: boolean) => {
+    return await DJIMobile.setLandingProtectionEnabled(enabled);
+  }
 };
 
 export default DJIMobileWrapper;

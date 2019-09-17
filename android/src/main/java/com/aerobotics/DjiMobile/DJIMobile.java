@@ -165,6 +165,46 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void setLandingProtectionEnabled(final Boolean enabled, final Promise promise) {
+    DJIKey setLandingProtectionEnabledKey = (DJIKey) SDKEvent.LandingProtectionEnabled.getKey();
+    DJISDKManager.getInstance().getKeyManager().setValue(setLandingProtectionEnabledKey, enabled, new SetCallback() {
+      @Override
+      public void onSuccess() {
+        if (enabled) {
+          promise.resolve("DJIMobile: Set landing protection enabled successfully");
+        } else {
+          promise.resolve("DJIMobile: Set landing protection disabled successfully");
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable(djiError.getDescription()));
+      }
+    });
+  }
+
+  @ReactMethod
+  public void setVisionAssistedPositioningEnabled(final Boolean enabled, final Promise promise) {
+    DJISDKManager.getInstance().getKeyManager().setValue((DJIKey) SDKEvent.VisionAssistedPositioningEnabled.getKey(), enabled, new SetCallback() {
+      @Override
+      public void onSuccess() {
+        if (enabled) {
+          promise.resolve("DJIMobile: Set vision assisted positioning enabled successfully");
+        } else {
+          promise.resolve("DJIMobile: Set vision assisted positioning disabled successfully");
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable(djiError.getDescription()));
+      }
+    });
+  }
+
+
+  @ReactMethod
   public void startEventListener(String eventName, Promise promise) {
     try {
       SDKEvent validEvent = SDKEvent.valueOf(eventName);
