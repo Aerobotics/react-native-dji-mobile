@@ -82,7 +82,6 @@ public class VirtualStickTimelineElement extends MissionAction {
   private Double timerEndTime;
 
   private Float ultrasonicEndDistance;
-  private boolean isUltrasonicEnabled = false;
 
   private boolean doNotStopVirtualStickOnEnd = false;
   private boolean waitForControlSticksReleaseOnEnd = false;
@@ -263,13 +262,11 @@ public class VirtualStickTimelineElement extends MissionAction {
     DJISDKManager.getInstance().getKeyManager().getValue(isUltrasonicBeingUsedKey, new GetCallback() {
       @Override
       public void onSuccess(@NonNull Object o) {
-        isUltrasonicEnabled = true;
         completionCallback.complete(null);
       }
 
       @Override
       public void onFailure(@NonNull DJIError djiError) {
-        isUltrasonicEnabled = false;
         completionCallback.complete(djiError);
 
       }
@@ -377,8 +374,16 @@ public class VirtualStickTimelineElement extends MissionAction {
                             isUltrasonicEnabled(new CompletionCallback() {
                                 @Override
                                 public void complete(@Nullable DJIError djiError) {
-                                    if (djiError == null && isUltrasonicEnabled) {
+                                    if (djiError == null) {
                                         stopAtUltrasonicHeight();
+                                    } else {
+                                        sendVirtualStickDataTimer.cancel();
+                                        cleanUp(new CompletionCallback() {
+                                            @Override
+                                            public void complete(@Nullable DJIError djiError) {
+                                                DJISDKManager.getInstance().getMissionControl().onProgressWithError(self, djiError);
+                                            }
+                                        });
                                     }
                                 }
                             });
