@@ -193,7 +193,7 @@ const DJIMobileWrapper = {
 
   setLandingProtectionEnabled: async (enabled: boolean) => {
     return await DJIMobile.setLandingProtectionEnabled(enabled);
-  }
+  },
 };
 
 export default DJIMobileWrapper;
