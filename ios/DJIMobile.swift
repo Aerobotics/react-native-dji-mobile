@@ -365,6 +365,28 @@ class DJIMobile: NSObject, RCTInvalidating {
     })
   }
   
+  @objc(setLandingProtectionEnabled:resolve:reject:)
+  func setLandingProtectionEnabled(enabled: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(enabled, for: DJIFlightControllerKey(param: DJIFlightAssistantParamLandingProtectionEnabled)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        reject("Could not change landing protection state", nil, error)
+      } else {
+        resolve(nil)
+      }
+    })
+  }
+  
+  @objc(setVisionAssistedPositioningEnabled:resolve:reject:)
+  func setVisionAssistedPositioningEnabled(enabled: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(enabled, for: DJIFlightControllerKey(param: DJIFlightControllerParamVisionAssistedPositioningEnabled)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        reject("Could not change vision assisted positioning state", nil, error)
+      } else {
+        resolve(nil)
+      }
+    })
+  }
+  
   @objc(startNewMediaFileListener:reject:)
   func startNewMediaFileListener(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     NotificationCenter.default.addObserver(self, selector: #selector(newMediaFileUpdate), name: CameraEvent.didGenerateNewMediaFile.notification, object: nil)
