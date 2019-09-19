@@ -26,7 +26,7 @@ public class EventSender {
     };
     EventSender(ReactContext reactContext) {
         this.reactContext = reactContext;
-        if (eventSendLimiterTimer != null) {
+        if (eventSendLimiterTimer == null) {
             eventSendLimiterTimer = new Timer();
             eventSendLimiterTimer.scheduleAtFixedRate(this.eventSendLimiterTimerTask, 0, this.eventSendFrequencyMilliSecs);
         }
