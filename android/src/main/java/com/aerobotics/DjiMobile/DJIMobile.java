@@ -54,11 +54,13 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   private DJIRealTimeDataLogger djiRealTimeDataLogger;
   private Handler handler;
   private FileObserver flightLogObserver;
+  private EventSender eventSender;
 
   public DJIMobile(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
     this.handler = new Handler(Looper.getMainLooper());
+    this.eventSender = new EventSender(reactContext);
   }
 
   @ReactMethod
@@ -538,11 +540,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   private void sendEvent(SDKEvent SDKEvent, Object value) {
-    WritableMap params = buildEventParams(value);
-    params.putString("type", SDKEvent.toString());
-    reactContext
-      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-      .emit("DJIEvent", params);
+    this.eventSender.processEvent(SDKEvent, value, false);
   }
 
   private void sendEvent(String eventName, Object value) {
@@ -650,6 +648,13 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           });
         }
       }
+   }
+
+   @ReactMethod
+   public void limitEventFrequency(double newEventSendFrequencyInHz, Promise promise) {
+    int milliSecs = (int) Math.round((1/newEventSendFrequencyInHz) * 1000);
+    this.eventSender.setNewEventSendFrequency(milliSecs);
+    promise.resolve(null);
    }
 
   @Override
