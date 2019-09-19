@@ -82,6 +82,18 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  setLandingProtectionEnabled: (BOOL)enabled
+                  resolve:                     (RCTPromiseResolveBlock)resolve
+                  reject:                      (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  setVisionAssistedPositioningEnabled: (BOOL)enabled
+                  resolve:                             (RCTPromiseResolveBlock)resolve
+                  reject:                              (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
                   startNewMediaFileListener: (RCTPromiseResolveBlock)resolve
                   reject:                    (RCTPromiseRejectBlock)reject
                   )
