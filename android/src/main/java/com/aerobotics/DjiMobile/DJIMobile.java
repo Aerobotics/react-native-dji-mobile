@@ -509,6 +509,28 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     });
   }
 
+  private void startSDCardIsInsertedListener() {
+    startEventListener(SDKEvent.SDCardIsInserted, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.SDCardIsInserted, newValue);
+        }
+      }
+    });
+  }
+
+  private void startSDCardIsReadOnlyListener() {
+    startEventListener(SDKEvent.SDCardIsReadOnly, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.SDCardIsReadOnly, newValue);
+        }
+      }
+    });
+  }
+
   @ReactMethod
   public void stopEventListener(String eventName, Promise promise) {
     if (eventName.equals(SDKEvent.AircraftVelocity)) {

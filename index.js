@@ -132,6 +132,12 @@ const DJIMobileWrapper = {
   startCameraIsRecordingListener: startListener(DJIMobile.CameraIsRecording),
   stopCameraIsRecordingListener: stopListener(DJIMobile.CameraIsRecording),
 
+  startSDCardIsInsertedListener: startListener(DJIMobile.SDCardIsInserted),
+  stopSDCardIsInsertedListener: stopListener(DJIMobile.SDCardIsInserted),
+
+  startSDCardIsReadOnlyListener: startListener(DJIMobile.SDCardIsReadOnly),
+  stopSDCardIsReadOnlyListener: stopListener(DJIMobile.SDCardIsReadOnly),
+
   getAircraftLocation: async () => {
     return await DJIMobile.getAircraftLocation();
   },

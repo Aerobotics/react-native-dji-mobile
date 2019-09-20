@@ -35,6 +35,8 @@ class DJIMobile: NSObject, RCTInvalidating {
     case CompassHasError
 
     case CameraIsRecording
+    case SDCardIsInserted
+    case SDCardIsReadOnly
 
     case CameraDidUpdateSystemState
     case CameraDidGenerateNewMediaFile
@@ -55,6 +57,8 @@ class DJIMobile: NSObject, RCTInvalidating {
     .AircraftUltrasonicHeight: [DJIFlightControllerParamUltrasonicHeightInMeters, DJIFlightControllerKey.self],
     .CompassHasError: [DJIFlightControllerParamCompassHasError, DJIFlightControllerKey.self],
     .CameraIsRecording: [DJICameraParamIsRecording, DJICameraKey.self],
+    .SDCardIsInserted: [DJICameraParamSDCardIsInserted, DJICameraKey.self],
+    .SDCardIsReadOnly: [DJICameraParamSDCardIsReadOnly, DJICameraKey.self],
   ]
 
   private var eventsBeingListenedTo: [SdkEventName] = []
@@ -157,6 +161,12 @@ class DJIMobile: NSObject, RCTInvalidating {
 
     case .CameraIsRecording:
       startCameraIsRecordingListener()
+
+    case .SDCardIsInserted:
+      startSDCardIsInsertedListener()
+
+    case .SDCardIsReadOnly:
+      startSDCardIsReadOnlyListener()
 
     default:
       reject("Invalid Key", nil, nil)
@@ -299,6 +309,23 @@ class DJIMobile: NSObject, RCTInvalidating {
     }
   }
 
+  func startSDCardIsInsertedListener() {
+    let event = SdkEventName.SDCardIsInserted
+    startKeyListener(event) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      if let isInserted = newValue?.boolValue {
+        EventSender.sendReactEvent(type: event.rawValue, value: isInserted)
+      }
+    }
+  }
+
+  func startSDCardIsReadOnlyListener() {
+    let event = SdkEventName.SDCardIsReadOnly
+    startKeyListener(event) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      if let isReadOnly = newValue?.boolValue {
+        EventSender.sendReactEvent(type: event.rawValue, value: isReadOnly)
+      }
+    }
+  }
 
   @objc(getAircraftLocation:reject:)
   func getAircraftLocation(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
