@@ -126,6 +126,9 @@ const DJIMobileWrapper = {
   startUltrasonicHeightListener: startListener(DJIMobile.AircraftUltrasonicHeight),
   stopUltrasonicHeightListener: stopListener(DJIMobile.AircraftUltrasonicHeight),
 
+  startCompassHasErrorListener: startListener(DJIMobile.CompassHasError),
+  stopCompassHasErrorListener: stopListener(DJIMobile.CompassHasError),
+
   startCameraIsRecordingListener: startListener(DJIMobile.CameraIsRecording),
   stopCameraIsRecordingListener: stopListener(DJIMobile.CameraIsRecording),
 

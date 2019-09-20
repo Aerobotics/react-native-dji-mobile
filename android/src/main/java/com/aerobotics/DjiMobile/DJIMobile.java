@@ -252,6 +252,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startUltrasonicHeightListener();
           break;
 
+        case CompassHasError:
+          startCompassHasErrorListener();
+          break;
+
         case CameraIsRecording:
           startIsRecordingListener();
           break;
@@ -480,6 +484,17 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         sendEvent(SDKEvent.AircraftUltrasonicHeight, newValue);
       }
           }
+    });
+  }
+
+  private void startCompassHasErrorListener() {
+    startEventListener(SDKEvent.CompassHasError, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.CompassHasError, newValue);
+        }
+      }
     });
   }
 
