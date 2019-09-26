@@ -1,0 +1,48 @@
+{
+  "name": "react-native-dji-mobile",
+  "title": "React Native DJI Mobile",
+  "version": "0.3.14",
+  "description": "A React Native wrapper for DJI's Mobile SDK.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node ./scripts/make.js"
+  },
+  "keywords": [
+    "react-native",
+    "dji-mobile",
+    "dji"
+  ],
+  "author": {
+    "name": "Aerobotics",
+    "email": "adam@aerobotics.com"
+  },
+  "license": "MIT",
+  "licenseFilename": "LICENSE",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "rxjs": "^6.5.3"
+  },
+  "peerDependencies": {
+    "react": "^16.8.1",
+    "react-native": ">=0.59.0-rc.0 <1.0.x"
+  },
+  "devDependencies": {
+    "chokidar": "^3.1.1",
+    "react": "^16.8.3",
+    "react-native": "^0.59.10"
+  },
+  "directories": {
+    "doc": "docs",
+    "example": "example",
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aerobotics/react-native-dji-mobile.git",
+    "baseUrl": "https://github.com/Aerobotics/react-native-dji-mobile"
+  },
+  "bugs": {
+    "url": "https://github.com/Aerobotics/react-native-dji-mobile/issues"
+  },
+  "homepage": "https://github.com/Aerobotics/react-native-dji-mobile#readme"
+}
