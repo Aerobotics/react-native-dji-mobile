@@ -1,3 +1,0 @@
-[Documentation](./Docs.md)
-
-# Running
