@@ -96,10 +96,8 @@ const DJIMobileWrapper = {
 
   // TODO: (Adam) What should happen if these functions are called and the SDK is not registered?
 
-  // startProductConnectionListener: startListener(DJIMobile.ProductConnection),
-  // stopProductConnectionListener: stopListener(DJIMobile.ProductConnection),
-  startProductConnectionListener: console.log(DJIMobile),
-  stopProductConnectionListener: console.log(NativeModules),
+  startProductConnectionListener: startListener(DJIMobile.ProductConnection),
+  stopProductConnectionListener: stopListener(DJIMobile.ProductConnection),
 
   startBatteryPercentChargeRemainingListener: startListener(DJIMobile.BatteryChargeRemaining),
   stopBatteryPercentChargeRemainingListener: stopListener(DJIMobile.BatteryChargeRemaining),
