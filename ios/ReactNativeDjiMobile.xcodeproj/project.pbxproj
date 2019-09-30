@@ -91,6 +91,7 @@
 				66A1B1AA233E4A2A001A9884 /* DroneVideoView */,
 				6601F96C233E400300A667D8 /* ReactNativeDJIMobile */,
 				6601F966233E3C4E00A667D8 /* DJITimelineElements */,
+				6601F944233E3B6700A667D8 /* ReactNativeDjiMobile-Bridging-Header.h */,
 				6601F959233E3C2000A667D8 /* EventSender-bridge.m */,
 				6601F958233E3C1F00A667D8 /* EventSender.swift */,
 				6601F957233E3C1F00A667D8 /* FolderMonitor.swift */,
@@ -104,7 +105,6 @@
 				6601F94E233E3C1000A667D8 /* DJIMobile-bridge.m */,
 				6601F945233E3B6700A667D8 /* DJIMobile.swift */,
 				134814211AA4EA7D00B7C361 /* Products */,
-				6601F944233E3B6700A667D8 /* ReactNativeDjiMobile-Bridging-Header.h */,
 			);
 			sourceTree = "<group>";
 		};
