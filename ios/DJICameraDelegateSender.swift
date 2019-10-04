@@ -34,13 +34,12 @@ class DJICameraDelegateSender: NSObject, DJICameraDelegate {
     super.init()
     
     let cameraConnectedKey = DJICameraKey(param: DJIParamConnection)!
-    
+        
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
       // First check if the camera is already connected
       DJISDKManager.keyManager()?.getValueFor(cameraConnectedKey, withCompletion: { (value: DJIKeyedValue?, error: Error?) in
         if (error != nil) {
-          print("Camera Delegate Error:")
-          print(error!.localizedDescription)
+          NSLog("Camera delegate error: %@", error?.localizedDescription ?? "No error" )
         }
         if let isCameraConnected = value?.boolValue {
           if (isCameraConnected) {
@@ -56,10 +55,13 @@ class DJICameraDelegateSender: NSObject, DJICameraDelegate {
       DJISDKManager.keyManager()?.startListeningForChanges(on: cameraConnectedKey, withListener: self) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
         if let connected = newValue?.boolValue {
           if (connected == true) {
-            guard let camera = DJISDKManager.product()?.camera else {
-              return
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+              guard let camera = DJISDKManager.product()?.camera else {
+                NSLog("Camera connected but cannot access!")
+                return
+              }
+              camera.delegate = self
             }
-            camera.delegate = self
           }
         }
       }

@@ -6,10 +6,10 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class EventSender {
@@ -17,7 +17,7 @@ public class EventSender {
     private int eventSendFrequencyMilliSecs = 500;
     private Timer eventSendLimiterTimer;
     private ReactContext reactContext;
-    private HashMap<String, Object> queuedEvents = new HashMap<>();
+    private ConcurrentHashMap<String, Object> queuedEvents = new ConcurrentHashMap<>();
     private TimerTask eventSendLimiterTimerTask = new TimerTask() {
         @Override
         public void run() {
@@ -26,14 +26,14 @@ public class EventSender {
     };
     EventSender(ReactContext reactContext) {
         this.reactContext = reactContext;
-        if (eventSendLimiterTimer != null) {
+        if (eventSendLimiterTimer == null) {
             eventSendLimiterTimer = new Timer();
             eventSendLimiterTimer.scheduleAtFixedRate(this.eventSendLimiterTimerTask, 0, this.eventSendFrequencyMilliSecs);
         }
     }
 
     private void sendQueuedEvents() {
-        HashMap<String, Object> queuedEventsSnapshot = (HashMap<String, Object>) this.queuedEvents.clone();
+        ConcurrentHashMap<String, Object> queuedEventsSnapshot = new ConcurrentHashMap<>(this.queuedEvents);
         this.queuedEvents.clear();
         if (!queuedEventsSnapshot.isEmpty()) {
             for (Map.Entry<String, Object> entry: queuedEventsSnapshot.entrySet()) {
