@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.aerobotics.DjiMobile.DroneVideo.DroneVideoManager;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
@@ -30,6 +31,8 @@ public class DJIMobilePackage implements ReactPackage {
 
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-        return Collections.emptyList();
+        return Arrays.<ViewManager>asList(
+          new DroneVideoManager()
+        );
     }
 }
