@@ -11,7 +11,7 @@ import DJISDK
 
 @objc(CameraControlNative)
 class CameraControlNative: NSObject {
-  
+
   private var cameraParameters = [
     "AspectRatios": [
       "RATIO_4_3": DJICameraPhotoAspectRatio.ratio4_3.rawValue,
@@ -19,7 +19,7 @@ class CameraControlNative: NSObject {
       "RATIO_3_2":  DJICameraPhotoAspectRatio.ratio3_2.rawValue,
       "UNKNOWN":  DJICameraPhotoAspectRatio.ratioUnknown.rawValue,
     ],
-    
+
     "WhiteBalancePresets": [
       "AUTO": DJICameraWhiteBalancePreset.auto.rawValue,
       "SUNNY": DJICameraWhiteBalancePreset.sunny.rawValue,
@@ -31,7 +31,7 @@ class CameraControlNative: NSObject {
       "UNKNOWN": DJICameraWhiteBalancePreset.unknown.rawValue,
       "PRESET_NEUTRAL": DJICameraWhiteBalancePreset.neutral.rawValue,
     ],
-    
+
     "ExposureModes": [
       "PROGRAM": DJICameraExposureMode.program.rawValue,
       "SHUTTER_PRIORITY": DJICameraExposureMode.shutterPriority.rawValue,
@@ -39,7 +39,7 @@ class CameraControlNative: NSObject {
       "MANUAL": DJICameraExposureMode.manual.rawValue,
       "UNKNOWN": DJICameraExposureMode.unknown.rawValue,
     ],
-    
+
     "VideoFileFormats": [
       "MOV": DJICameraVideoFileFormat.MOV.rawValue,
       "MP4": DJICameraVideoFileFormat.MP4.rawValue,
@@ -47,13 +47,13 @@ class CameraControlNative: NSObject {
       "SEQ": DJICameraVideoFileFormat.SEQ.rawValue,
       "UNKNOWN": DJICameraVideoFileFormat.unknown.rawValue,
     ],
-    
+
     "VideoFileCompressionStandards": [
       "H264": DJIVideoFileCompressionStandard.H264.rawValue,
       "H265": DJIVideoFileCompressionStandard.H265.rawValue,
       "Unknown": DJIVideoFileCompressionStandard.unknown.rawValue,
     ],
-    
+
     "VideoResolutions": [
       "RESOLUTION_336x256": DJICameraVideoResolution.resolution336x256.rawValue,
       "RESOLUTION_640x360": DJICameraVideoResolution.resolution640x360.rawValue,
@@ -80,7 +80,7 @@ class CameraControlNative: NSObject {
       "RESOLUTION_5280x2927": DJICameraVideoResolution.resolution5280x2972.rawValue,
       "UNKNOWN": DJICameraVideoResolution.resolutionUnknown.rawValue,
     ],
-    
+
     "VideoFrameRates": [
       "FRAME_RATE_23_DOT_976_FPS": DJICameraVideoFrameRate.rate23dot976FPS.rawValue,
       "FRAME_RATE_24_FPS": DJICameraVideoFrameRate.rate24FPS.rawValue,
@@ -99,9 +99,94 @@ class CameraControlNative: NSObject {
       "FRAME_RATE_8_DOT_7_FPS": DJICameraVideoFrameRate.rate8dot7FPS.rawValue,
       "UNKNOWN": DJICameraVideoFrameRate.rateUnknown.rawValue,
     ],
-    
+
+    "ISOs": [
+      "AUTO": DJICameraISO.isoAuto,
+      "ISO_100": DJICameraISO.ISO100,
+      "ISO_200": DJICameraISO.ISO200,
+      "ISO_400": DJICameraISO.ISO400,
+      "ISO_800": DJICameraISO.ISO800,
+      "ISO_1600": DJICameraISO.ISO1600,
+      "ISO_3200": DJICameraISO.ISO3200,
+      "ISO_6400": DJICameraISO.ISO6400,
+      "ISO_12800": DJICameraISO.ISO12800,
+      "ISO_25600": DJICameraISO.ISO25600,
+      "FIXED": DJICameraISO.isoFixed,
+      "UNKNOWN": DJICameraISO.isoUnknown,
+    ],
+
+    "ShutterSpeeds": [
+      "SHUTTER_SPEED_1_8000": DJICameraShutterSpeed.speed1_8000,
+      "SHUTTER_SPEED_1_6400": DJICameraShutterSpeed.speed1_6400,
+      "SHUTTER_SPEED_1_6000": DJICameraShutterSpeed.speed1_6000,
+      "SHUTTER_SPEED_1_5000": DJICameraShutterSpeed.speed1_5000,
+      "SHUTTER_SPEED_1_4000": DJICameraShutterSpeed.speed1_4000,
+      "SHUTTER_SPEED_1_3200": DJICameraShutterSpeed.speed1_3200,
+      "SHUTTER_SPEED_1_3000": DJICameraShutterSpeed.speed1_3000,
+      "SHUTTER_SPEED_1_2500": DJICameraShutterSpeed.speed1_2500,
+      "SHUTTER_SPEED_1_2000": DJICameraShutterSpeed.speed1_2000,
+      "SHUTTER_SPEED_1_1600": DJICameraShutterSpeed.speed1_1600,
+      "SHUTTER_SPEED_1_1250": DJICameraShutterSpeed.speed1_1250,
+      "SHUTTER_SPEED_1_1000": DJICameraShutterSpeed.speed1_1000,
+      "SHUTTER_SPEED_1_800": DJICameraShutterSpeed.speed1_800,
+      "SHUTTER_SPEED_1_725": DJICameraShutterSpeed.speed1_725,
+      "SHUTTER_SPEED_1_640": DJICameraShutterSpeed.speed1_640,
+      "SHUTTER_SPEED_1_500": DJICameraShutterSpeed.speed1_500,
+      "SHUTTER_SPEED_1_400": DJICameraShutterSpeed.speed1_400,
+      "SHUTTER_SPEED_1_350": DJICameraShutterSpeed.speed1_350,
+      "SHUTTER_SPEED_1_320": DJICameraShutterSpeed.speed1_320,
+      "SHUTTER_SPEED_1_250": DJICameraShutterSpeed.speed1_250,
+      "SHUTTER_SPEED_1_240": DJICameraShutterSpeed.speed1_240,
+      "SHUTTER_SPEED_1_200": DJICameraShutterSpeed.speed1_200,
+      "SHUTTER_SPEED_1_180": DJICameraShutterSpeed.speed1_180,
+      "SHUTTER_SPEED_1_160": DJICameraShutterSpeed.speed1_160,
+      "SHUTTER_SPEED_1_125": DJICameraShutterSpeed.speed1_125,
+      "SHUTTER_SPEED_1_120": DJICameraShutterSpeed.speed1_120,
+      "SHUTTER_SPEED_1_100": DJICameraShutterSpeed.speed1_100,
+      "SHUTTER_SPEED_1_90": DJICameraShutterSpeed.speed1_90,
+      "SHUTTER_SPEED_1_80": DJICameraShutterSpeed.speed1_80,
+      "SHUTTER_SPEED_1_60": DJICameraShutterSpeed.speed1_60,
+      "SHUTTER_SPEED_1_50": DJICameraShutterSpeed.speed1_50,
+      "SHUTTER_SPEED_1_40": DJICameraShutterSpeed.speed1_40,
+      "SHUTTER_SPEED_1_30": DJICameraShutterSpeed.speed1_30,
+      "SHUTTER_SPEED_1_25": DJICameraShutterSpeed.speed1_25,
+      "SHUTTER_SPEED_1_20": DJICameraShutterSpeed.speed1_20,
+      "SHUTTER_SPEED_1_15": DJICameraShutterSpeed.speed1_15,
+      "SHUTTER_SPEED_1_12_DOT_5": DJICameraShutterSpeed.speed1_12Dot5,
+      "SHUTTER_SPEED_1_10": DJICameraShutterSpeed.speed1_10,
+      "SHUTTER_SPEED_1_8": DJICameraShutterSpeed.speed1_8,
+      "SHUTTER_SPEED_1_6_DOT_25": DJICameraShutterSpeed.speed1_6Dot25,
+      "SHUTTER_SPEED_1_5": DJICameraShutterSpeed.speed1_5,
+      "SHUTTER_SPEED_1_4": DJICameraShutterSpeed.speed1_4,
+      "SHUTTER_SPEED_1_3": DJICameraShutterSpeed.speed1_3,
+      "SHUTTER_SPEED_1_2_DOT_5": DJICameraShutterSpeed.speed1_2Dot5,
+      "SHUTTER_SPEED_1_2": DJICameraShutterSpeed.speed1_2,
+      "SHUTTER_SPEED_1_1_DOT_67": DJICameraShutterSpeed.speed1_1Dot67,
+      "SHUTTER_SPEED_1_1_DOT_25": DJICameraShutterSpeed.speed1_1Dot25,
+      "SHUTTER_SPEED_1": DJICameraShutterSpeed.speed1,
+      "SHUTTER_SPEED_1_DOT_3": DJICameraShutterSpeed.speed1Dot3,
+      "SHUTTER_SPEED_1_DOT_6": DJICameraShutterSpeed.speed1Dot6,
+      "SHUTTER_SPEED_2": DJICameraShutterSpeed.speed2,
+      "SHUTTER_SPEED_2_DOT_5": DJICameraShutterSpeed.speed2Dot5,
+      "SHUTTER_SPEED_3": DJICameraShutterSpeed.speed3,
+      "SHUTTER_SPEED_3_DOT_2": DJICameraShutterSpeed.speed3Dot2,
+      "SHUTTER_SPEED_4": DJICameraShutterSpeed.speed4,
+      "SHUTTER_SPEED_5": DJICameraShutterSpeed.speed5,
+      "SHUTTER_SPEED_6": DJICameraShutterSpeed.speed6,
+      "SHUTTER_SPEED_7": DJICameraShutterSpeed.speed7,
+      "SHUTTER_SPEED_8": DJICameraShutterSpeed.speed8,
+      "SHUTTER_SPEED_9": DJICameraShutterSpeed.speed9,
+      "SHUTTER_SPEED_10": DJICameraShutterSpeed.speed10,
+      "SHUTTER_SPEED_13": DJICameraShutterSpeed.speed13,
+      "SHUTTER_SPEED_15": DJICameraShutterSpeed.speed15,
+      "SHUTTER_SPEED_20": DJICameraShutterSpeed.speed20,
+      "SHUTTER_SPEED_25": DJICameraShutterSpeed.speed25,
+      "SHUTTER_SPEED_30": DJICameraShutterSpeed.speed30,
+      "UNKNOWN": DJICameraShutterSpeed.speedUnknown,
+    ],
+
     ]
-  
+
   @objc(setPhotoAspectRatio:resolve:reject:)
   func setPhotoAspectRatio(photoAspectRatio: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.setValue(cameraParameters["AspectRatios"]![photoAspectRatio]!, for: DJICameraKey(param: DJICameraParamPhotoAspectRatio)!, withCompletion: { (error: Error?) in
@@ -112,7 +197,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setWhiteBalance:resolve:reject:)
   func setWhiteBalance(parameters: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     var whiteBalance: DJICameraWhiteBalance?
@@ -122,7 +207,7 @@ class CameraControlNative: NSObject {
     if let colorTemperature = parameters["colorTemperature"] as? UInt8 {
       whiteBalance = DJICameraWhiteBalance.init(customColorTemperature: colorTemperature)
     }
-    
+
     DJISDKManager.keyManager()?.setValue(whiteBalance, for: DJICameraKey(param: DJICameraParamWhiteBalance)!, withCompletion: { (error: Error?) in
       if (error == nil) {
         resolve("CameraControl: White balance set successfully")
@@ -131,7 +216,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setExposureMode:resolve:reject:)
   func setExposureMode(exposureMode: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.setValue(cameraParameters["ExposureModes"]![exposureMode]!, for: DJICameraKey(param: DJICameraParamExposureMode)!, withCompletion: { (error: Error?) in
@@ -142,7 +227,29 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
+  @objc(setISO:resolve:reject:)
+  func setISO(iso: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(cameraParameters["ISOs"]![iso]!, for: DJICameraKey(param: DJICameraParamISO)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: ISO set successfully")
+      } else {
+        reject("CameraControl: ISO error", error?.localizedDescription, error)
+      }
+    })
+  }
+
+  @objc(setShutterSpeed:resolve:reject:)
+  func setShutterSpeed(shutterSpeed: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(cameraParameters["ShutterSpeeds"]![shutterSpeed]!, for: DJICameraKey(param: DJICameraParamShutterSpeed)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: Shutter speed set successfully")
+      } else {
+        reject("CameraControl: Shutter speed error", error?.localizedDescription, error)
+      }
+    })
+  }
+
   @objc(setVideoFileFormat:resolve:reject:)
   func setVideoFileFormat(videoFileFormat: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.setValue(cameraParameters["VideoFileFormats"]![videoFileFormat]!, for: DJICameraKey(param: DJICameraParamVideoFileFormat)!, withCompletion: { (error: Error?) in
@@ -153,7 +260,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setVideoFileCompressionStandard:resolve:reject:)
   func setVideoFileCompressionStandard(videoCompressionStandard: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.setValue(cameraParameters["VideoFileCompressionStandards"]![videoCompressionStandard]!, for: DJICameraKey(param: DJICameraParamVideoFileCompressionStandard)!, withCompletion: { (error: Error?) in
@@ -164,7 +271,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setVideoResolutionAndFrameRate:frameRate:resolve:reject:)
   func setVideoResolutionAndFrameRate(resolution: String, frameRate: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let resolutionAndFramerate = DJICameraVideoResolutionAndFrameRate(resolution: DJICameraVideoResolution(rawValue: cameraParameters["VideoResolutions"]![resolution]!)!, frameRate: DJICameraVideoFrameRate(rawValue: cameraParameters["VideoFrameRates"]![frameRate]!)!)
@@ -176,7 +283,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(stopRecording:reject:)
   func stopRecording(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.performAction(for: DJICameraKey(param: DJICameraParamStopRecordVideo)!, withArguments: nil, andCompletion: { (finished: Bool, response: DJIKeyedValue?, error: Error?) in
@@ -187,7 +294,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(isSDCardInserted:reject:)
   func isSDCardInserted(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.getValueFor(DJICameraKey(param: DJICameraParamSDCardIsInserted)!, withCompletion: { (value: DJIKeyedValue?, error: Error?) in
@@ -200,13 +307,13 @@ class CameraControlNative: NSObject {
       reject("CameraControl: isSDCardInserted failed", nil, error)
     })
   }
-  
+
   @objc static func requiresMainQueueSetup() -> Bool {
     return true
   }
-  
+
   @objc func constantsToExport() -> [String: Any] {
     return cameraParameters
   }
-  
+
 }
