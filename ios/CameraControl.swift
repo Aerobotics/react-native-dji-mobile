@@ -185,7 +185,29 @@ class CameraControlNative: NSObject {
       "UNKNOWN": DJICameraShutterSpeed.speedUnknown.rawValue,
     ],
 
-    ]
+    "CameraModes": [
+      "SHOOT_PHOTO": DJICameraMode.shootPhoto.rawValue,
+      "RECORD_VIDEO": DJICameraMode.recordVideo.rawValue,
+      "PLAYBACK": DJICameraMode.playback.rawValue,
+      "MEDIA_DOWNLOAD": DJICameraMode.mediaDownload.rawValue,
+    ],
+
+  ]
+
+  @objc(setCameraMode:resolve:reject:)
+  func setCameraMode(cameraMode: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    guard let cameraModeParam = cameraParameters["CameraModes"]![cameraMode] else {
+      reject("CameraControl: Unknown camera mode", "An unknown camera mode of \"\(cameraMode)\" was provided", nil)
+      return
+    }
+    DJISDKManager.keyManager()?.setValue(cameraModeParam, for: DJICameraKey(param: DJICameraParamMode)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: Camera mode set successfully")
+      } else {
+        reject("CameraControl: Camera mode error", error?.localizedDescription, error)
+      }
+    })
+  }
 
   @objc(setPhotoAspectRatio:resolve:reject:)
   func setPhotoAspectRatio(photoAspectRatio: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
