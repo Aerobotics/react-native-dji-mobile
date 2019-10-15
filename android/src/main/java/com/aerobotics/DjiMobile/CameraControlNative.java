@@ -290,7 +290,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set IOS " + djiError.getDescription());
+                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set ISO " + djiError.getDescription());
             }
         });
     }
@@ -323,6 +323,22 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             @Override
             public void onFailure(@NonNull DJIError djiError) {
                 promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set aperture " + djiError.getDescription());
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setCameraMode(String cameraMode, final Promise promise) {
+        DJIKey cameraModeKey = CameraKey.create(CameraKey.MODE);
+        DJISDKManager.getInstance().getKeyManager().setValue(cameraModeKey, SettingsDefinitions.CameraMode.valueOf(cameraMode), new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControlNative: Camera mode set successfully");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set camera mode " + djiError.getDescription());
             }
         });
     }
