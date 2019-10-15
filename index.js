@@ -126,8 +126,17 @@ const DJIMobileWrapper = {
   startUltrasonicHeightListener: startListener(DJIMobile.AircraftUltrasonicHeight),
   stopUltrasonicHeightListener: stopListener(DJIMobile.AircraftUltrasonicHeight),
 
+  startCompassHasErrorListener: startListener(DJIMobile.CompassHasError),
+  stopCompassHasErrorListener: stopListener(DJIMobile.CompassHasError),
+
   startCameraIsRecordingListener: startListener(DJIMobile.CameraIsRecording),
   stopCameraIsRecordingListener: stopListener(DJIMobile.CameraIsRecording),
+
+  startSDCardIsInsertedListener: startListener(DJIMobile.SDCardIsInserted),
+  stopSDCardIsInsertedListener: stopListener(DJIMobile.SDCardIsInserted),
+
+  startSDCardIsReadOnlyListener: startListener(DJIMobile.SDCardIsReadOnly),
+  stopSDCardIsReadOnlyListener: stopListener(DJIMobile.SDCardIsReadOnly),
 
   getAircraftLocation: async () => {
     return await DJIMobile.getAircraftLocation();

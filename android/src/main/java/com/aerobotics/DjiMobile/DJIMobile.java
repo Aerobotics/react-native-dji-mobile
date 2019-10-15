@@ -252,6 +252,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startUltrasonicHeightListener();
           break;
 
+        case CompassHasError:
+          startCompassHasErrorListener();
+          break;
+
         case CameraIsRecording:
           startIsRecordingListener();
           break;
@@ -483,12 +487,45 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     });
   }
 
+  private void startCompassHasErrorListener() {
+    startEventListener(SDKEvent.CompassHasError, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.CompassHasError, newValue);
+        }
+      }
+    });
+  }
+
   private void startIsRecordingListener() {
     startEventListener(SDKEvent.CameraIsRecording, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue instanceof Boolean) {
           sendEvent(SDKEvent.CameraIsRecording, newValue);
+        }
+      }
+    });
+  }
+
+  private void startSDCardIsInsertedListener() {
+    startEventListener(SDKEvent.SDCardIsInserted, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.SDCardIsInserted, newValue);
+        }
+      }
+    });
+  }
+
+  private void startSDCardIsReadOnlyListener() {
+    startEventListener(SDKEvent.SDCardIsReadOnly, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.SDCardIsReadOnly, newValue);
         }
       }
     });
