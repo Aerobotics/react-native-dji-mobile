@@ -101,95 +101,99 @@ class CameraControlNative: NSObject {
     ],
 
     "ISOs": [
-      "AUTO": DJICameraISO.isoAuto,
-      "ISO_100": DJICameraISO.ISO100,
-      "ISO_200": DJICameraISO.ISO200,
-      "ISO_400": DJICameraISO.ISO400,
-      "ISO_800": DJICameraISO.ISO800,
-      "ISO_1600": DJICameraISO.ISO1600,
-      "ISO_3200": DJICameraISO.ISO3200,
-      "ISO_6400": DJICameraISO.ISO6400,
-      "ISO_12800": DJICameraISO.ISO12800,
-      "ISO_25600": DJICameraISO.ISO25600,
-      "FIXED": DJICameraISO.isoFixed,
-      "UNKNOWN": DJICameraISO.isoUnknown,
+      "AUTO": DJICameraISO.isoAuto.rawValue,
+      "ISO_100": DJICameraISO.ISO100.rawValue,
+      "ISO_200": DJICameraISO.ISO200.rawValue,
+      "ISO_400": DJICameraISO.ISO400.rawValue,
+      "ISO_800": DJICameraISO.ISO800.rawValue,
+      "ISO_1600": DJICameraISO.ISO1600.rawValue,
+      "ISO_3200": DJICameraISO.ISO3200.rawValue,
+      "ISO_6400": DJICameraISO.ISO6400.rawValue,
+      "ISO_12800": DJICameraISO.ISO12800.rawValue,
+      "ISO_25600": DJICameraISO.ISO25600.rawValue,
+      "FIXED": DJICameraISO.isoFixed.rawValue,
+      "UNKNOWN": DJICameraISO.isoUnknown.rawValue,
     ],
 
     "ShutterSpeeds": [
-      "SHUTTER_SPEED_1_8000": DJICameraShutterSpeed.speed1_8000,
-      "SHUTTER_SPEED_1_6400": DJICameraShutterSpeed.speed1_6400,
-      "SHUTTER_SPEED_1_6000": DJICameraShutterSpeed.speed1_6000,
-      "SHUTTER_SPEED_1_5000": DJICameraShutterSpeed.speed1_5000,
-      "SHUTTER_SPEED_1_4000": DJICameraShutterSpeed.speed1_4000,
-      "SHUTTER_SPEED_1_3200": DJICameraShutterSpeed.speed1_3200,
-      "SHUTTER_SPEED_1_3000": DJICameraShutterSpeed.speed1_3000,
-      "SHUTTER_SPEED_1_2500": DJICameraShutterSpeed.speed1_2500,
-      "SHUTTER_SPEED_1_2000": DJICameraShutterSpeed.speed1_2000,
-      "SHUTTER_SPEED_1_1600": DJICameraShutterSpeed.speed1_1600,
-      "SHUTTER_SPEED_1_1250": DJICameraShutterSpeed.speed1_1250,
-      "SHUTTER_SPEED_1_1000": DJICameraShutterSpeed.speed1_1000,
-      "SHUTTER_SPEED_1_800": DJICameraShutterSpeed.speed1_800,
-      "SHUTTER_SPEED_1_725": DJICameraShutterSpeed.speed1_725,
-      "SHUTTER_SPEED_1_640": DJICameraShutterSpeed.speed1_640,
-      "SHUTTER_SPEED_1_500": DJICameraShutterSpeed.speed1_500,
-      "SHUTTER_SPEED_1_400": DJICameraShutterSpeed.speed1_400,
-      "SHUTTER_SPEED_1_350": DJICameraShutterSpeed.speed1_350,
-      "SHUTTER_SPEED_1_320": DJICameraShutterSpeed.speed1_320,
-      "SHUTTER_SPEED_1_250": DJICameraShutterSpeed.speed1_250,
-      "SHUTTER_SPEED_1_240": DJICameraShutterSpeed.speed1_240,
-      "SHUTTER_SPEED_1_200": DJICameraShutterSpeed.speed1_200,
-      "SHUTTER_SPEED_1_180": DJICameraShutterSpeed.speed1_180,
-      "SHUTTER_SPEED_1_160": DJICameraShutterSpeed.speed1_160,
-      "SHUTTER_SPEED_1_125": DJICameraShutterSpeed.speed1_125,
-      "SHUTTER_SPEED_1_120": DJICameraShutterSpeed.speed1_120,
-      "SHUTTER_SPEED_1_100": DJICameraShutterSpeed.speed1_100,
-      "SHUTTER_SPEED_1_90": DJICameraShutterSpeed.speed1_90,
-      "SHUTTER_SPEED_1_80": DJICameraShutterSpeed.speed1_80,
-      "SHUTTER_SPEED_1_60": DJICameraShutterSpeed.speed1_60,
-      "SHUTTER_SPEED_1_50": DJICameraShutterSpeed.speed1_50,
-      "SHUTTER_SPEED_1_40": DJICameraShutterSpeed.speed1_40,
-      "SHUTTER_SPEED_1_30": DJICameraShutterSpeed.speed1_30,
-      "SHUTTER_SPEED_1_25": DJICameraShutterSpeed.speed1_25,
-      "SHUTTER_SPEED_1_20": DJICameraShutterSpeed.speed1_20,
-      "SHUTTER_SPEED_1_15": DJICameraShutterSpeed.speed1_15,
-      "SHUTTER_SPEED_1_12_DOT_5": DJICameraShutterSpeed.speed1_12Dot5,
-      "SHUTTER_SPEED_1_10": DJICameraShutterSpeed.speed1_10,
-      "SHUTTER_SPEED_1_8": DJICameraShutterSpeed.speed1_8,
-      "SHUTTER_SPEED_1_6_DOT_25": DJICameraShutterSpeed.speed1_6Dot25,
-      "SHUTTER_SPEED_1_5": DJICameraShutterSpeed.speed1_5,
-      "SHUTTER_SPEED_1_4": DJICameraShutterSpeed.speed1_4,
-      "SHUTTER_SPEED_1_3": DJICameraShutterSpeed.speed1_3,
-      "SHUTTER_SPEED_1_2_DOT_5": DJICameraShutterSpeed.speed1_2Dot5,
-      "SHUTTER_SPEED_1_2": DJICameraShutterSpeed.speed1_2,
-      "SHUTTER_SPEED_1_1_DOT_67": DJICameraShutterSpeed.speed1_1Dot67,
-      "SHUTTER_SPEED_1_1_DOT_25": DJICameraShutterSpeed.speed1_1Dot25,
-      "SHUTTER_SPEED_1": DJICameraShutterSpeed.speed1,
-      "SHUTTER_SPEED_1_DOT_3": DJICameraShutterSpeed.speed1Dot3,
-      "SHUTTER_SPEED_1_DOT_6": DJICameraShutterSpeed.speed1Dot6,
-      "SHUTTER_SPEED_2": DJICameraShutterSpeed.speed2,
-      "SHUTTER_SPEED_2_DOT_5": DJICameraShutterSpeed.speed2Dot5,
-      "SHUTTER_SPEED_3": DJICameraShutterSpeed.speed3,
-      "SHUTTER_SPEED_3_DOT_2": DJICameraShutterSpeed.speed3Dot2,
-      "SHUTTER_SPEED_4": DJICameraShutterSpeed.speed4,
-      "SHUTTER_SPEED_5": DJICameraShutterSpeed.speed5,
-      "SHUTTER_SPEED_6": DJICameraShutterSpeed.speed6,
-      "SHUTTER_SPEED_7": DJICameraShutterSpeed.speed7,
-      "SHUTTER_SPEED_8": DJICameraShutterSpeed.speed8,
-      "SHUTTER_SPEED_9": DJICameraShutterSpeed.speed9,
-      "SHUTTER_SPEED_10": DJICameraShutterSpeed.speed10,
-      "SHUTTER_SPEED_13": DJICameraShutterSpeed.speed13,
-      "SHUTTER_SPEED_15": DJICameraShutterSpeed.speed15,
-      "SHUTTER_SPEED_20": DJICameraShutterSpeed.speed20,
-      "SHUTTER_SPEED_25": DJICameraShutterSpeed.speed25,
-      "SHUTTER_SPEED_30": DJICameraShutterSpeed.speed30,
-      "UNKNOWN": DJICameraShutterSpeed.speedUnknown,
+      "SHUTTER_SPEED_1_8000": DJICameraShutterSpeed.speed1_8000.rawValue,
+      "SHUTTER_SPEED_1_6400": DJICameraShutterSpeed.speed1_6400.rawValue,
+      "SHUTTER_SPEED_1_6000": DJICameraShutterSpeed.speed1_6000.rawValue,
+      "SHUTTER_SPEED_1_5000": DJICameraShutterSpeed.speed1_5000.rawValue,
+      "SHUTTER_SPEED_1_4000": DJICameraShutterSpeed.speed1_4000.rawValue,
+      "SHUTTER_SPEED_1_3200": DJICameraShutterSpeed.speed1_3200.rawValue,
+      "SHUTTER_SPEED_1_3000": DJICameraShutterSpeed.speed1_3000.rawValue,
+      "SHUTTER_SPEED_1_2500": DJICameraShutterSpeed.speed1_2500.rawValue,
+      "SHUTTER_SPEED_1_2000": DJICameraShutterSpeed.speed1_2000.rawValue,
+      "SHUTTER_SPEED_1_1600": DJICameraShutterSpeed.speed1_1600.rawValue,
+      "SHUTTER_SPEED_1_1250": DJICameraShutterSpeed.speed1_1250.rawValue,
+      "SHUTTER_SPEED_1_1000": DJICameraShutterSpeed.speed1_1000.rawValue,
+      "SHUTTER_SPEED_1_800": DJICameraShutterSpeed.speed1_800.rawValue,
+      "SHUTTER_SPEED_1_725": DJICameraShutterSpeed.speed1_725.rawValue,
+      "SHUTTER_SPEED_1_640": DJICameraShutterSpeed.speed1_640.rawValue,
+      "SHUTTER_SPEED_1_500": DJICameraShutterSpeed.speed1_500.rawValue,
+      "SHUTTER_SPEED_1_400": DJICameraShutterSpeed.speed1_400.rawValue,
+      "SHUTTER_SPEED_1_350": DJICameraShutterSpeed.speed1_350.rawValue,
+      "SHUTTER_SPEED_1_320": DJICameraShutterSpeed.speed1_320.rawValue,
+      "SHUTTER_SPEED_1_250": DJICameraShutterSpeed.speed1_250.rawValue,
+      "SHUTTER_SPEED_1_240": DJICameraShutterSpeed.speed1_240.rawValue,
+      "SHUTTER_SPEED_1_200": DJICameraShutterSpeed.speed1_200.rawValue,
+      "SHUTTER_SPEED_1_180": DJICameraShutterSpeed.speed1_180.rawValue,
+      "SHUTTER_SPEED_1_160": DJICameraShutterSpeed.speed1_160.rawValue,
+      "SHUTTER_SPEED_1_125": DJICameraShutterSpeed.speed1_125.rawValue,
+      "SHUTTER_SPEED_1_120": DJICameraShutterSpeed.speed1_120.rawValue,
+      "SHUTTER_SPEED_1_100": DJICameraShutterSpeed.speed1_100.rawValue,
+      "SHUTTER_SPEED_1_90": DJICameraShutterSpeed.speed1_90.rawValue,
+      "SHUTTER_SPEED_1_80": DJICameraShutterSpeed.speed1_80.rawValue,
+      "SHUTTER_SPEED_1_60": DJICameraShutterSpeed.speed1_60.rawValue,
+      "SHUTTER_SPEED_1_50": DJICameraShutterSpeed.speed1_50.rawValue,
+      "SHUTTER_SPEED_1_40": DJICameraShutterSpeed.speed1_40.rawValue,
+      "SHUTTER_SPEED_1_30": DJICameraShutterSpeed.speed1_30.rawValue,
+      "SHUTTER_SPEED_1_25": DJICameraShutterSpeed.speed1_25.rawValue,
+      "SHUTTER_SPEED_1_20": DJICameraShutterSpeed.speed1_20.rawValue,
+      "SHUTTER_SPEED_1_15": DJICameraShutterSpeed.speed1_15.rawValue,
+      "SHUTTER_SPEED_1_12_DOT_5": DJICameraShutterSpeed.speed1_12Dot5.rawValue,
+      "SHUTTER_SPEED_1_10": DJICameraShutterSpeed.speed1_10.rawValue,
+      "SHUTTER_SPEED_1_8": DJICameraShutterSpeed.speed1_8.rawValue,
+      "SHUTTER_SPEED_1_6_DOT_25": DJICameraShutterSpeed.speed1_6Dot25.rawValue,
+      "SHUTTER_SPEED_1_5": DJICameraShutterSpeed.speed1_5.rawValue,
+      "SHUTTER_SPEED_1_4": DJICameraShutterSpeed.speed1_4.rawValue,
+      "SHUTTER_SPEED_1_3": DJICameraShutterSpeed.speed1_3.rawValue,
+      "SHUTTER_SPEED_1_2_DOT_5": DJICameraShutterSpeed.speed1_2Dot5.rawValue,
+      "SHUTTER_SPEED_1_2": DJICameraShutterSpeed.speed1_2.rawValue,
+      "SHUTTER_SPEED_1_1_DOT_67": DJICameraShutterSpeed.speed1_1Dot67.rawValue,
+      "SHUTTER_SPEED_1_1_DOT_25": DJICameraShutterSpeed.speed1_1Dot25.rawValue,
+      "SHUTTER_SPEED_1": DJICameraShutterSpeed.speed1.rawValue,
+      "SHUTTER_SPEED_1_DOT_3": DJICameraShutterSpeed.speed1Dot3.rawValue,
+      "SHUTTER_SPEED_1_DOT_6": DJICameraShutterSpeed.speed1Dot6.rawValue,
+      "SHUTTER_SPEED_2": DJICameraShutterSpeed.speed2.rawValue,
+      "SHUTTER_SPEED_2_DOT_5": DJICameraShutterSpeed.speed2Dot5.rawValue,
+      "SHUTTER_SPEED_3": DJICameraShutterSpeed.speed3.rawValue,
+      "SHUTTER_SPEED_3_DOT_2": DJICameraShutterSpeed.speed3Dot2.rawValue,
+      "SHUTTER_SPEED_4": DJICameraShutterSpeed.speed4.rawValue,
+      "SHUTTER_SPEED_5": DJICameraShutterSpeed.speed5.rawValue,
+      "SHUTTER_SPEED_6": DJICameraShutterSpeed.speed6.rawValue,
+      "SHUTTER_SPEED_7": DJICameraShutterSpeed.speed7.rawValue,
+      "SHUTTER_SPEED_8": DJICameraShutterSpeed.speed8.rawValue,
+      "SHUTTER_SPEED_9": DJICameraShutterSpeed.speed9.rawValue,
+      "SHUTTER_SPEED_10": DJICameraShutterSpeed.speed10.rawValue,
+      "SHUTTER_SPEED_13": DJICameraShutterSpeed.speed13.rawValue,
+      "SHUTTER_SPEED_15": DJICameraShutterSpeed.speed15.rawValue,
+      "SHUTTER_SPEED_20": DJICameraShutterSpeed.speed20.rawValue,
+      "SHUTTER_SPEED_25": DJICameraShutterSpeed.speed25.rawValue,
+      "SHUTTER_SPEED_30": DJICameraShutterSpeed.speed30.rawValue,
+      "UNKNOWN": DJICameraShutterSpeed.speedUnknown.rawValue,
     ],
 
     ]
 
   @objc(setPhotoAspectRatio:resolve:reject:)
   func setPhotoAspectRatio(photoAspectRatio: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    DJISDKManager.keyManager()?.setValue(cameraParameters["AspectRatios"]![photoAspectRatio]!, for: DJICameraKey(param: DJICameraParamPhotoAspectRatio)!, withCompletion: { (error: Error?) in
+    guard let photoAspectRatioParam = cameraParameters["AspectRatios"]![photoAspectRatio] else {
+      reject("CameraControl: Unknown Photo aspect ratio", "An unknown photo aspect ratio of \"\(photoAspectRatio)\" was provided", nil)
+      return
+    }
+    DJISDKManager.keyManager()?.setValue(photoAspectRatioParam, for: DJICameraKey(param: DJICameraParamPhotoAspectRatio)!, withCompletion: { (error: Error?) in
       if (error == nil) {
         resolve("CameraControl: Photo aspect ratio set successfully")
       } else {
@@ -202,7 +206,7 @@ class CameraControlNative: NSObject {
   func setWhiteBalance(parameters: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     var whiteBalance: DJICameraWhiteBalance?
     if let preset = parameters["preset"] as? String {
-      whiteBalance = DJICameraWhiteBalance.init(preset: DJICameraWhiteBalancePreset.init(rawValue: cameraParameters["WhiteBalancePresets"]![preset]!)!)
+      whiteBalance = DJICameraWhiteBalance.init(preset: DJICameraWhiteBalancePreset.init(rawValue: cameraParameters["WhiteBalancePresets"]![preset]! as! UInt)!)
     }
     if let colorTemperature = parameters["colorTemperature"] as? UInt8 {
       whiteBalance = DJICameraWhiteBalance.init(customColorTemperature: colorTemperature)
@@ -219,7 +223,11 @@ class CameraControlNative: NSObject {
 
   @objc(setExposureMode:resolve:reject:)
   func setExposureMode(exposureMode: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    DJISDKManager.keyManager()?.setValue(cameraParameters["ExposureModes"]![exposureMode]!, for: DJICameraKey(param: DJICameraParamExposureMode)!, withCompletion: { (error: Error?) in
+    guard let exposureModeParam = cameraParameters["ExposureModes"]![exposureMode] else {
+      reject("CameraControl: Unknown exposure mode", "An unknown exposure mode of \"\(exposureMode)\" was provided", nil)
+      return
+    }
+    DJISDKManager.keyManager()?.setValue(exposureModeParam, for: DJICameraKey(param: DJICameraParamExposureMode)!, withCompletion: { (error: Error?) in
       if (error == nil) {
         resolve("CameraControl: Exposure mode set successfully")
       } else {
@@ -230,7 +238,11 @@ class CameraControlNative: NSObject {
 
   @objc(setISO:resolve:reject:)
   func setISO(iso: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    DJISDKManager.keyManager()?.setValue(cameraParameters["ISOs"]![iso]!, for: DJICameraKey(param: DJICameraParamISO)!, withCompletion: { (error: Error?) in
+    guard let isoParam = cameraParameters["ISOs"]![iso] else {
+      reject("CameraControl: Unknown ISO", "An unknown ISO value of of \"\(iso)\" was provided", nil)
+      return
+    }
+    DJISDKManager.keyManager()?.setValue(isoParam, for: DJICameraKey(param: DJICameraParamISO)!, withCompletion: { (error: Error?) in
       if (error == nil) {
         resolve("CameraControl: ISO set successfully")
       } else {
@@ -241,7 +253,11 @@ class CameraControlNative: NSObject {
 
   @objc(setShutterSpeed:resolve:reject:)
   func setShutterSpeed(shutterSpeed: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    DJISDKManager.keyManager()?.setValue(cameraParameters["ShutterSpeeds"]![shutterSpeed]!, for: DJICameraKey(param: DJICameraParamShutterSpeed)!, withCompletion: { (error: Error?) in
+    guard let shutterSpeedParam = cameraParameters["ShutterSpeeds"]![shutterSpeed] else {
+      reject("CameraControl: Unknown shutter speed", "An unknown shutter speed of \"\(shutterSpeed)\" was provided", nil)
+      return
+    }
+    DJISDKManager.keyManager()?.setValue(shutterSpeedParam, for: DJICameraKey(param: DJICameraParamShutterSpeed)!, withCompletion: { (error: Error?) in
       if (error == nil) {
         resolve("CameraControl: Shutter speed set successfully")
       } else {
@@ -252,7 +268,11 @@ class CameraControlNative: NSObject {
 
   @objc(setVideoFileFormat:resolve:reject:)
   func setVideoFileFormat(videoFileFormat: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    DJISDKManager.keyManager()?.setValue(cameraParameters["VideoFileFormats"]![videoFileFormat]!, for: DJICameraKey(param: DJICameraParamVideoFileFormat)!, withCompletion: { (error: Error?) in
+    guard let videoFileFormatParam = cameraParameters["VideoFileFormats"]![videoFileFormat] else {
+      reject("CameraControl: Unknown video file format", "An unknown video file format of \"\(videoFileFormat)\" was provided", nil)
+      return
+    }
+    DJISDKManager.keyManager()?.setValue(videoFileFormatParam, for: DJICameraKey(param: DJICameraParamVideoFileFormat)!, withCompletion: { (error: Error?) in
       if (error == nil) {
         resolve("CameraControl: Video file format set successfully")
       } else {
@@ -263,7 +283,11 @@ class CameraControlNative: NSObject {
 
   @objc(setVideoFileCompressionStandard:resolve:reject:)
   func setVideoFileCompressionStandard(videoCompressionStandard: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    DJISDKManager.keyManager()?.setValue(cameraParameters["VideoFileCompressionStandards"]![videoCompressionStandard]!, for: DJICameraKey(param: DJICameraParamVideoFileCompressionStandard)!, withCompletion: { (error: Error?) in
+    guard let videoFileCompressionStandardParam = cameraParameters["VideoFileCompressionStandards"]![videoCompressionStandard] else {
+      reject("CameraControl: Unknown video file compression standard", "An unknown video file compression standard of \"\(videoCompressionStandard)\" was provided", nil)
+      return
+    }
+    DJISDKManager.keyManager()?.setValue(videoFileCompressionStandardParam, for: DJICameraKey(param: DJICameraParamVideoFileCompressionStandard)!, withCompletion: { (error: Error?) in
       if (error == nil) {
         resolve("CameraControl: Video file compression standard set successfully")
       } else {
@@ -274,12 +298,22 @@ class CameraControlNative: NSObject {
 
   @objc(setVideoResolutionAndFrameRate:frameRate:resolve:reject:)
   func setVideoResolutionAndFrameRate(resolution: String, frameRate: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    let resolutionAndFramerate = DJICameraVideoResolutionAndFrameRate(resolution: DJICameraVideoResolution(rawValue: cameraParameters["VideoResolutions"]![resolution]!)!, frameRate: DJICameraVideoFrameRate(rawValue: cameraParameters["VideoFrameRates"]![frameRate]!)!)
+
+    guard let videoResolutionParam = cameraParameters["VideoResolutions"]![resolution] else {
+      reject("CameraControl: Unknown video resolution", "An unknown or invalid video resolution of \"\(resolution)\" was provided", nil)
+      return
+    }
+    guard let videoFrameRateParam = cameraParameters["VideoFrameRates"]![frameRate] else {
+      reject("CameraControl: Unknown video frame rate", "An unknown video frame rate of \"\(frameRate)\" was provided", nil)
+      return
+    }
+
+    let resolutionAndFramerate = DJICameraVideoResolutionAndFrameRate(resolution: DJICameraVideoResolution(rawValue: videoResolutionParam)!, frameRate: DJICameraVideoFrameRate(rawValue: videoFrameRateParam)!)
     DJISDKManager.keyManager()?.setValue(resolutionAndFramerate, for: DJICameraKey(param: DJICameraParamVideoResolutionAndFrameRate)!, withCompletion: { (error: Error?) in
       if (error == nil) {
-        resolve("CameraControl: Set video resolution & framerate successfully")
+        resolve("CameraControl: Set video resolution & frame rate successfully")
       } else {
-        reject("CameraControl: Set video resolution & framerate error", error?.localizedDescription, error)
+        reject("CameraControl: Set video resolution & frame rate error", error?.localizedDescription, error)
       }
     })
   }
