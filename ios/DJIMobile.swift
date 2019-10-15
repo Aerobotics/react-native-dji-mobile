@@ -291,7 +291,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     }
   }
 
-  function startCompassHasErrorListener() {
+  func startCompassHasErrorListener() {
     let event = SdkEventName.CompassHasError
     startKeyListener(event) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let hasError = newValue?.boolValue {
