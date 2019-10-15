@@ -31,6 +31,18 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  setISO:  (NSString)iso
+                  resolve: (RCTPromiseResolveBlock)resolve
+                  reject:  (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  setShutterSpeed: (NSString)shutterSpeed
+                  resolve:         (RCTPromiseResolveBlock)resolve
+                  reject:          (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
                   setVideoFileFormat: (NSString)videoFileFormat
                   resolve:            (RCTPromiseResolveBlock)resolve
                   reject:             (RCTPromiseRejectBlock)reject
