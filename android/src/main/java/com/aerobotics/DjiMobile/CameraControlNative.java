@@ -1,25 +1,15 @@
 package com.aerobotics.DjiMobile;
 
-import android.graphics.Camera;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
-import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
-import com.google.gson.Gson;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.lang.reflect.Array;
-
 import dji.common.camera.ResolutionAndFrameRate;
 import dji.common.camera.SettingsDefinitions;
 import dji.common.camera.WhiteBalance;
@@ -288,4 +278,53 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             }
         });
     }
+
+    @ReactMethod
+    public void setISO(String iso, final Promise promise) {
+        DJIKey isoKey = CameraKey.create(CameraKey.ISO);
+        DJISDKManager.getInstance().getKeyManager().setValue(isoKey, SettingsDefinitions.ISO.valueOf(iso), new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControlNative: ISO set successfully");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set IOS " + djiError.getDescription());
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setShutterSpeed(String shutterSpeed, final Promise promise) {
+        DJIKey shutterSpeedKey = CameraKey.create(CameraKey.SHUTTER_SPEED);
+        DJISDKManager.getInstance().getKeyManager().setValue(shutterSpeedKey, SettingsDefinitions.ShutterSpeed.valueOf(shutterSpeed), new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControlNative: Shutter speed set successfully");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set shutter speed " + djiError.getDescription());
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setAperture(String aperture, final Promise promise) {
+        DJIKey apertureKey = CameraKey.create(CameraKey.APERTURE);
+        DJISDKManager.getInstance().getKeyManager().setValue(apertureKey, SettingsDefinitions.Aperture.valueOf(aperture), new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControlNative: Aperture set successfully");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set aperture " + djiError.getDescription());
+            }
+        });
+    }
+
 }
