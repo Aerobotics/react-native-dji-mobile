@@ -13,6 +13,12 @@
 @interface RCT_EXTERN_MODULE(CameraControlNative, NSObject)
 
 RCT_EXTERN_METHOD(
+                  setCameraMode: (NSString)cameraMode
+                  resolve:       (RCTPromiseResolveBlock)resolve
+                  reject:        (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
                   setPhotoAspectRatio: (NSString)photoAspectRatio
                   resolve:             (RCTPromiseResolveBlock)resolve
                   reject:              (RCTPromiseRejectBlock)reject
