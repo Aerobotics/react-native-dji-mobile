@@ -8,6 +8,10 @@
 import Foundation
 import DJISDK
 
+private enum VirtualStickErrors: Error {
+  case general(message: String)
+}
+
 private enum VirtualStickControl: String, CaseIterable {
   case pitch
   case roll
@@ -31,6 +35,8 @@ private enum Parameters: String {
   case timerEndTime
   case ultrasonicEndDistance
   case ultrasonicDecreaseVerticalThrottleWithDistance
+  case stopAltitude
+  case altitudeStopDirection
   case enableObstacleAvoidance
   case controlStickAdjustments
 }
@@ -38,6 +44,12 @@ private enum Parameters: String {
 private enum EndTrigger: String {
   case timer
   case ultrasonic
+  case altitude
+}
+
+private enum AltitudeStopDirection: String {
+  case above
+  case below
 }
 
 private let CONTROLLER_STICK_LIMIT = 660.0
@@ -59,6 +71,9 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   
   private var ultrasonicEndDistance: Double?
   
+  private var stopAltitude: Double?
+  private var altitudeStopDirection: AltitudeStopDirection?
+  
   private var virtualStickAdjustmentValues = [
     VirtualStickControl.pitch: 0.0,
     VirtualStickControl.roll: 0.0,
@@ -74,6 +89,8 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   ]
   
   init(_ parameters: NSDictionary) {
+    
+    print(parameters)
     
     // Initialize all required values
     self.sendVirtualStickDataTimer = Timer.init()
@@ -111,6 +128,14 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
       
       if let ultrasonicEndDistance = parameters[Parameters.ultrasonicEndDistance.rawValue] as? Double {
         self.ultrasonicEndDistance = ultrasonicEndDistance
+      }
+      
+      if let stopAltitude = parameters[Parameters.stopAltitude.rawValue] as? Double {
+        self.stopAltitude = stopAltitude
+      }
+      
+      if let altitudeStopDirection = parameters[Parameters.altitudeStopDirection.rawValue] as? String {
+        self.altitudeStopDirection = AltitudeStopDirection(rawValue: altitudeStopDirection)!
       }
       
       if let controlStickAdjustments = parameters[Parameters.controlStickAdjustments.rawValue] as? NSDictionary {
@@ -225,6 +250,19 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     })
   }
   
+  private func stopAtAltitude(stopAltitude: Double, direction: AltitudeStopDirection) {
+    DJISDKManager.keyManager()?.startListeningForChanges(on: DJIFlightControllerKey(param: DJIFlightControllerParamAltitudeInMeters)!, withListener: self, andUpdate: { (_: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      if let altitude = newValue?.doubleValue {
+        if ( (direction == .below && altitude <= stopAltitude) || (direction == .above && altitude >= stopAltitude) ) {
+          self.sendVirtualStickDataTimer.invalidate()
+          self.cleanUp { (error: Error?) in
+            DJISDKManager.missionControl()?.element(self, didFinishRunningWithError: error)
+          }
+        }
+      }
+    })
+  }
+  
   @objc
   private func sendVirtualStickData() {
     let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
@@ -258,8 +296,13 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   
   public func run() {
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-      let flightController = (DJISDKManager.product() as! DJIAircraft).flightController
       let missionControl = DJISDKManager.missionControl()
+      guard let aircraft = DJISDKManager.product() as? DJIAircraft else {
+        NSLog("Could not connect to aircraft")
+        missionControl?.element(self, failedStartingWithError: VirtualStickErrors.general(message: "Could not connect to aircraft"))
+        return
+      }
+      let flightController = aircraft.flightController
       
       // Using velocity and body for controlMode and coordinateSystem respectively means that a positive pitch corresponds to a roll to the right,
       // and a positive roll corresponds to a pitch forwards, THIS IS THE DJI SDK AND WE HAVE TO LIVE WITH IT
@@ -318,6 +361,17 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
             } else {
               self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
               self.endTriggerTimer = Timer.scheduledTimer(timeInterval: self.timerEndTime!, target: self, selector: #selector(self.endTriggerTimerDidTrigger), userInfo: nil, repeats: false)
+              missionControl?.elementDidStartRunning(self)
+            }
+          })
+          
+        } else if (self.endTrigger == .altitude) {
+          self.stopAtAltitude(stopAltitude: self.stopAltitude!, direction: self.altitudeStopDirection!)
+          flightController?.setVirtualStickModeEnabled(true, withCompletion: { (error: Error?) in
+            if (error != nil) {
+              missionControl?.element(self, failedStartingWithError: error!)
+            } else {
+              self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
               missionControl?.elementDidStartRunning(self)
             }
           })

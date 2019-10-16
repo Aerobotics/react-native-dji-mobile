@@ -16,6 +16,8 @@ import CameraControl from './lib/CameraControl';
 
 import DJIMediaControl from './lib/DJIMedia';
 
+import DJIFlightController from './lib/DJIFlightController';
+
 import {
   DJIEventSubject,
 } from './lib/utilities';
@@ -211,4 +213,5 @@ export {
   DJIMissionControl,
   CameraControl,
   DJIMediaControl,
+  DJIFlightController,
 };
