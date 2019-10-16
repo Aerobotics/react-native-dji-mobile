@@ -73,7 +73,7 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   
   private var stopAltitude: Double?
   private var altitudeStopDirection: AltitudeStopDirection?
-  
+    
   private var virtualStickAdjustmentValues = [
     VirtualStickControl.pitch: 0.0,
     VirtualStickControl.roll: 0.0,
@@ -89,9 +89,7 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   ]
   
   init(_ parameters: NSDictionary) {
-    
-    print(parameters)
-    
+        
     // Initialize all required values
     self.sendVirtualStickDataTimer = Timer.init()
     self.endTriggerTimer = Timer.init()

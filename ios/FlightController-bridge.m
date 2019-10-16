@@ -22,4 +22,36 @@ RCT_EXTERN_METHOD(
                   reject:            (RCTPromiseRejectBlock)reject
 )
 
+RCT_EXTERN_METHOD(
+                  startWaypointMission: (NSDictionary)parameters
+                  resolve:              (RCTPromiseResolveBlock)resolve
+                  reject:               (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  stopWaypointMission: (RCTPromiseResolveBlock)resolve
+                  reject:               (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  startWaypointMissionFinishedListener: (RCTPromiseResolveBlock)resolve
+                  reject:                               (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  stopAllWaypointMissionListeners: (RCTPromiseResolveBlock)resolve
+                  reject:                          (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  startRecordFlightData: (NSString)fileName
+                  resolve:               (RCTPromiseResolveBlock)resolve
+                  reject:                (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  stopRecordFlightData: (RCTPromiseResolveBlock)resolve
+                  reject:               (RCTPromiseRejectBlock)reject
+)
+
 @end

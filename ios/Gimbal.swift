@@ -18,8 +18,13 @@ class GimbalWrapper: NSObject {
       reject("rotate error",  "Could not access gimbal", nil)
       return
     }
+    
+    guard let time = parameters["time"] as? Double else {
+      reject("rotate error", "time value must be supplied", nil)
+      return
+    }
         
-    let gimbalRotation = DJIGimbalRotation(pitchValue: parameters["pitch"] as? NSNumber, rollValue: parameters["roll"] as? NSNumber, yawValue: parameters["yaw"] as? NSNumber, time: 2, mode: .absoluteAngle)
+    let gimbalRotation = DJIGimbalRotation(pitchValue: parameters["pitch"] as? NSNumber, rollValue: parameters["roll"] as? NSNumber, yawValue: parameters["yaw"] as? NSNumber, time: time, mode: .absoluteAngle)
 
     gimbal.rotate(with: gimbalRotation) { (error: Error?) in
       if (error != nil) {
