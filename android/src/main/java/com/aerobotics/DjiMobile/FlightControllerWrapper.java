@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.aerobotics.DjiMobile.DJITimelineElements.VirtualStickTimelineElement;
 import com.aerobotics.DjiMobile.DJITimelineElements.WaypointMissionTimelineElement;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -28,6 +29,7 @@ import dji.sdk.sdkmanager.DJISDKManager;
 public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     private EventSender eventSender;
     private WaypointMissionOperator waypointMissionOperator;
+    private VirtualStickTimelineElement virtualStickTimelineElement;
 
     private WaypointMissionOperatorListener waypointMissionOperatorListener = new WaypointMissionOperatorListener() {
         @Override
@@ -155,6 +157,19 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                 }
             }
         });
+    }
+
+    @ReactMethod
+    public void startVirtualStick(ReadableMap parameters, Promise promise) {
+        virtualStickTimelineElement = new VirtualStickTimelineElement(parameters);
+        virtualStickTimelineElement.run();
+        promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void stopVirtualStick(Promise promise) {
+        virtualStickTimelineElement.stop();
+        promise.resolve(null);
     }
 
     @Nonnull
