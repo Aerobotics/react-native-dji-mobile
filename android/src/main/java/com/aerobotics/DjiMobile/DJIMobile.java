@@ -265,8 +265,17 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startIsRecordingListener();
           break;
 
+        case SDCardIsInserted:
+          startSDCardIsInsertedListener();
+          break;
+
+        case SDCardIsReadOnly:
+          startSDCardIsReadOnlyListener();
+          break;
+
         case AircraftVirtualStickEnabled:
           startVirtualStickEnabledListener();
+          break;
 
         default:
           promise.reject("Invalid Key", "Invalid Key");
