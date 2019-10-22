@@ -1,7 +1,6 @@
 package com.aerobotics.DjiMobile;
 
 import android.util.Log;
-import android.util.Printer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
