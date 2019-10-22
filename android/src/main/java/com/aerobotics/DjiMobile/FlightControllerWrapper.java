@@ -1,6 +1,7 @@
 package com.aerobotics.DjiMobile;
 
 import android.util.Log;
+import android.util.Printer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -129,6 +130,20 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     @ReactMethod
     public void stopWaypointMission(final Promise promise) {
         getWaypointMissionOperator().stopMission(new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onResult(DJIError djiError) {
+                if (djiError == null) {
+                    promise.resolve(null);
+                } else {
+                    promise.reject(new Throwable(djiError.getDescription()));
+                }
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setWaypointmMissionAutoFlightSpeed(Float speed, final Promise promise) {
+        getWaypointMissionOperator().setAutoFlightSpeed(speed, new CommonCallbacks.CompletionCallback() {
             @Override
             public void onResult(DJIError djiError) {
                 if (djiError == null) {
