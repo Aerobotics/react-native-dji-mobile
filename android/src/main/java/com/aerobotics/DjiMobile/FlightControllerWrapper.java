@@ -27,6 +27,7 @@ import dji.sdk.sdkmanager.DJISDKManager;
 
 public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     private EventSender eventSender;
+    private WaypointMissionOperator waypointMissionOperator;
 
     private WaypointMissionOperatorListener waypointMissionOperatorListener = new WaypointMissionOperatorListener() {
         @Override
@@ -123,8 +124,10 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     }
 
     private WaypointMissionOperator getWaypointMissionOperator() {
-        return DJISDKManager.getInstance().getMissionControl().getWaypointMissionOperator();
-    }
+        if(waypointMissionOperator == null) {
+            waypointMissionOperator = DJISDKManager.getInstance().getMissionControl().getWaypointMissionOperator();
+        }
+        return waypointMissionOperator;    }
 
     @ReactMethod
     public void stopWaypointMission(final Promise promise) {
