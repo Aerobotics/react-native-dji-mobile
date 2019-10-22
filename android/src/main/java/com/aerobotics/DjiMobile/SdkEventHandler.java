@@ -61,6 +61,9 @@ enum SDKEvent {
   SDCardIsInserted(CameraKey.create(CameraKey.SDCARD_IS_INSERTED), EventType.DJI_KEY_MANAGER_EVENT),
   SDCardIsReadOnly(CameraKey.create(CameraKey.SDCARD_IS_READ_ONLY), EventType.DJI_KEY_MANAGER_EVENT),
 
+  WaypointMissionFinished(null, EventType.DJI_KEY_MANAGER_EVENT),
+  WaypointMissionStarted(null, EventType.DJI_KEY_MANAGER_EVENT),
+
   CameraDidUpdateSystemState(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
   CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT);
 

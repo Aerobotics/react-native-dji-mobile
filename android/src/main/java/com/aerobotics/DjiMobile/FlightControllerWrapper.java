@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.aerobotics.DjiMobile.DJITimelineElements.WaypointMissionTimelineElement;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -25,6 +26,7 @@ import dji.sdk.mission.waypoint.WaypointMissionOperatorListener;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 public class FlightControllerWrapper extends ReactContextBaseJavaModule {
+    private EventSender eventSender;
 
     private WaypointMissionOperatorListener waypointMissionOperatorListener = new WaypointMissionOperatorListener() {
         @Override
@@ -51,27 +53,33 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
         @Override
         public void onExecutionStart() {
-
+            eventSender.processEvent(SDKEvent.WaypointMissionStarted, true, true);
         }
 
         @Override
         public void onExecutionFinish(@Nullable DJIError djiError) {
-
+            eventSender.processEvent(SDKEvent.WaypointMissionFinished, true, true);
         }
     };
 
     public FlightControllerWrapper(@Nonnull ReactApplicationContext reactContext) {
         super(reactContext);
+        this.eventSender = new EventSender(reactContext);
     }
 
     @ReactMethod
-    public void startWaypointMission(ReadableMap parameters) {
+    public void startWaypointMission(ReadableMap parameters, Promise promise) {
         setWaypointMissionOperatorListener();
-        WaypointMission waypointMission = buildWaypointMission(parameters);
-        if (waypointMission != null) {
+        WaypointMissionTimelineElement waypointMissionTimelineElement = new WaypointMissionTimelineElement(parameters);
+        DJIError missionParametersError = checkMissionParameters(waypointMissionTimelineElement);
+        if (missionParametersError == null) {
+            WaypointMission waypointMission = waypointMissionTimelineElement.build();
             if (loadMission(waypointMission)) {
                 uploadMission();
+                promise.resolve(null);
             }
+        } else {
+            promise.reject(new Throwable("Start Mission Error: " + missionParametersError.getDescription()));
         }
 
     }
@@ -81,13 +89,8 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
         getWaypointMissionOperator().addListener(waypointMissionOperatorListener);
     }
 
-    private WaypointMission buildWaypointMission(ReadableMap parameters) {
-        WaypointMissionTimelineElement waypointMissionTimelineElement = new WaypointMissionTimelineElement(parameters);
-        DJIError incorrectParametersError = waypointMissionTimelineElement.checkParameters();
-        if (incorrectParametersError == null) {
-            return waypointMissionTimelineElement.build();
-        } else
-            return null;
+    private DJIError checkMissionParameters(WaypointMissionTimelineElement waypointMissionTimelineElement) {
+        return waypointMissionTimelineElement.checkParameters();
     }
 
     private Boolean loadMission(WaypointMission mission){
@@ -121,6 +124,20 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
     private WaypointMissionOperator getWaypointMissionOperator() {
         return DJISDKManager.getInstance().getMissionControl().getWaypointMissionOperator();
+    }
+
+    @ReactMethod
+    public void stopWaypointMission(final Promise promise) {
+        getWaypointMissionOperator().stopMission(new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onResult(DJIError djiError) {
+                if (djiError == null) {
+                    promise.resolve(null);
+                } else {
+                    promise.reject(new Throwable(djiError.getDescription()));
+                }
+            }
+        });
     }
 
     @Nonnull
