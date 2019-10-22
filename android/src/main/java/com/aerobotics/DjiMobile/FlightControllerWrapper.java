@@ -172,6 +172,16 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
         promise.resolve(null);
     }
 
+    @ReactMethod
+    public void stopAllWaypointMissionListeners(Promise promise) {
+        getWaypointMissionOperator().removeListener(waypointMissionOperatorListener);
+    }
+
+    @ReactMethod
+    public void startWaypointMissionFinishedListener(Promise promise) {
+        setWaypointMissionOperatorListener();
+    }
+
     @Nonnull
     @Override
     public String getName() {
