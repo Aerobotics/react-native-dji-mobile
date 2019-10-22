@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Observable;
@@ -63,6 +62,8 @@ enum SDKEvent {
 
   WaypointMissionFinished(null, EventType.DJI_KEY_MANAGER_EVENT),
   WaypointMissionStarted(null, EventType.DJI_KEY_MANAGER_EVENT),
+
+  AircraftVirtualStickEnabled(FlightControllerKey.VIRTUAL_STICK_CONTROL_MODE_ENABLED, EventType.DJI_KEY_MANAGER_EVENT),
 
   CameraDidUpdateSystemState(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
   CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT);
