@@ -8,6 +8,7 @@ import com.facebook.react.bridge.ReadableMap;
 
 import dji.common.error.DJIError;
 import dji.common.gimbal.Rotation;
+import dji.common.gimbal.RotationMode;
 import dji.common.util.CommonCallbacks;
 import dji.sdk.gimbal.Gimbal;
 import dji.sdk.sdkmanager.DJISDKManager;
@@ -26,6 +27,7 @@ public class GimbalWrapper extends ReactContextBaseJavaModule {
     }
 
     Rotation.Builder rotationBuilder = new Rotation.Builder();
+    rotationBuilder.mode(RotationMode.ABSOLUTE_ANGLE);
 
     Double time = parameters.getDouble("time");
     if (time == null) {
@@ -35,30 +37,24 @@ public class GimbalWrapper extends ReactContextBaseJavaModule {
 
     try {
       Float roll = (float)parameters.getDouble("roll");
-      if (roll != null) {
-        rotationBuilder.roll(roll);
-      }
+      rotationBuilder.roll(roll);
     } catch (Exception e) {}
     try {
       Float pitch = (float)parameters.getDouble("pitch");
-      if (pitch != null) {
-        rotationBuilder.pitch(pitch);
-      }
+      rotationBuilder.pitch(pitch);
     } catch (Exception e) {}
-
     try {
       Float yaw = (float)parameters.getDouble("yaw");
-      if (yaw != null) {
-        rotationBuilder.yaw(yaw);
-      }
+      rotationBuilder.yaw(yaw);
     } catch (Exception e) {}
+
     gimbal.rotate(rotationBuilder.build(), new CommonCallbacks.CompletionCallback() {
       @Override
       public void onResult(DJIError djiError) {
         if (djiError != null) {
-          promise.resolve("gimbal rotated");
-        } else {
           promise.reject(new Throwable("rotate error: " + djiError.getDescription()));
+        } else {
+          promise.resolve("gimbal rotated");
         }
       }
     });
