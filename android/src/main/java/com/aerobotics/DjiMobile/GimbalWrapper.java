@@ -25,29 +25,33 @@ public class GimbalWrapper extends ReactContextBaseJavaModule {
       promise.reject(new Throwable("rotate error: Could not access gimbal"));
     }
 
+    Rotation.Builder rotationBuilder = new Rotation.Builder();
+
     Double time = parameters.getDouble("time");
     if (time == null) {
       promise.reject(new Throwable("rotate error: Time value must be supplied"));
     }
-
-    Rotation.Builder rotationBuilder = new Rotation.Builder();
-
-    Float roll = (float)parameters.getDouble("roll");
-    Float pitch = (float)parameters.getDouble("pitch");
-    Float yaw = (float)parameters.getDouble("yaw");
-
-    if (roll != null) {
-      rotationBuilder.roll(roll);
-    }
-    if (pitch != null) {
-      rotationBuilder.pitch(pitch);
-    }
-    if (yaw != null) {
-      rotationBuilder.yaw(yaw);
-    }
-
     rotationBuilder.time(time);
 
+    try {
+      Float roll = (float)parameters.getDouble("roll");
+      if (roll != null) {
+        rotationBuilder.roll(roll);
+      }
+    } catch (Exception e) {}
+    try {
+      Float pitch = (float)parameters.getDouble("pitch");
+      if (pitch != null) {
+        rotationBuilder.pitch(pitch);
+      }
+    } catch (Exception e) {}
+
+    try {
+      Float yaw = (float)parameters.getDouble("yaw");
+      if (yaw != null) {
+        rotationBuilder.yaw(yaw);
+      }
+    } catch (Exception e) {}
     gimbal.rotate(rotationBuilder.build(), new CommonCallbacks.CompletionCallback() {
       @Override
       public void onResult(DJIError djiError) {
