@@ -32,6 +32,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     private WaypointMissionOperator waypointMissionOperator;
     private VirtualStickTimelineElement virtualStickTimelineElement;
     private DJIRealTimeDataLogger djiRealTimeDataLogger;
+    private Promise startMissionPromise;
 
     private WaypointMissionOperatorListener waypointMissionOperatorListener = new WaypointMissionOperatorListener() {
         @Override
@@ -45,7 +46,12 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                 getWaypointMissionOperator().startMission(new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onResult(DJIError djiError) {
-                        Log.d("REACT", "Waypoint Mission Start Success");
+                        if (djiError == null) {
+                            startMissionPromise.resolve(null);
+                            eventSender.processEvent(SDKEvent.WaypointMissionStarted, true, true);
+                        } else {
+                            eventSender.processEvent(SDKEvent.WaypointMissionStarted, false, true);
+                        }
                     }
                 });
             }
@@ -58,12 +64,12 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
         @Override
         public void onExecutionStart() {
-            eventSender.processEvent(SDKEvent.WaypointMissionStarted, true, true);
         }
 
         @Override
         public void onExecutionFinish(@Nullable DJIError djiError) {
             eventSender.processEvent(SDKEvent.WaypointMissionFinished, true, true);
+            getWaypointMissionOperator().removeListener(waypointMissionOperatorListener);
         }
     };
 
@@ -75,6 +81,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void startWaypointMission(ReadableMap parameters, Promise promise) {
+        startMissionPromise = promise;
         setWaypointMissionOperatorListener();
         WaypointMissionTimelineElement waypointMissionTimelineElement = new WaypointMissionTimelineElement(parameters);
         DJIError missionParametersError = checkMissionParameters(waypointMissionTimelineElement);
@@ -82,7 +89,6 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
             WaypointMission waypointMission = waypointMissionTimelineElement.build();
             if (loadMission(waypointMission)) {
                 uploadMission();
-                promise.resolve(null);
             }
         } else {
             promise.reject(new Throwable("Start Mission Error: " + missionParametersError.getDescription()));
@@ -109,20 +115,23 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
             @Override
             public void onResult(DJIError error) {
                 if (error == null) {
-                    Log.d("REACT", "Upload Success");
+                   // Log.d("REACT", "Upload Success");
                 } else {
-                    Log.d("REACT", "Retrying Upload");
-                    getWaypointMissionOperator().retryUploadMission((new CommonCallbacks.CompletionCallback() {
-                        @Override
-                        public void onResult(DJIError error) {
-                            if (error == null) {
-                                Log.d("REACT", "Upload Success");
-                            } else {
-                                Log.e("REACT", "Upload Failed");
-
+                    if (getWaypointMissionOperator().getCurrentState().equals(WaypointMissionState.READY_TO_UPLOAD)) {
+                        getWaypointMissionOperator().retryUploadMission((new CommonCallbacks.CompletionCallback() {
+                            @Override
+                            public void onResult(DJIError error) {
+                                if (error == null) {
+                                    Log.d("REACT", "Upload Success");
+                                } else {
+                                    Log.e("REACT", "Upload Failed " + error.getDescription());
+                                    startMissionPromise.reject(new Throwable("Upload Failed " + error.getDescription()));
+                                }
                             }
-                        }
-                    }));
+                        }));
+                    } else {
+                        Log.e("REACT", "Not ready to upload");
+                    }
                 }
             }
         });
