@@ -27,9 +27,11 @@ import dji.sdk.mission.waypoint.WaypointMissionOperatorListener;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 public class FlightControllerWrapper extends ReactContextBaseJavaModule {
+    private final ReactApplicationContext reactContext;
     private EventSender eventSender;
     private WaypointMissionOperator waypointMissionOperator;
     private VirtualStickTimelineElement virtualStickTimelineElement;
+    private DJIRealTimeDataLogger djiRealTimeDataLogger;
 
     private WaypointMissionOperatorListener waypointMissionOperatorListener = new WaypointMissionOperatorListener() {
         @Override
@@ -68,6 +70,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     public FlightControllerWrapper(@Nonnull ReactApplicationContext reactContext) {
         super(reactContext);
         this.eventSender = new EventSender(reactContext);
+        this.reactContext = reactContext;
     }
 
     @ReactMethod
@@ -182,6 +185,23 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     public void startWaypointMissionFinishedListener(Promise promise) {
         setWaypointMissionOperatorListener();
         promise.resolve("startWaypointMissionFinishedListener");
+    }
+
+    @ReactMethod
+    public void startRecordFlightData(String fileName, Promise promise){
+        if (djiRealTimeDataLogger == null) {
+            djiRealTimeDataLogger = new DJIRealTimeDataLogger(reactContext);
+        }
+        djiRealTimeDataLogger.startLogging(fileName);
+        promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void stopRecordFlightData(Promise promise) {
+        if (djiRealTimeDataLogger != null) {
+            djiRealTimeDataLogger.stopLogging();
+        }
+        promise.resolve(null);
     }
 
     @Nonnull
