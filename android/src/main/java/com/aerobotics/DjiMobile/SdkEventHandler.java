@@ -63,7 +63,7 @@ enum SDKEvent {
   WaypointMissionFinished(null, EventType.DJI_KEY_MANAGER_EVENT),
   WaypointMissionStarted(null, EventType.DJI_KEY_MANAGER_EVENT),
 
-  AircraftVirtualStickEnabled(FlightControllerKey.VIRTUAL_STICK_CONTROL_MODE_ENABLED, EventType.DJI_KEY_MANAGER_EVENT),
+  AircraftVirtualStickEnabled(FlightControllerKey.create(FlightControllerKey.VIRTUAL_STICK_CONTROL_MODE_ENABLED), EventType.DJI_KEY_MANAGER_EVENT),
 
   CameraDidUpdateSystemState(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
   CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT);
