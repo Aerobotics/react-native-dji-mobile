@@ -58,19 +58,20 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
         waypointObject.cornerRadiusInMeters = (float)cornerRadiusInMeters;
       }
 
-      try {
+      if (waypointParams.hasKey("actions")) {
         ReadableArray waypointActions = waypointParams.getArray("actions");
         for (int j = 0; j < waypointActions.size(); j++) {
+          ReadableMap actionParams = waypointActions.getMap(j);
           try {
-            String actionType = waypointParams.getString("actionType");
+            String actionType = actionParams.getString("actionType");
             Integer actionParam = null; // If a correct value is not supplied for actions that require it, null will ensure it is invalid
-            try {
-              actionParam = waypointParams.getInt("actionParam");
-            } catch (Exception e) {}
+            if (actionParams.hasKey("actionParam")) {
+              actionParam = actionParams.getInt("actionParam");
+            }
             waypointObject.addAction(new WaypointAction(WaypointActionType.valueOf(actionType), actionParam));
           } catch (Exception e) {}
         }
-      } catch (Exception e) {}
+      }
 
       this.addWaypoint(waypointObject);
     }
