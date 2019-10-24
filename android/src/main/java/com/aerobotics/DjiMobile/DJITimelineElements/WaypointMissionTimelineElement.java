@@ -1,7 +1,6 @@
 package com.aerobotics.DjiMobile.DJITimelineElements;
 
 import androidx.annotation.Nullable;
-import android.util.Log;
 
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
@@ -11,6 +10,7 @@ import dji.common.mission.waypoint.Waypoint;
 import dji.common.mission.waypoint.WaypointAction;
 import dji.common.mission.waypoint.WaypointActionType;
 import dji.common.mission.waypoint.WaypointMission;
+import dji.common.mission.waypoint.WaypointMissionFlightPathMode;
 import dji.common.mission.waypoint.WaypointMissionGotoWaypointMode;
 import dji.common.mission.waypoint.WaypointMissionHeadingMode;
 
@@ -47,11 +47,16 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
       double latitude = waypointParams.getDouble("latitude");
       double altitude = waypointParams.getDouble("altitude");
 
-      Waypoint waypoint = new Waypoint(
+      Waypoint waypointObject = new Waypoint(
         latitude,
         longitude,
         (float) altitude
       );
+
+      if (waypointParams.hasKey("cornerRadiusInMeters")) {
+        double cornerRadiusInMeters = waypointParams.getDouble("cornerRadiusInMeters");
+        waypointObject.cornerRadiusInMeters = (float)cornerRadiusInMeters;
+      }
 
       try {
         ReadableArray waypointActions = waypointParams.getArray("actions");
@@ -62,16 +67,20 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
             try {
               actionParam = waypointParams.getInt("actionParam");
             } catch (Exception e) {}
-            waypoint.addAction(new WaypointAction(WaypointActionType.valueOf(actionType), actionParam));
+            waypointObject.addAction(new WaypointAction(WaypointActionType.valueOf(actionType), actionParam));
           } catch (Exception e) {}
         }
       } catch (Exception e) {}
 
-      this.addWaypoint(waypoint);
+      this.addWaypoint(waypointObject);
     }
 
     if (parameters.hasKey("goToWaypointMode")) {
       this.gotoFirstWaypointMode(WaypointMissionGotoWaypointMode.valueOf(parameters.getString("goToWaypointMode")));
+    }
+
+    if(parameters.hasKey("flightPathMode")) {
+      this.flightPathMode(WaypointMissionFlightPathMode.valueOf(parameters.getString("flightPathMode")));
     }
   }
 
