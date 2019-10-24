@@ -68,11 +68,6 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
-                  startRecording: (RCTPromiseResolveBlock)resolve
-                  reject:         (RCTPromiseRejectBlock)reject
-)
-
-RCT_EXTERN_METHOD(
                   stopRecording: (RCTPromiseResolveBlock)resolve
                   reject:        (RCTPromiseRejectBlock)reject
                   )

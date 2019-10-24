@@ -1,7 +1,6 @@
 package com.aerobotics.DjiMobile;
 
-import android.graphics.Camera;
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
@@ -165,23 +164,6 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             @Override
             public void onFailure(@NonNull DJIError djiError) {
                 promise.reject("CameraControlNative: Failed to set exposure mode");
-            }
-        });
-    }
-
-    @ReactMethod
-    public void startRecording(final Promise promise) {
-        DJIKey stopRecordingKey = CameraKey.create(CameraKey.START_RECORD_VIDEO);
-        DJISDKManager.getInstance().getKeyManager().performAction(stopRecordingKey, new ActionCallback() {
-            @Override
-            public void onSuccess() {
-                Log.i("REACT", "CameraControlNative: stopRecording ran successfully");
-                promise.resolve("CameraControlNative: stopRecording ran successfully");
-            }
-
-            @Override
-            public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNative: stopRecording failed to stop recording");
             }
         });
     }
