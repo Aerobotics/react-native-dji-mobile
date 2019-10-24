@@ -9,6 +9,7 @@ import com.facebook.react.bridge.ReadableMap;
 import dji.common.error.DJIError;
 import dji.common.mission.waypoint.Waypoint;
 import dji.common.mission.waypoint.WaypointMission;
+import dji.common.mission.waypoint.WaypointMissionGotoWaypointMode;
 import dji.common.mission.waypoint.WaypointMissionHeadingMode;
 
 public class WaypointMissionTimelineElement extends WaypointMission.Builder {
@@ -52,6 +53,9 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
       );
     }
 
+    if (parameters.hasKey("goToWaypointMode")) {
+      this.gotoFirstWaypointMode(WaypointMissionGotoWaypointMode.valueOf(parameters.getString("goToWaypointMode")));
+    }
   }
 
   public @Nullable DJIError checkValidity() {
