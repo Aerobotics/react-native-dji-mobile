@@ -265,6 +265,18 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startIsRecordingListener();
           break;
 
+        case SDCardIsInserted:
+          startSDCardIsInsertedListener();
+          break;
+
+        case SDCardIsReadOnly:
+          startSDCardIsReadOnlyListener();
+          break;
+
+        case AircraftVirtualStickEnabled:
+          startVirtualStickEnabledListener();
+          break;
+
         default:
           promise.reject("Invalid Key", "Invalid Key");
           break;
@@ -509,6 +521,17 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue instanceof Boolean) {
           sendEvent(SDKEvent.CameraIsRecording, newValue);
+        }
+      }
+    });
+  }
+
+  private void startVirtualStickEnabledListener() {
+    startEventListener(SDKEvent.AircraftVirtualStickEnabled, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.AircraftVirtualStickEnabled, newValue);
         }
       }
     });

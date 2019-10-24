@@ -9,15 +9,15 @@
 import Foundation
 
 class FolderMonitor {
-  
+
   var source: DispatchSourceFileSystemObject?
   var pathToMonitor: String
   var filesSnapshot: [URL] = []
-  
+
   init() {
     self.pathToMonitor = ""
   }
-  
+
   /**
    * Note: This currently only monitors for new files, nothing else!
    */
@@ -28,17 +28,17 @@ class FolderMonitor {
     if (fileDescriptor == -1) {
       return
     }
-    
+
     let pathURL = URL(fileURLWithPath: pathToMonitor)
     do {
       self.filesSnapshot = try FileManager.default.contentsOfDirectory(at: pathURL, includingPropertiesForKeys: nil)
     } catch {
       print("Error while enumerating files \(pathURL.path): \(error.localizedDescription)")
     }
-    
+
     self.source = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fileDescriptor, eventMask: .write, queue: DispatchQueue.global())
     self.source!.setEventHandler {
-      
+
       do {
         let newFilesSnapshot = try FileManager.default.contentsOfDirectory(at: pathURL, includingPropertiesForKeys: nil)
         for fileUrl in newFilesSnapshot {
@@ -50,14 +50,14 @@ class FolderMonitor {
       } catch {
         print("Error while enumerating files \(pathURL.path): \(error.localizedDescription)")
       }
-      
+
     }
     self.source!.resume()
   }
-  
+
   func stopMonitoring() {
     source?.cancel()
     source = nil
   }
-  
+
 }

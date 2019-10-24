@@ -23,6 +23,12 @@
 		6601F962233E3C2C00A667D8 /* VirtualStickTimelineElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6601F95E233E3C2C00A667D8 /* VirtualStickTimelineElement.swift */; };
 		6601F963233E3C2C00A667D8 /* WaypointMissionTimelineElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6601F95F233E3C2C00A667D8 /* WaypointMissionTimelineElement.swift */; };
 		6601F964233E3C2C00A667D8 /* RecordFlightData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6601F960233E3C2C00A667D8 /* RecordFlightData.swift */; };
+		667F4C28235703A500BE1232 /* FlightController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667F4C27235703A500BE1232 /* FlightController.swift */; };
+		667F4C2A2357050500BE1232 /* FlightController-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 667F4C292357050500BE1232 /* FlightController-bridge.m */; };
+		667F4C4223574CEB00BE1232 /* Gimbal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667F4C4123574CEB00BE1232 /* Gimbal.swift */; };
+		667F4C4423574D2400BE1232 /* Gimbal-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 667F4C4323574D2400BE1232 /* Gimbal-bridge.m */; };
+		667F4C4823575C3A00BE1232 /* DJIRealTimeDataLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667F4C4623575C3900BE1232 /* DJIRealTimeDataLogger.swift */; };
+		667F4C4923575C3A00BE1232 /* DJIRealTimeDataLogger-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 667F4C4723575C3900BE1232 /* DJIRealTimeDataLogger-bridge.m */; };
 		66A1B1A7233E4A27001A9884 /* DroneVideoViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A1B1A4233E4A26001A9884 /* DroneVideoViewManager.swift */; };
 		66A1B1A8233E4A27001A9884 /* DroneVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A1B1A5233E4A26001A9884 /* DroneVideoView.swift */; };
 		66A1B1A9233E4A27001A9884 /* DroneVideoViewManager-bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A1B1A6233E4A27001A9884 /* DroneVideoViewManager-bridge.m */; };
@@ -61,6 +67,12 @@
 		6601F960233E3C2C00A667D8 /* RecordFlightData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordFlightData.swift; sourceTree = "<group>"; };
 		6601F96D233E400300A667D8 /* ReactNativeDJIMobile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReactNativeDJIMobile.h; sourceTree = "<group>"; };
 		6601F96E233E400300A667D8 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		667F4C27235703A500BE1232 /* FlightController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlightController.swift; sourceTree = "<group>"; };
+		667F4C292357050500BE1232 /* FlightController-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "FlightController-bridge.m"; sourceTree = "<group>"; };
+		667F4C4123574CEB00BE1232 /* Gimbal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gimbal.swift; sourceTree = "<group>"; };
+		667F4C4323574D2400BE1232 /* Gimbal-bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Gimbal-bridge.m"; sourceTree = "<group>"; };
+		667F4C4623575C3900BE1232 /* DJIRealTimeDataLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DJIRealTimeDataLogger.swift; sourceTree = "<group>"; };
+		667F4C4723575C3900BE1232 /* DJIRealTimeDataLogger-bridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DJIRealTimeDataLogger-bridge.m"; sourceTree = "<group>"; };
 		66A1B1A4233E4A26001A9884 /* DroneVideoViewManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DroneVideoViewManager.swift; sourceTree = "<group>"; };
 		66A1B1A5233E4A26001A9884 /* DroneVideoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DroneVideoView.swift; sourceTree = "<group>"; };
 		66A1B1A6233E4A27001A9884 /* DroneVideoViewManager-bridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DroneVideoViewManager-bridge.m"; sourceTree = "<group>"; };
@@ -88,6 +100,8 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				667F4C4723575C3900BE1232 /* DJIRealTimeDataLogger-bridge.m */,
+				667F4C4623575C3900BE1232 /* DJIRealTimeDataLogger.swift */,
 				66A1B1AA233E4A2A001A9884 /* DroneVideoView */,
 				6601F96C233E400300A667D8 /* ReactNativeDJIMobile */,
 				6601F966233E3C4E00A667D8 /* DJITimelineElements */,
@@ -104,6 +118,10 @@
 				6601F94C233E3C1000A667D8 /* DJIMissionControl.swift */,
 				6601F94E233E3C1000A667D8 /* DJIMobile-bridge.m */,
 				6601F945233E3B6700A667D8 /* DJIMobile.swift */,
+				667F4C27235703A500BE1232 /* FlightController.swift */,
+				667F4C292357050500BE1232 /* FlightController-bridge.m */,
+				667F4C4123574CEB00BE1232 /* Gimbal.swift */,
+				667F4C4323574D2400BE1232 /* Gimbal-bridge.m */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -196,7 +214,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				667F4C2A2357050500BE1232 /* FlightController-bridge.m in Sources */,
 				6601F950233E3C1000A667D8 /* DJICameraDelegateSender.swift in Sources */,
+				667F4C4923575C3A00BE1232 /* DJIRealTimeDataLogger-bridge.m in Sources */,
 				6601F955233E3C1000A667D8 /* DJIMedia.swift in Sources */,
 				6601F952233E3C1000A667D8 /* CameraControl-bridge.m in Sources */,
 				66A1B1A8233E4A27001A9884 /* DroneVideoView.swift in Sources */,
@@ -205,6 +225,8 @@
 				6601F95C233E3C2000A667D8 /* EventSender-bridge.m in Sources */,
 				6601F951233E3C1000A667D8 /* DJIMedia-bridge.m in Sources */,
 				6601F956233E3C1000A667D8 /* DJIMobile-bridge.m in Sources */,
+				667F4C4823575C3A00BE1232 /* DJIRealTimeDataLogger.swift in Sources */,
+				667F4C4423574D2400BE1232 /* Gimbal-bridge.m in Sources */,
 				6601F94F233E3C1000A667D8 /* CameraControl.swift in Sources */,
 				6601F954233E3C1000A667D8 /* DJIMissionControl.swift in Sources */,
 				6601F95B233E3C2000A667D8 /* EventSender.swift in Sources */,
@@ -215,6 +237,8 @@
 				6601F964233E3C2C00A667D8 /* RecordFlightData.swift in Sources */,
 				6601F946233E3B6700A667D8 /* DJIMobile.swift in Sources */,
 				66A1B1A9233E4A27001A9884 /* DroneVideoViewManager-bridge.m in Sources */,
+				667F4C28235703A500BE1232 /* FlightController.swift in Sources */,
+				667F4C4223574CEB00BE1232 /* Gimbal.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

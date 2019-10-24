@@ -42,6 +42,8 @@ class DJIMobile: NSObject, RCTInvalidating {
     case CameraDidGenerateNewMediaFile
 
     case DJIFlightLogEvent
+    
+    case AircraftVirtualStickEnabled
   }
 
   private let implementedEvents: [SdkEventName: [Any]] = [
@@ -59,6 +61,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     .CameraIsRecording: [DJICameraParamIsRecording, DJICameraKey.self],
     .SDCardIsInserted: [DJICameraParamSDCardIsInserted, DJICameraKey.self],
     .SDCardIsReadOnly: [DJICameraParamSDCardIsReadOnly, DJICameraKey.self],
+    .AircraftVirtualStickEnabled: [DJIFlightControllerParamVirtualStickControlModeEnabled, DJIFlightControllerKey.self]
   ]
 
   private var eventsBeingListenedTo: [SdkEventName] = []
@@ -105,16 +108,6 @@ class DJIMobile: NSObject, RCTInvalidating {
   func limitEventFrequency(frequency: NSNumber, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     EventSender.limitEventSendFrequency(frequency: frequency.doubleValue)
     resolve("limitEventFrequency Successful")
-  }
-
-  @objc(startRecordFlightData:resolve:reject:)
-  func startRecordFlightData(fileName: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    DJIRealTimeDataLogger.startLogging(fileName: fileName)
-  }
-  //
-  @objc(stopRecordFlightData:reject:)
-  func stopRecordFlightData(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    DJIRealTimeDataLogger.stopLogging()
   }
 
   @objc(startEventListener:resolve:reject:)
@@ -167,6 +160,9 @@ class DJIMobile: NSObject, RCTInvalidating {
 
     case .SDCardIsReadOnly:
       startSDCardIsReadOnlyListener()
+    
+    case .AircraftVirtualStickEnabled:
+      startAircraftVirtualStickEnabledListener()
 
     default:
       reject("Invalid Key", nil, nil)
@@ -323,6 +319,15 @@ class DJIMobile: NSObject, RCTInvalidating {
     startKeyListener(event) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
       if let isReadOnly = newValue?.boolValue {
         EventSender.sendReactEvent(type: event.rawValue, value: isReadOnly)
+      }
+    }
+  }
+  
+  func startAircraftVirtualStickEnabledListener() {
+    let event = SdkEventName.AircraftVirtualStickEnabled
+    startKeyListener(event) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      if let isVirtualStickEnabled = newValue?.boolValue {
+        EventSender.sendReactEvent(type: event.rawValue, value: isVirtualStickEnabled)
       }
     }
   }
