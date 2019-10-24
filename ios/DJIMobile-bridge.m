@@ -34,6 +34,17 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  startRecordFlightData: (NSString)fileName
+                  resolve:               (RCTPromiseResolveBlock)resolve
+                  reject:                (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
+                  stopRecordFlightData: (RCTPromiseResolveBlock)resolve
+                  reject:               (RCTPromiseRejectBlock)reject
+                  )
+
+RCT_EXTERN_METHOD(
                   getAircraftLocation: (RCTPromiseResolveBlock)resolve
                   reject:              (RCTPromiseRejectBlock)reject
                   )
