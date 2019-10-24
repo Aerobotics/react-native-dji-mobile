@@ -1,7 +1,6 @@
 package com.aerobotics.DjiMobile.DJITimelineElements;
 
 import androidx.annotation.Nullable;
-import android.util.Log;
 
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
@@ -39,18 +38,22 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
       this.headingMode(WaypointMissionHeadingMode.valueOf(parameters.getString("headingMode")));
     }
 
-    ReadableArray waypointsParameter = parameters.getArray("waypoints");
-    for (int i = 0, n = waypointsParameter.size(); i < n; i++) {
-      ReadableMap waypoint = waypointsParameter.getMap(i);
+    ReadableArray waypoints= parameters.getArray("waypoints");
+    for (int i = 0, n = waypoints.size(); i < n; i++) {
+      ReadableMap waypoint = waypoints.getMap(i);
       double longitude = waypoint.getDouble("longitude");
       double latitude = waypoint.getDouble("latitude");
       double altitude = waypoint.getDouble("altitude");
+      Waypoint waypointObject = new Waypoint(
+              latitude,
+              longitude,
+              (float) altitude);
+      if (waypoint.hasKey("cornerRadiusInMeters")) {
+        double cornerRadiusInMeters = waypoint.getDouble("cornerRadiusInMeters");
+        waypointObject.cornerRadiusInMeters = (float)cornerRadiusInMeters;
+      }
       this.addWaypoint(
-        new Waypoint(
-          latitude,
-          longitude,
-          (float) altitude
-        )
+        waypointObject
       );
     }
 
