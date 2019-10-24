@@ -339,14 +339,25 @@ class CameraControlNative: NSObject {
       }
     })
   }
-
+  
+  @objc(startRecording:reject:)
+  func startRecording(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.performAction(for: DJICameraKey(param: DJICameraParamStartRecordVideo)!, withArguments: nil, andCompletion: { (finished: Bool, response: DJIKeyedValue?, error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: start recording")
+      } else {
+        reject("CameraControl: start recording failed", error?.localizedDescription, error)
+      }
+    })
+  }
+  
   @objc(stopRecording:reject:)
   func stopRecording(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.performAction(for: DJICameraKey(param: DJICameraParamStopRecordVideo)!, withArguments: nil, andCompletion: { (finished: Bool, response: DJIKeyedValue?, error: Error?) in
       if (error == nil) {
-        resolve(nil)
+        resolve("CameraControl: stop recording")
       } else {
-        reject("CameraControl: stop recording failed", nil, error)
+        reject("CameraControl: stop recording failed", error?.localizedDescription, error)
       }
     })
   }

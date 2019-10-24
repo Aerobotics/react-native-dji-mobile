@@ -1,5 +1,6 @@
 {
   "name": "react-native-dji-mobile",
+  "title": "React Native DJI Mobile",
   "version": "0.3.17",
   "description": "A React Native wrapper for DJI's Mobile SDK.",
   "main": "index.js",
@@ -8,25 +9,27 @@
   },
   "keywords": [
     "react-native",
-    "dji-mobile"
+    "dji-mobile",
+    "dji"
   ],
-  "author": "Aerobotics",
+  "author": {
+    "name": "Aerobotics",
+    "email": "adam@aerobotics.com"
+  },
   "license": "MIT",
+  "licenseFilename": "LICENSE",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "rxjs": "^6.5.3"
+  },
   "peerDependencies": {
-    "react-native": "^0.57.8"
+    "react": "^16.8.1",
+    "react-native": ">=0.59.0-rc.0 <1.0.x"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.1",
-    "chokidar": "^2.0.4",
-    "eslint": "^5.16.0",
-    "eslint-plugin-flowtype": "^3.4.2",
-    "eslint-plugin-react": "^7.12.4",
-    "eslint-plugin-react-native": "^3.6.0",
-    "flow-bin": "^0.91.0",
-    "react-native": "^0.57.8"
-  },
-  "dependencies": {
-    "rxjs": "^6.4.0"
+    "chokidar": "^3.1.1",
+    "react": "^16.8.3",
+    "react-native": "^0.59.10"
   },
   "directories": {
     "doc": "docs",
@@ -35,7 +38,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Aerobotics/react-native-dji-mobile.git"
+    "url": "git+https://github.com/Aerobotics/react-native-dji-mobile.git",
+    "baseUrl": "https://github.com/Aerobotics/react-native-dji-mobile"
   },
   "bugs": {
     "url": "https://github.com/Aerobotics/react-native-dji-mobile/issues"

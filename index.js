@@ -16,6 +16,10 @@ import CameraControl from './lib/CameraControl';
 
 import DJIMediaControl from './lib/DJIMedia';
 
+import DJIFlightController from './lib/DJIFlightController';
+
+import DJIGimbal from './lib/DJIGimbal';
+
 import {
   DJIEventSubject,
 } from './lib/utilities';
@@ -138,6 +142,9 @@ const DJIMobileWrapper = {
   startSDCardIsReadOnlyListener: startListener(DJIMobile.SDCardIsReadOnly),
   stopSDCardIsReadOnlyListener: stopListener(DJIMobile.SDCardIsReadOnly),
 
+  startAircraftVirtualStickEnabledListener: startListener(DJIMobile.AircraftVirtualStickEnabled),
+  stopAircraftVirtualStickEnabledListener: stopListener(DJIMobile.AircraftVirtualStickEnabled),
+
   getAircraftLocation: async () => {
     return await DJIMobile.getAircraftLocation();
   },
@@ -211,4 +218,6 @@ export {
   DJIMissionControl,
   CameraControl,
   DJIMediaControl,
+  DJIFlightController,
+  DJIGimbal,
 };
