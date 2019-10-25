@@ -7,6 +7,8 @@ import com.facebook.react.bridge.ReadableMap;
 
 import dji.common.error.DJIError;
 import dji.common.mission.waypoint.Waypoint;
+import dji.common.mission.waypoint.WaypointAction;
+import dji.common.mission.waypoint.WaypointActionType;
 import dji.common.mission.waypoint.WaypointMission;
 import dji.common.mission.waypoint.WaypointMissionFlightPathMode;
 import dji.common.mission.waypoint.WaypointMissionGotoWaypointMode;
@@ -38,23 +40,40 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
       this.headingMode(WaypointMissionHeadingMode.valueOf(parameters.getString("headingMode")));
     }
 
-    ReadableArray waypoints= parameters.getArray("waypoints");
-    for (int i = 0, n = waypoints.size(); i < n; i++) {
-      ReadableMap waypoint = waypoints.getMap(i);
-      double longitude = waypoint.getDouble("longitude");
-      double latitude = waypoint.getDouble("latitude");
-      double altitude = waypoint.getDouble("altitude");
+    ReadableArray waypointsParameter = parameters.getArray("waypoints");
+    for (int i = 0, n = waypointsParameter.size(); i < n; i++) {
+      ReadableMap waypointParams = waypointsParameter.getMap(i);
+      double longitude = waypointParams.getDouble("longitude");
+      double latitude = waypointParams.getDouble("latitude");
+      double altitude = waypointParams.getDouble("altitude");
+
       Waypoint waypointObject = new Waypoint(
-              latitude,
-              longitude,
-              (float) altitude);
-      if (waypoint.hasKey("cornerRadiusInMeters")) {
-        double cornerRadiusInMeters = waypoint.getDouble("cornerRadiusInMeters");
+        latitude,
+        longitude,
+        (float) altitude
+      );
+
+      if (waypointParams.hasKey("cornerRadiusInMeters")) {
+        double cornerRadiusInMeters = waypointParams.getDouble("cornerRadiusInMeters");
         waypointObject.cornerRadiusInMeters = (float)cornerRadiusInMeters;
       }
-      this.addWaypoint(
-        waypointObject
-      );
+
+      if (waypointParams.hasKey("actions")) {
+        ReadableArray waypointActions = waypointParams.getArray("actions");
+        for (int j = 0; j < waypointActions.size(); j++) {
+          ReadableMap actionParams = waypointActions.getMap(j);
+          try {
+            String actionType = actionParams.getString("actionType");
+            Integer actionParam = null; // If a correct value is not supplied for actions that require it, null will ensure it is invalid
+            if (actionParams.hasKey("actionParam")) {
+              actionParam = actionParams.getInt("actionParam");
+            }
+            waypointObject.addAction(new WaypointAction(WaypointActionType.valueOf(actionType), actionParam));
+          } catch (Exception e) {}
+        }
+      }
+
+      this.addWaypoint(waypointObject);
     }
 
     if (parameters.hasKey("goToWaypointMode")) {
