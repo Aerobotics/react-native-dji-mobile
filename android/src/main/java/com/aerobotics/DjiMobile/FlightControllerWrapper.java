@@ -48,9 +48,6 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
         @Override
         public void onUploadUpdate(@NonNull WaypointMissionUploadEvent waypointMissionUploadEvent) {
-            if (!enableWaypointExecutionUpdateListener) { // Do not send events unnecessarily
-                return;
-            }
             if (waypointMissionUploadEvent.getCurrentState().equals(WaypointMissionState.READY_TO_EXECUTE)) {
                 getWaypointMissionOperator().startMission(new CommonCallbacks.CompletionCallback() {
                     @Override
@@ -68,6 +65,9 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
         @Override
         public void onExecutionUpdate(@NonNull WaypointMissionExecutionEvent waypointMissionExecutionEvent) {
+            if (!enableWaypointExecutionUpdateListener) { // Do not send events unnecessarily
+                return;
+            }
             WritableMap progressMap = Arguments.createMap();
             WaypointExecutionProgress waypointExecutionProgress = waypointMissionExecutionEvent.getProgress();
             progressMap.putDouble("targetWaypointIndex", waypointExecutionProgress.targetWaypointIndex);
@@ -197,7 +197,9 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void stopVirtualStick(Promise promise) {
-        virtualStickTimelineElement.stop();
+        if (virtualStickTimelineElement != null) {
+            virtualStickTimelineElement.stop();
+        }
         promise.resolve(null);
     }
 
