@@ -108,7 +108,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                 uploadMission();
             }
         } else {
-            promise.reject(new Throwable("Start Mission Error: " + missionParametersError.getDescription()));
+            startMissionPromise.reject(new Throwable("Start Mission Error: " + missionParametersError.getDescription()));
         }
 
     }
@@ -147,6 +147,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                             }
                         }));
                     } else {
+                        startMissionPromise.reject(new Throwable("Upload Failed"));
                         Log.e("REACT", "Not ready to upload");
                     }
                 }
@@ -240,6 +241,20 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
             djiRealTimeDataLogger.stopLogging();
         }
         promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void setAutoFlightSpeed(float speed, final Promise promise) {
+        getWaypointMissionOperator().setAutoFlightSpeed(speed, new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onResult(DJIError djiError) {
+                if (djiError == null) {
+                    promise.resolve(null);
+                } else {
+                    promise.reject(new Throwable(djiError.getDescription()));
+                }
+            }
+        });
     }
 
     @Nonnull
