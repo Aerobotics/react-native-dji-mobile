@@ -557,7 +557,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
     Object existingEventListener = eventListeners.get(SDKEvent);
     if (sdkEventHandler == null) {
-        sdkEventHandler = new SdkEventHandler();
+      return;
     }
     if (existingEventListener == null) {
       Object eventSubscriptionObject = sdkEventHandler.startEventListener(SDKEvent, eventListener);
@@ -570,7 +570,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   private void stopEventListenerInternal(SDKEvent SDKEvent) {
     Object eventSubscriptionObject = eventListeners.get(SDKEvent);
-    if (eventSubscriptionObject != null) {
+    if (eventSubscriptionObject != null && sdkEventHandler != null) {
       sdkEventHandler.stopEventListener(SDKEvent, eventSubscriptionObject);
       eventListeners.remove(SDKEvent);
     }
