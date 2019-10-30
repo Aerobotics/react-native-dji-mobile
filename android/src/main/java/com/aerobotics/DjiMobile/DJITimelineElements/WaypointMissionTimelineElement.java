@@ -1,5 +1,7 @@
 package com.aerobotics.DjiMobile.DJITimelineElements;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.ReadableArray;
@@ -64,7 +66,7 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
           ReadableMap actionParams = waypointActions.getMap(j);
           try {
             String actionType = actionParams.getString("actionType");
-            Integer actionParam = null; // If a correct value is not supplied for actions that require it, null will ensure it is invalid
+            int actionParam = 0;
             if (actionParams.hasKey("actionParam")) {
               actionParam = actionParams.getInt("actionParam");
             }

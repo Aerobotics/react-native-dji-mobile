@@ -7,15 +7,18 @@ import androidx.annotation.Nullable;
 
 import com.aerobotics.DjiMobile.DJITimelineElements.VirtualStickTimelineElement;
 import com.aerobotics.DjiMobile.DJITimelineElements.WaypointMissionTimelineElement;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
 
 import javax.annotation.Nonnull;
 
 import dji.common.error.DJIError;
+import dji.common.mission.waypoint.WaypointExecutionProgress;
 import dji.common.mission.waypoint.WaypointMission;
 import dji.common.mission.waypoint.WaypointMissionDownloadEvent;
 import dji.common.mission.waypoint.WaypointMissionExecutionEvent;
@@ -33,6 +36,9 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     private VirtualStickTimelineElement virtualStickTimelineElement;
     private DJIRealTimeDataLogger djiRealTimeDataLogger;
     private Promise startMissionPromise;
+
+    private boolean enableWaypointExecutionFinishListener = false;
+    private boolean enableWaypointExecutionUpdateListener = false;
 
     private WaypointMissionOperatorListener waypointMissionOperatorListener = new WaypointMissionOperatorListener() {
         @Override
@@ -59,7 +65,15 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
         @Override
         public void onExecutionUpdate(@NonNull WaypointMissionExecutionEvent waypointMissionExecutionEvent) {
-
+            if (!enableWaypointExecutionUpdateListener) { // Do not send events unnecessarily
+                return;
+            }
+            WritableMap progressMap = Arguments.createMap();
+            WaypointExecutionProgress waypointExecutionProgress = waypointMissionExecutionEvent.getProgress();
+            progressMap.putDouble("targetWaypointIndex", waypointExecutionProgress.targetWaypointIndex);
+            progressMap.putBoolean("isWaypointReached", waypointExecutionProgress.isWaypointReached);
+            progressMap.putString("executeState", waypointExecutionProgress.executeState.name());
+            eventSender.processEvent(SDKEvent.WaypointMissionExecutionProgress, progressMap, true);
         }
 
         @Override
@@ -68,8 +82,11 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
         @Override
         public void onExecutionFinish(@Nullable DJIError djiError) {
+            if (!enableWaypointExecutionFinishListener) {
+                return;
+            }
             eventSender.processEvent(SDKEvent.WaypointMissionFinished, true, true);
-            getWaypointMissionOperator().removeListener(waypointMissionOperatorListener);
+//            getWaypointMissionOperator().removeListener(waypointMissionOperatorListener);
         }
     };
 
@@ -91,7 +108,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                 uploadMission();
             }
         } else {
-            promise.reject(new Throwable("Start Mission Error: " + missionParametersError.getDescription()));
+            startMissionPromise.reject(new Throwable("Start Mission Error: " + missionParametersError.getDescription()));
         }
 
     }
@@ -130,6 +147,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                             }
                         }));
                     } else {
+                        startMissionPromise.reject(new Throwable("Upload Failed"));
                         Log.e("REACT", "Not ready to upload");
                     }
                 }
@@ -180,20 +198,32 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void stopVirtualStick(Promise promise) {
-        virtualStickTimelineElement.stop();
+        if (virtualStickTimelineElement != null) {
+            virtualStickTimelineElement.stop();
+        }
         promise.resolve(null);
     }
 
     @ReactMethod
     public void stopAllWaypointMissionListeners(Promise promise) {
         getWaypointMissionOperator().removeListener(waypointMissionOperatorListener);
+        enableWaypointExecutionUpdateListener = false;
+        enableWaypointExecutionFinishListener = false;
         promise.resolve("stopAllWaypointMissionListeners");
     }
 
     @ReactMethod
     public void startWaypointMissionFinishedListener(Promise promise) {
+        enableWaypointExecutionFinishListener = true;
         setWaypointMissionOperatorListener();
         promise.resolve("startWaypointMissionFinishedListener");
+    }
+
+    @ReactMethod
+    public void startWaypointExecutionUpdateListener(Promise promise) {
+        enableWaypointExecutionUpdateListener = true;
+        setWaypointMissionOperatorListener();
+        promise.resolve("startWaypointExecutionUpdateListener");
     }
 
     @ReactMethod
@@ -211,6 +241,20 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
             djiRealTimeDataLogger.stopLogging();
         }
         promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void setAutoFlightSpeed(float speed, final Promise promise) {
+        getWaypointMissionOperator().setAutoFlightSpeed(speed, new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onResult(DJIError djiError) {
+                if (djiError == null) {
+                    promise.resolve(null);
+                } else {
+                    promise.reject(new Throwable(djiError.getDescription()));
+                }
+            }
+        });
     }
 
     @Nonnull
