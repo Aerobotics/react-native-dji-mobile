@@ -1,6 +1,5 @@
 package com.aerobotics.DjiMobile;
 
-import android.graphics.Camera;
 import androidx.annotation.NonNull;
 import android.util.Log;
 
@@ -357,6 +356,68 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             @Override
             public void onFailure(@NonNull DJIError djiError) {
                 promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set camera mode " + djiError.getDescription());
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setCameraColor(String cameraColor, final Promise promise) {
+        DJIKey cameraColorKey = CameraKey.create(CameraKey.CAMERA_COLOR);
+        DJISDKManager.getInstance().getKeyManager().setValue(cameraColorKey, SettingsDefinitions.CameraColor.valueOf(cameraColor), new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve(null);
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setSharpness(Integer sharpness, final Promise promise) {
+        DJIKey sharpnesKey = CameraKey.create(CameraKey.SHARPNESS);
+        DJISDKManager.getInstance().getKeyManager().setValue(sharpnesKey, sharpness, new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve(null);
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
+            }
+        });
+    }
+
+    @ReactMethod void setContrast(Integer contrast, final Promise promise) {
+        DJIKey contrastKey = CameraKey.create(CameraKey.CONTRAST);
+        DJISDKManager.getInstance().getKeyManager().setValue(contrastKey, contrast, new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve(null);
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
+            }
+        });
+    }
+
+    @ReactMethod void setSaturation(Integer saturation, final Promise promise) {
+        DJIKey saturationKey = CameraKey.create(CameraKey.SATURATION);
+        DJISDKManager.getInstance().getKeyManager().setValue(saturationKey, saturation, new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve(null);
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
             }
         });
     }
