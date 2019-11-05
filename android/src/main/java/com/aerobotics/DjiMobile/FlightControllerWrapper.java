@@ -25,6 +25,9 @@ import dji.common.mission.waypoint.WaypointMissionExecutionEvent;
 import dji.common.mission.waypoint.WaypointMissionState;
 import dji.common.mission.waypoint.WaypointMissionUploadEvent;
 import dji.common.util.CommonCallbacks;
+import dji.keysdk.DJIKey;
+import dji.keysdk.FlightControllerKey;
+import dji.keysdk.callback.SetCallback;
 import dji.sdk.mission.waypoint.WaypointMissionOperator;
 import dji.sdk.mission.waypoint.WaypointMissionOperatorListener;
 import dji.sdk.sdkmanager.DJISDKManager;
@@ -253,6 +256,22 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                 } else {
                     promise.reject(new Throwable(djiError.getDescription()));
                 }
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setTerrainFollowModeEnabled(boolean enabled, final Promise promise) {
+        DJIKey terrainFollowModeEnabledKey = FlightControllerKey.create(FlightControllerKey.VIRTUAL_STICK_CONTROL_MODE_ENABLED);
+        DJISDKManager.getInstance().getKeyManager().setValue(terrainFollowModeEnabledKey, enabled, new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve(null);
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
             }
         });
     }
