@@ -384,12 +384,23 @@ class CameraControlNative: NSObject {
       return
     }
 
-    let resolutionAndFramerate = DJICameraVideoResolutionAndFrameRate(resolution: DJICameraVideoResolution(rawValue: videoResolutionParam)!, frameRate: DJICameraVideoFrameRate(rawValue: videoFrameRateParam)!)
+    let resolutionAndFramerate = DJICameraVideoResolutionAndFrameRate(resolution: DJICameraVideoResolution(rawValue: videoResolutionParam as! UInt)!, frameRate: DJICameraVideoFrameRate(rawValue: videoFrameRateParam as! UInt)!)
     DJISDKManager.keyManager()?.setValue(resolutionAndFramerate, for: DJICameraKey(param: DJICameraParamVideoResolutionAndFrameRate)!, withCompletion: { (error: Error?) in
       if (error == nil) {
         resolve("CameraControl: Set video resolution & frame rate successfully")
       } else {
         reject("CameraControl: Set video resolution & frame rate error", error?.localizedDescription, error)
+      }
+    })
+  }
+  
+  @objc(setVideoCaptionsEnabled:resolve:reject:)
+  func setVideoCaptionsEnabled(enabled: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(enabled, for: DJICameraKey(param: DJICameraParamVideoCaptionEnabled)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: Set video captions enabled/disabled successfully")
+      } else {
+        reject("CameraControl: Set video captions enabled/disabled error", error?.localizedDescription, error)
       }
     })
   }

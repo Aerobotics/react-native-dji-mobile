@@ -92,6 +92,12 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  setVideoCaptionsEnabled: (BOOL)enabled
+                  resolve:                 (RCTPromiseResolveBlock)resolve
+                  reject:                  (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
                   startRecording: (RCTPromiseResolveBlock)resolve
                   reject:         (RCTPromiseRejectBlock)reject
 )
