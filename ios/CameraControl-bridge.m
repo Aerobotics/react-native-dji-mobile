@@ -19,6 +19,30 @@ RCT_EXTERN_METHOD(
                   )
 
 RCT_EXTERN_METHOD(
+                  setCameraColor: (NSString)cameraColor
+                  resolve:        (RCTPromiseResolveBlock)resolve
+                  reject:         (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  setSharpness: (nonull NSNumber)sharpness
+                  resolve:      (RCTPromiseResolveBlock)resolve
+                  reject:       (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  setContrast: (nonull NSNumber)contrast
+                  resolve:     (RCTPromiseResolveBlock)resolve
+                  reject:      (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  setSaturation: (nonull NSNumber)saturation
+                  resolve:       (RCTPromiseResolveBlock)resolve
+                  reject:        (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
                   setPhotoAspectRatio: (NSString)photoAspectRatio
                   resolve:             (RCTPromiseResolveBlock)resolve
                   reject:              (RCTPromiseRejectBlock)reject
@@ -66,6 +90,12 @@ RCT_EXTERN_METHOD(
                   resolve:                        (RCTPromiseResolveBlock)resolve
                   reject:                         (RCTPromiseRejectBlock)reject
                   )
+
+RCT_EXTERN_METHOD(
+                  setVideoCaptionsEnabled: (BOOL)enabled
+                  resolve:                 (RCTPromiseResolveBlock)resolve
+                  reject:                  (RCTPromiseRejectBlock)reject
+)
 
 RCT_EXTERN_METHOD(
                   startRecording: (RCTPromiseResolveBlock)resolve

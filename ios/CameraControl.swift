@@ -191,6 +191,12 @@ class CameraControlNative: NSObject {
       "PLAYBACK": DJICameraMode.playback.rawValue,
       "MEDIA_DOWNLOAD": DJICameraMode.mediaDownload.rawValue,
     ],
+    
+    "CameraColors": [
+      "NONE": DJICameraColor.colorNone,
+      "D_LOG": DJICameraColor.colorDLog,
+      "D_CINELIKE": DJICameraColor.colorDCinelike,
+    ],
 
   ]
 
@@ -205,6 +211,54 @@ class CameraControlNative: NSObject {
         resolve("CameraControl: Camera mode set successfully")
       } else {
         reject("CameraControl: Camera mode error", error?.localizedDescription, error)
+      }
+    })
+  }
+  
+  @objc(setCameraColor:resolve:reject:)
+  func setCameraColor(cameraColor: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    guard let cameraColorParam = cameraParameters["CameraColors"]![cameraColor] else {
+      reject("CameraControl: Unknown camera color", "An unknown camera color of \"\(cameraColor)\" was provided", nil)
+      return
+    }
+    DJISDKManager.keyManager()?.setValue(cameraColorParam, for: DJICameraKey(param: DJICameraParamColor)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: Camera color set successfully")
+      } else {
+        reject("CameraControl: Camera color error", error?.localizedDescription, error)
+      }
+    })
+  }
+  
+  @objc(setSharpness:resolve:reject:)
+  func setSharpness(sharpness: Int8, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(sharpness, for: DJICameraKey(param: DJICameraParamSharpness)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: Camera sharpness set successfully")
+      } else {
+        reject("CameraControl: Camera sharpness error", error?.localizedDescription, error)
+      }
+    })
+  }
+  
+  @objc(setContrast:resolve:reject:)
+  func setContrast(contrast: Int8, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(contrast, for: DJICameraKey(param: DJICameraParamContrast)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: Camera contrast set successfully")
+      } else {
+        reject("CameraControl: Camera contrast error", error?.localizedDescription, error)
+      }
+    })
+  }
+  
+  @objc(setSaturation:resolve:reject:)
+  func setSaturation(saturation: Int8, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(saturation, for: DJICameraKey(param: DJICameraParamSaturation)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: Camera saturation set successfully")
+      } else {
+        reject("CameraControl: Camera saturation error", error?.localizedDescription, error)
       }
     })
   }
@@ -330,12 +384,23 @@ class CameraControlNative: NSObject {
       return
     }
 
-    let resolutionAndFramerate = DJICameraVideoResolutionAndFrameRate(resolution: DJICameraVideoResolution(rawValue: videoResolutionParam)!, frameRate: DJICameraVideoFrameRate(rawValue: videoFrameRateParam)!)
+    let resolutionAndFramerate = DJICameraVideoResolutionAndFrameRate(resolution: DJICameraVideoResolution(rawValue: videoResolutionParam as! UInt)!, frameRate: DJICameraVideoFrameRate(rawValue: videoFrameRateParam as! UInt)!)
     DJISDKManager.keyManager()?.setValue(resolutionAndFramerate, for: DJICameraKey(param: DJICameraParamVideoResolutionAndFrameRate)!, withCompletion: { (error: Error?) in
       if (error == nil) {
         resolve("CameraControl: Set video resolution & frame rate successfully")
       } else {
         reject("CameraControl: Set video resolution & frame rate error", error?.localizedDescription, error)
+      }
+    })
+  }
+  
+  @objc(setVideoCaptionsEnabled:resolve:reject:)
+  func setVideoCaptionsEnabled(enabled: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.setValue(enabled, for: DJICameraKey(param: DJICameraParamVideoCaptionEnabled)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: Set video captions enabled/disabled successfully")
+      } else {
+        reject("CameraControl: Set video captions enabled/disabled error", error?.localizedDescription, error)
       }
     })
   }
