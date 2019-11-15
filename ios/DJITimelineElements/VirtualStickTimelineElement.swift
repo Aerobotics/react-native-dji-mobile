@@ -290,14 +290,15 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     }
   }
 
-
-
   public func run() {
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
       let missionControl = DJISDKManager.missionControl()
       guard let aircraft = DJISDKManager.product() as? DJIAircraft else {
         NSLog("Could not connect to aircraft")
         missionControl?.element(self, failedStartingWithError: VirtualStickErrors.general(message: "Could not connect to aircraft"))
+        EventSender.sendReactEvent(type: "VirtualStickTimelineElementEvent", value: [
+          "error": VirtualStickErrors.general(message: "Could not connect to aircraft").localizedDescription
+        ], realtime: true)
         return
       }
       let flightController = aircraft.flightController
@@ -315,6 +316,9 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
         flightController?.setVirtualStickModeEnabled(false, withCompletion: { (error: Error?) in
           self.cleanUp { (error: Error?) in
             DJISDKManager.missionControl()?.element(self, didFinishRunningWithError: error)
+            EventSender.sendReactEvent(type: "VirtualStickTimelineElementEvent", value: [
+              "error": error?.localizedDescription
+            ], realtime: true)
           }
         })
 
@@ -329,6 +333,9 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
                 if (error != nil) {
                   missionControl?.element(self, failedStartingWithError: error!)
                   NSLog("Could not enable virtual stick with error: %@", error!.localizedDescription)
+                  EventSender.sendReactEvent(type: "VirtualStickTimelineElementEvent", value: [
+                    "error": error?.localizedDescription
+                  ], realtime: true)
                 } else {
                   self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
                   missionControl?.elementDidStartRunning(self)
@@ -345,8 +352,14 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
                   case UltrasonicUnknownError(String)
                 }
                 missionControl?.element(self, failedStartingWithError: UltrasonicSensorError.UltrasonicUnknownError("Unknown Error"))
+                EventSender.sendReactEvent(type: "VirtualStickTimelineElementEvent", value: [
+                  "error": UltrasonicSensorError.UltrasonicUnknownError("Unknown Error").localizedDescription
+                ], realtime: true)
               } else {
                 missionControl?.element(self, failedStartingWithError: error!)
+                EventSender.sendReactEvent(type: "VirtualStickTimelineElementEvent", value: [
+                  "error": error?.localizedDescription
+                ], realtime: true)
 
               }
             }
@@ -369,6 +382,9 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
           flightController?.setVirtualStickModeEnabled(true, withCompletion: { (error: Error?) in
             if (error != nil) {
               missionControl?.element(self, failedStartingWithError: error!)
+              EventSender.sendReactEvent(type: "VirtualStickTimelineElementEvent", value: [
+                "error": error?.localizedDescription
+              ], realtime: true)
             } else {
               self.sendVirtualStickDataTimer = Timer.scheduledTimer(timeInterval: sendVirtualStickDataTimerPeriod, target: self, selector: #selector(self.sendVirtualStickData), userInfo: nil, repeats: true)
               missionControl?.elementDidStartRunning(self)

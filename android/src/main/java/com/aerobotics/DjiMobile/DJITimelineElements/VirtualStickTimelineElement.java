@@ -4,8 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.Log;
 
+import com.aerobotics.DjiMobile.EventSender;
+import com.aerobotics.DjiMobile.SDKEvent;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.WritableMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +23,7 @@ import dji.common.flightcontroller.virtualstick.FlightCoordinateSystem;
 import dji.common.flightcontroller.virtualstick.RollPitchControlMode;
 import dji.common.flightcontroller.virtualstick.VerticalControlMode;
 import dji.common.flightcontroller.virtualstick.YawControlMode;
+import dji.common.mission.waypoint.WaypointExecutionProgress;
 import dji.common.util.CommonCallbacks;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
@@ -120,6 +125,7 @@ public class VirtualStickTimelineElement extends MissionAction {
 
   private TimerTask sendVirtualStickDataBlock;
   private TimerTask endTriggerTimerBlock;
+  private EventSender eventSender;
 
   public VirtualStickTimelineElement(ReadableMap parameters) {
 
@@ -197,7 +203,18 @@ public class VirtualStickTimelineElement extends MissionAction {
       } catch (Exception e) {}
 
     }
+  }
 
+  public void initializeVirtualStickEventSender(EventSender eventSender) {
+    this.eventSender = eventSender;
+  }
+
+  private void sendVirtualStickTimelineElementEvent(DJIError djiError) {
+    if (this.eventSender != null) {
+      WritableMap progressMap = Arguments.createMap();
+      progressMap.putString("error", djiError.getDescription());
+      this.eventSender.processEvent(SDKEvent.VirtualStickTimelineElementEvent, progressMap, true);
+    }
   }
 
   private void implementControlStickAdjustment(final VirtualStickControl virtualStickControl, ControllerStickAxis controllerStickAxis, final Double minSpeed, final Double maxSpeed) {
@@ -367,6 +384,7 @@ public class VirtualStickTimelineElement extends MissionAction {
             public void onResult(DJIError djiError) {
           if (djiError != null) {
             missionControl.onStartWithError(self, djiError);
+            sendVirtualStickTimelineElementEvent(djiError);
           } else {
             missionControl.onStart(self);
             sendVirtualStickDataTimer = new Timer();
@@ -444,6 +462,7 @@ public class VirtualStickTimelineElement extends MissionAction {
       }
     } else {
       missionControl.onStartWithError(self, DJIError.COMMON_EXECUTION_FAILED);
+      sendVirtualStickTimelineElementEvent(DJIError.COMMON_EXECUTION_FAILED);
     }
 
   }
