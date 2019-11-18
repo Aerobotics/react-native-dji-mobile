@@ -149,13 +149,6 @@ const DJIMobileWrapper = {
     return await DJIMobile.getAircraftLocation();
   },
 
-  startRecordFlightData: async (fileName: string) => {
-    await DJIMobile.startRecordFlightData(fileName);
-  },
-  stopRecordFlightData: async () => {
-    await DJIMobile.stopRecordFlightData();
-  },
-
   startNewMediaFileListener: async () => {
     await DJIMobile.startNewMediaFileListener();
     return DJIEventSubject.pipe($filter(evt => evt.type === 'CameraDidGenerateNewMediaFile')).asObservable();
