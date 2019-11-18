@@ -174,13 +174,13 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         DJISDKManager.getInstance().getKeyManager().performAction(stopRecordingKey, new ActionCallback() {
             @Override
             public void onSuccess() {
-                Log.i("REACT", "CameraControlNative: stopRecording ran successfully");
-                promise.resolve("CameraControlNative: stopRecording ran successfully");
+                Log.i("REACT", "CameraControlNative: startRecording ran successfully");
+                promise.resolve("CameraControlNative: startRecording ran successfully");
             }
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNative: stopRecording failed to stop recording");
+                promise.reject("CameraControlNative: " + djiError.getDescription());
             }
         });
     }
@@ -197,7 +197,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
         @Override
         public void onFailure(@NonNull DJIError djiError) {
-            promise.reject("CameraControlNative: stopRecording failed to stop recording");
+            promise.reject("CameraControlNative: " + djiError);
         }
       });
     }
