@@ -184,7 +184,7 @@ class CameraControlNative: NSObject {
       "SHUTTER_SPEED_30": DJICameraShutterSpeed.speed30.rawValue,
       "UNKNOWN": DJICameraShutterSpeed.speedUnknown.rawValue,
     ],
-    
+
     "Apertures": [
       "F_1_DOT_6": DJICameraAperture.f1Dot6,
       "F_1_DOT_7": DJICameraAperture.f1Dot7,
@@ -194,7 +194,7 @@ class CameraControlNative: NSObject {
       "F_2_DOT_4": DJICameraAperture.f2Dot4,
       "F_2_DOT_5": DJICameraAperture.f2Dot5,
       "F_2_DOT_6": DJICameraAperture.f2Dot6,
-      "F_2_DOT_8": DJICameraAperture.f2Dot7,
+      "F_2_DOT_8": DJICameraAperture.f2Dot8,
       "F_3_DOT_2": DJICameraAperture.f3Dot2,
       "F_3_DOT_4": DJICameraAperture.f3Dot4,
       "F_3_DOT_5": DJICameraAperture.f3Dot5,
@@ -226,7 +226,7 @@ class CameraControlNative: NSObject {
       "PLAYBACK": DJICameraMode.playback.rawValue,
       "MEDIA_DOWNLOAD": DJICameraMode.mediaDownload.rawValue,
     ],
-    
+
     "CameraColors": [
       "NONE": DJICameraColor.colorNone,
       "D_LOG": DJICameraColor.colorDLog,
@@ -249,7 +249,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setCameraColor:resolve:reject:)
   func setCameraColor(cameraColor: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     guard let cameraColorParam = cameraParameters["CameraColors"]![cameraColor] else {
@@ -264,7 +264,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setSharpness:resolve:reject:)
   func setSharpness(sharpness: Int8, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.setValue(sharpness, for: DJICameraKey(param: DJICameraParamSharpness)!, withCompletion: { (error: Error?) in
@@ -275,7 +275,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setContrast:resolve:reject:)
   func setContrast(contrast: Int8, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.setValue(contrast, for: DJICameraKey(param: DJICameraParamContrast)!, withCompletion: { (error: Error?) in
@@ -286,7 +286,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setSaturation:resolve:reject:)
   func setSaturation(saturation: Int8, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.setValue(saturation, for: DJICameraKey(param: DJICameraParamSaturation)!, withCompletion: { (error: Error?) in
@@ -376,7 +376,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setAperture:resolve:reject:)
   func setAperture(aperture: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     guard let apertureParam = cameraParameters["Apertures"]![aperture] else {
@@ -443,7 +443,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setVideoCaptionsEnabled:resolve:reject:)
   func setVideoCaptionsEnabled(enabled: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.setValue(enabled, for: DJICameraKey(param: DJICameraParamVideoCaptionEnabled)!, withCompletion: { (error: Error?) in
@@ -454,7 +454,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(startRecording:reject:)
   func startRecording(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.performAction(for: DJICameraKey(param: DJICameraParamStartRecordVideo)!, withArguments: nil, andCompletion: { (finished: Bool, response: DJIKeyedValue?, error: Error?) in
@@ -465,7 +465,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(stopRecording:reject:)
   func stopRecording(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.performAction(for: DJICameraKey(param: DJICameraParamStopRecordVideo)!, withArguments: nil, andCompletion: { (finished: Bool, response: DJIKeyedValue?, error: Error?) in
