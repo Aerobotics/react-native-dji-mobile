@@ -95,6 +95,9 @@ public class VirtualStickTimelineElement extends MissionAction {
 
   private Float ultrasonicEndDistance;
 
+  private boolean ultrasonicDecreaseVerticalThrottleWithDistance = false;
+  private Double verticalThrottleLimitPercent = 1.0;
+
   private Float stopAltitude;
   private AltitudeStopDirection altitudeStopDirection;
 
@@ -166,6 +169,10 @@ public class VirtualStickTimelineElement extends MissionAction {
 
       try {
         ultrasonicEndDistance = (float) parameters.getDouble(Parameters.ultrasonicEndDistance.toString());
+      } catch (Exception e) {}
+
+      try {
+        ultrasonicDecreaseVerticalThrottleWithDistance = parameters.getBoolean(Parameters.ultrasonicDecreaseVerticalThrottleWithDistance.toString());
       } catch (Exception e) {}
 
       try {
@@ -332,6 +339,28 @@ public class VirtualStickTimelineElement extends MissionAction {
     runningKeyListeners.add(ultrasonicHeightKeyListener);
   }
 
+  private void decreaseVerticalThrottleWithDistance() {
+    final MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
+    DJIKey ultrasonicHeightKey = FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS);
+    final Double xShift = 0.693147181;
+
+    KeyListener ultrasonicHeightKeyListener = new KeyListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Float) {
+          Float remainingDistance = (Float) newValue - ultrasonicEndDistance;
+          // The function used is y = 1 - e^((x+1)/2 - xShift). This is a exponentially decreasing function, starting at 1 and decreasing to 0.5 at x=1 (When the drone is 1m from the required height)
+          Double throttlePercentDecay = 1 - Math.pow(Math.E, (2 * (-remainingDistance + 1) - xShift));
+          // Ensure that the vertical throttle is not decreased by more than 50%
+          self.verticalThrottleLimitPercent = Math.max(throttlePercentDecay, .5);
+        }
+      }
+    };
+
+    DJISDKManager.getInstance().getKeyManager().addListener(ultrasonicHeightKey, ultrasonicHeightKeyListener);
+    runningKeyListeners.add(ultrasonicHeightKeyListener);
+  }
+
   private void stopAtAltitude(final Float stopAltitude, final AltitudeStopDirection stopDirection) {
     final MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
     final DJIKey altitudeKey = FlightControllerKey.create(FlightControllerKey.ALTITUDE);
@@ -395,7 +424,7 @@ public class VirtualStickTimelineElement extends MissionAction {
                       double pitch = baseVirtualStickControlValues.get(VirtualStickControl.pitch) + virtualStickAdjustmentValues.get(VirtualStickControl.pitch);
                       double roll = baseVirtualStickControlValues.get(VirtualStickControl.roll) + virtualStickAdjustmentValues.get(VirtualStickControl.roll);
                       double yaw = baseVirtualStickControlValues.get(VirtualStickControl.yaw) + virtualStickAdjustmentValues.get(VirtualStickControl.yaw);
-                      double verticalThrottle = baseVirtualStickControlValues.get(VirtualStickControl.verticalThrottle) + virtualStickAdjustmentValues.get(VirtualStickControl.verticalThrottle);
+                      double verticalThrottle = self.verticalThrottleLimitPercent * (baseVirtualStickControlValues.get(VirtualStickControl.verticalThrottle) + virtualStickAdjustmentValues.get(VirtualStickControl.verticalThrottle));
 
                       flightController.sendVirtualStickFlightControlData(new FlightControlData(
                               // In the coordinate system we use for the drone, roll and pitch are swapped
@@ -440,6 +469,9 @@ public class VirtualStickTimelineElement extends MissionAction {
                     public void complete(@Nullable DJIError djiError) {
                       if (djiError == null) {
                         stopAtUltrasonicHeight();
+                        if (self.ultrasonicDecreaseVerticalThrottleWithDistance == true) {
+                          self.decreaseVerticalThrottleWithDistance();
+                        }
                       } else {
                         sendVirtualStickDataTimer.cancel();
                         cleanUp(new CompletionCallback() {
