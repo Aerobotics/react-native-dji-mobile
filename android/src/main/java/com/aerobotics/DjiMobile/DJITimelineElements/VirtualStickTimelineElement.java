@@ -386,6 +386,27 @@ public class VirtualStickTimelineElement extends MissionAction {
     runningKeyListeners.add(altitudeKeyListener);
   }
 
+  public void sendVirtualStickData() {
+
+    HashMap<VirtualStickControl, Double> virtualStickData = new HashMap();
+
+    for (VirtualStickControl virtualStickControl : VirtualStickControl.values()) {
+      virtualStickData.put(virtualStickControl, baseVirtualStickControlValues.get(virtualStickControl) + virtualStickAdjustmentValues.get(virtualStickControl));
+    }
+
+    try {
+      Aircraft product = ((Aircraft)DJISDKManager.getInstance().getProduct());
+      final FlightController flightController = product.getFlightController();
+      flightController.sendVirtualStickFlightControlData(new FlightControlData(
+        // In the coordinate system we use for the drone, roll and pitch are swapped
+        virtualStickData.get(VirtualStickControl.roll).floatValue(),
+        virtualStickData.get(VirtualStickControl.pitch).floatValue(),
+        virtualStickData.get(VirtualStickControl.yaw).floatValue(),
+        virtualStickData.get(VirtualStickControl.verticalThrottle).floatValue() * self.verticalThrottleLimitPercent.floatValue()
+      ), null);
+    } catch (NullPointerException e) {}
+  }
+
   @Override
   public void run() {
     Aircraft product = ((Aircraft)DJISDKManager.getInstance().getProduct());
@@ -420,22 +441,7 @@ public class VirtualStickTimelineElement extends MissionAction {
                 sendVirtualStickDataBlock = new TimerTask() {
                   @Override
                   public void run() {
-                    try {
-                      double pitch = baseVirtualStickControlValues.get(VirtualStickControl.pitch) + virtualStickAdjustmentValues.get(VirtualStickControl.pitch);
-                      double roll = baseVirtualStickControlValues.get(VirtualStickControl.roll) + virtualStickAdjustmentValues.get(VirtualStickControl.roll);
-                      double yaw = baseVirtualStickControlValues.get(VirtualStickControl.yaw) + virtualStickAdjustmentValues.get(VirtualStickControl.yaw);
-                      double verticalThrottle = self.verticalThrottleLimitPercent * (baseVirtualStickControlValues.get(VirtualStickControl.verticalThrottle) + virtualStickAdjustmentValues.get(VirtualStickControl.verticalThrottle));
-
-                      flightController.sendVirtualStickFlightControlData(new FlightControlData(
-                              // In the coordinate system we use for the drone, roll and pitch are swapped
-                              (float) roll,
-                              (float) pitch,
-                              (float) yaw,
-                              (float) verticalThrottle
-                      ), null);
-                    } catch (NullPointerException e) {
-                      Log.e("REACT", "sendVirtualStickDataBlock Error");
-                    }
+                    self.sendVirtualStickData();
                   }
                 };
                 sendVirtualStickDataTimer.scheduleAtFixedRate(sendVirtualStickDataBlock, 0, 50);
