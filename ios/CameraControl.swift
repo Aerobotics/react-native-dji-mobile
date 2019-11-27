@@ -184,6 +184,41 @@ class CameraControlNative: NSObject {
       "SHUTTER_SPEED_30": DJICameraShutterSpeed.speed30.rawValue,
       "UNKNOWN": DJICameraShutterSpeed.speedUnknown.rawValue,
     ],
+    
+    "Apertures": [
+      "F_1_DOT_6": DJICameraAperture.f1Dot6,
+      "F_1_DOT_7": DJICameraAperture.f1Dot7,
+      "F_1_DOT_8": DJICameraAperture.f1Dot8,
+      "F_2": DJICameraAperture.F2,
+      "F_2_DOT_2": DJICameraAperture.f2Dot2,
+      "F_2_DOT_4": DJICameraAperture.f2Dot4,
+      "F_2_DOT_5": DJICameraAperture.f2Dot5,
+      "F_2_DOT_6": DJICameraAperture.f2Dot6,
+      "F_2_DOT_8": DJICameraAperture.f2Dot7,
+      "F_3_DOT_2": DJICameraAperture.f3Dot2,
+      "F_3_DOT_4": DJICameraAperture.f3Dot4,
+      "F_3_DOT_5": DJICameraAperture.f3Dot5,
+      "F_4": DJICameraAperture.F4,
+      "F_4_DOT_5": DJICameraAperture.f4Dot5,
+      "F_4_DOT_8": DJICameraAperture.f4Dot8,
+      "F_5": DJICameraAperture.F5,
+      "F_5_DOT_6": DJICameraAperture.f5Dot6,
+      "F_6_DOT_3": DJICameraAperture.f6Dot3,
+      "F_6_DOT_8": DJICameraAperture.f6Dot8,
+      "F_7_DOT_1": DJICameraAperture.f7Dot1,
+      "F_8": DJICameraAperture.F8,
+      "F_9": DJICameraAperture.F9,
+      "F_9_DOT_6": DJICameraAperture.f9Dot6,
+      "F_10": DJICameraAperture.F10,
+      "F_11": DJICameraAperture.F11,
+      "F_13": DJICameraAperture.F13,
+      "F_14": DJICameraAperture.F14,
+      "F_16": DJICameraAperture.F16,
+      "F_18": DJICameraAperture.F18,
+      "F_19": DJICameraAperture.F19,
+      "F_20": DJICameraAperture.F20,
+      "F_22": DJICameraAperture.F22,
+    ],
 
     "CameraModes": [
       "SHOOT_PHOTO": DJICameraMode.shootPhoto.rawValue,
@@ -338,6 +373,21 @@ class CameraControlNative: NSObject {
         resolve("CameraControl: Shutter speed set successfully")
       } else {
         reject("CameraControl: Shutter speed error", error?.localizedDescription, error)
+      }
+    })
+  }
+  
+  @objc(setAperture:resolve:reject:)
+  func setAperture(aperture: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    guard let apertureParam = cameraParameters["Apertures"]![aperture] else {
+      reject("CameraControl: Unknown aperture", "An unknown aperture speed of \"\(aperture)\" was provided", nil)
+      return
+    }
+    DJISDKManager.keyManager()?.setValue(apertureParam, for: DJICameraKey(param: DJICameraParamAperture)!, withCompletion: { (error: Error?) in
+      if (error == nil) {
+        resolve("CameraControl: Aperture set successfully")
+      } else {
+        reject("CameraControl: Aperture error", error?.localizedDescription, error)
       }
     })
   }

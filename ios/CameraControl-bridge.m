@@ -73,6 +73,12 @@ RCT_EXTERN_METHOD(
 )
 
 RCT_EXTERN_METHOD(
+                  setAperture: (NSString)aperture
+                  resolve:     (RCTPromiseResolveBlock)resolve
+                  reject:      (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
                   setVideoFileFormat: (NSString)videoFileFormat
                   resolve:            (RCTPromiseResolveBlock)resolve
                   reject:             (RCTPromiseRejectBlock)reject
