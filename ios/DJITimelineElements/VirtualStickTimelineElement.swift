@@ -70,6 +70,8 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
   private var waitForControlSticksReleaseOnEnd = false
 
   private var ultrasonicEndDistance: Double?
+  
+  private var ultrasonicDecreaseVerticalThrottleWithDistance = false
 
   private var stopAltitude: Double?
   private var altitudeStopDirection: AltitudeStopDirection?
@@ -87,6 +89,8 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
     VirtualStickControl.yaw: 0.0,
     VirtualStickControl.verticalThrottle: 0.0,
   ]
+  
+  private var verticalThrottleLimitPercent = 1.0
 
   init(_ parameters: NSDictionary) {
 
@@ -126,6 +130,10 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
 
       if let ultrasonicEndDistance = parameters[Parameters.ultrasonicEndDistance.rawValue] as? Double {
         self.ultrasonicEndDistance = ultrasonicEndDistance
+      }
+      
+      if let ultrasonicDecreaseVerticalThrottleWithDistance = parameters[Parameters.ultrasonicDecreaseVerticalThrottleWithDistance.rawValue] as? Bool {
+        self.ultrasonicDecreaseVerticalThrottleWithDistance = ultrasonicDecreaseVerticalThrottleWithDistance
       }
 
       if let stopAltitude = parameters[Parameters.stopAltitude.rawValue] as? Double {
@@ -247,6 +255,18 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
       }
     })
   }
+  
+  private func decreaseVerticalThrottleWithDistance(stopHeight: Double) {
+    let xShift = 0.693147181
+    DJISDKManager.keyManager()?.startListeningForChanges(on: DJIFlightControllerKey.init(param: DJIFlightControllerParamUltrasonicHeightInMeters)!, withListener: self, andUpdate: { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
+      let ultrasonicHeight = newValue!.doubleValue
+      let remainingDistance = ultrasonicHeight - stopHeight
+      // The function used is y = 1 - e^((x+1)/2 - xShift). This is a exponentially decreasing function, starting at 1 and decreasing to 0.5 at x=1 (When the drone is 1m from the required height)
+      let throttlePercentDecay = 1 - pow(M_E, (2*(-remainingDistance + 1) - xShift))
+      // Ensure that the vertical throttle is not decreased by more than 50%
+      self.verticalThrottleLimitPercent = max(throttlePercentDecay, 0.5)
+    })
+  }
 
   private func stopAtAltitude(stopAltitude: Double, direction: AltitudeStopDirection) {
     DJISDKManager.keyManager()?.startListeningForChanges(on: DJIFlightControllerKey(param: DJIFlightControllerParamAltitudeInMeters)!, withListener: self, andUpdate: { (_: DJIKeyedValue?, newValue: DJIKeyedValue?) in
@@ -277,7 +297,7 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
         pitch: Float(virtualStickData[VirtualStickControl.roll]!),
         roll: Float(virtualStickData[VirtualStickControl.pitch]!),
         yaw: Float(virtualStickData[VirtualStickControl.yaw]!),
-        verticalThrottle: Float(virtualStickData[VirtualStickControl.verticalThrottle]!)
+        verticalThrottle: Float( virtualStickData[VirtualStickControl.verticalThrottle]! * self.verticalThrottleLimitPercent )
       ),
       withCompletion: nil)
   }
@@ -325,9 +345,14 @@ public class VirtualStickTimelineElement: NSObject, DJIMissionControlTimelineEle
       } else {
         if (self.endTrigger == .ultrasonic) {
           self.isUltrasonicEnabled { (isUltrasonicEnabled: Bool, error: Error?) in
+            // TODO: (Adam) Fix this function sometimes failing!
 //            if (isUltrasonicEnabled == true) {
             if (true) {
               self.stopAtUltrasonicHeight(stopHeight: self.ultrasonicEndDistance!)
+              
+              if (self.ultrasonicDecreaseVerticalThrottleWithDistance == true) {
+                self.decreaseVerticalThrottleWithDistance(stopHeight: self.ultrasonicEndDistance!)
+              }
 
               flightController?.setVirtualStickModeEnabled(true, withCompletion: { (error: Error?) in
                 if (error != nil) {
