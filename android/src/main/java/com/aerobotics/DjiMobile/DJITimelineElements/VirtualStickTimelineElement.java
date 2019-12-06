@@ -350,7 +350,11 @@ public class VirtualStickTimelineElement extends MissionAction {
         if (newValue instanceof Float) {
           Float remainingDistance = (Float) newValue - ultrasonicEndDistance;
           // The function used is y = 1 - e^((x+1)/2 - xShift). This is a exponentially decreasing function, starting at 1 and decreasing to 0.5 at x=1 (When the drone is 1m from the required height)
-          Double throttlePercentDecay = 1 - Math.pow(Math.E, (2 * (-remainingDistance + 1) - xShift));
+
+          // TODO: (Adam) Descide what the best formula for this is
+          // Double throttlePercentDecay = 1 - Math.pow(Math.E, (2 * (-remainingDistance + 1) - xShift));
+          Double throttlePercentDecay = 1 - Math.pow(Math.E, (2 * (-remainingDistance + 1)));
+
           // Ensure that the vertical throttle is not decreased by more than 50%
           self.verticalThrottleLimitPercent = Math.max(throttlePercentDecay, .5);
         }
