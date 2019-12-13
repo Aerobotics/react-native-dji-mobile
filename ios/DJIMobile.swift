@@ -474,6 +474,13 @@ class DJIMobile: NSObject, RCTInvalidating {
       return
     }
   }
+  
+  @objc(isProductConnected:reject:)
+  func isProductConnected(resolve: @escaping RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    DJISDKManager.keyManager()?.getValueFor(DJIProductKey(param: DJIParamConnection)!, withCompletion: { (value: DJIKeyedValue?, error: Error?) in
+      resolve(value?.boolValue ?? false)
+    })
+  }
 
   private func startKeyListener(_ eventName: SdkEventName, updateBlock: @escaping DJIKeyedListenerUpdateBlock) {
     let validKeyInfo = implementedEvents[eventName]!
