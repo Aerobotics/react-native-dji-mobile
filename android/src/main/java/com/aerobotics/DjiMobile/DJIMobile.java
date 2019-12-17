@@ -30,6 +30,7 @@ import dji.keysdk.AirLinkKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
 import dji.keysdk.KeyManager;
+import dji.keysdk.ProductKey;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
@@ -714,14 +715,32 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           });
         }
       }
-   }
+    }
 
-   @ReactMethod
-   public void limitEventFrequency(double newEventSendFrequencyInHz, Promise promise) {
-    int milliSecs = (int) Math.round((1/newEventSendFrequencyInHz) * 1000);
-    this.eventSender.setNewEventSendFrequency(milliSecs);
-    promise.resolve(null);
-   }
+    @ReactMethod
+    public void limitEventFrequency(double newEventSendFrequencyInHz, Promise promise) {
+      int milliSecs = (int) Math.round((1/newEventSendFrequencyInHz) * 1000);
+      this.eventSender.setNewEventSendFrequency(milliSecs);
+      promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void isProductConnected(final Promise promise) {
+      DJIKey productConnectedKey = ProductKey.create(ProductKey.CONNECTION);
+      DJISDKManager.getInstance().getKeyManager().getValue(productConnectedKey, new GetCallback() {
+        @Override
+        public void onSuccess(@NonNull Object o) {
+          if (o instanceof Boolean) {
+            promise.resolve((Boolean) o);
+          }
+        }
+
+        @Override
+        public void onFailure(@NonNull DJIError djiError) {
+          promise.reject(new Throwable(djiError.getDescription()));
+        }
+      });
+    }
 
   @Override
   public String getName() {
