@@ -291,12 +291,15 @@ public class VirtualStickTimelineElement extends MissionAction {
   }
 
   private void stopVirtualStick(final CompletionCallback completionCallback) {
-    ((Aircraft)DJISDKManager.getInstance().getProduct()).getFlightController().setVirtualStickModeEnabled(false, new CommonCallbacks.CompletionCallback() {
-      @Override
-      public void onResult(DJIError djiError) {
-        completionCallback.complete(djiError);
-      }
-    });
+    Aircraft aircraft = ((Aircraft)DJISDKManager.getInstance().getProduct());
+    if (aircraft != null) {
+      aircraft.getFlightController().setVirtualStickModeEnabled(false, new CommonCallbacks.CompletionCallback() {
+        @Override
+        public void onResult(DJIError djiError) {
+          completionCallback.complete(djiError);
+        }
+      });
+    }
   }
 
   private void isUltrasonicEnabled(final CompletionCallback completionCallback) {
