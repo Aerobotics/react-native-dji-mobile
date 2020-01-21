@@ -468,6 +468,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           MediaFile mediaFile = (MediaFile) payload.get("value");
           WritableMap params = Arguments.createMap();
           params.putString("fileName", mediaFile.getFileName());
+          params.putString("dateCreated", mediaFile.getDateCreated());
           sendEvent(SDKEvent.CameraDidGenerateNewMediaFile, params);
         }
       }
