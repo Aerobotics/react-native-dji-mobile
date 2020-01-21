@@ -42,7 +42,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     case CameraDidGenerateNewMediaFile
 
     case DJIFlightLogEvent
-    
+
     case AircraftVirtualStickEnabled
   }
 
@@ -90,6 +90,8 @@ class DJIMobile: NSObject, RCTInvalidating {
           resolve("DJI SDK: Registration Successful")
           sentRegistration = true
           self.cameraDelegateEventSender = DJICameraDelegateSender()
+
+          DJISDKManager.setLocationDesiredAccuracy(kCLLocationAccuracyNearestTenMeters)
 
         }
       } else if (registrationError != nil) {
@@ -160,7 +162,7 @@ class DJIMobile: NSObject, RCTInvalidating {
 
     case .SDCardIsReadOnly:
       startSDCardIsReadOnlyListener()
-    
+
     case .AircraftVirtualStickEnabled:
       startAircraftVirtualStickEnabledListener()
 
@@ -322,7 +324,7 @@ class DJIMobile: NSObject, RCTInvalidating {
       }
     }
   }
-  
+
   func startAircraftVirtualStickEnabledListener() {
     let event = SdkEventName.AircraftVirtualStickEnabled
     startKeyListener(event) { (oldValue: DJIKeyedValue?, newValue: DJIKeyedValue?) in
@@ -442,7 +444,8 @@ class DJIMobile: NSObject, RCTInvalidating {
   @objc private func newMediaFileUpdate(payload: NSNotification) {
     let newMedia = payload.userInfo!["value"] as! DJIMediaFile
     EventSender.sendReactEvent(type: "CameraDidGenerateNewMediaFile", value: [
-      "fileName": newMedia.fileName
+      "fileName": newMedia.fileName,
+      "dateCreated": newMedia.timeCreated,
       ])
   }
 
@@ -474,7 +477,7 @@ class DJIMobile: NSObject, RCTInvalidating {
       return
     }
   }
-  
+
   @objc(isProductConnected:reject:)
   func isProductConnected(resolve: @escaping RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.getValueFor(DJIProductKey(param: DJIParamConnection)!, withCompletion: { (value: DJIKeyedValue?, error: Error?) in
