@@ -25,19 +25,19 @@ RCT_EXTERN_METHOD(
 )
 
 RCT_EXTERN_METHOD(
-                  setSharpness: (nonull NSNumber)sharpness
+                  setSharpness: (nonnull NSNumber)sharpness
                   resolve:      (RCTPromiseResolveBlock)resolve
                   reject:       (RCTPromiseRejectBlock)reject
 )
 
 RCT_EXTERN_METHOD(
-                  setContrast: (nonull NSNumber)contrast
+                  setContrast: (nonnull NSNumber)contrast
                   resolve:     (RCTPromiseResolveBlock)resolve
                   reject:      (RCTPromiseRejectBlock)reject
 )
 
 RCT_EXTERN_METHOD(
-                  setSaturation: (nonull NSNumber)saturation
+                  setSaturation: (nonnull NSNumber)saturation
                   resolve:       (RCTPromiseResolveBlock)resolve
                   reject:        (RCTPromiseRejectBlock)reject
 )

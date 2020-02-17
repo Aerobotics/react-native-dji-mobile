@@ -191,7 +191,7 @@ class CameraControlNative: NSObject {
       "PLAYBACK": DJICameraMode.playback.rawValue,
       "MEDIA_DOWNLOAD": DJICameraMode.mediaDownload.rawValue,
     ],
-    
+
     "CameraColors": [
       "NONE": DJICameraColor.colorNone,
       "D_LOG": DJICameraColor.colorDLog,
@@ -214,7 +214,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setCameraColor:resolve:reject:)
   func setCameraColor(cameraColor: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     guard let cameraColorParam = cameraParameters["CameraColors"]![cameraColor] else {
@@ -229,7 +229,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setSharpness:resolve:reject:)
   func setSharpness(sharpness: Int8, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.setValue(sharpness, for: DJICameraKey(param: DJICameraParamSharpness)!, withCompletion: { (error: Error?) in
@@ -240,7 +240,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setContrast:resolve:reject:)
   func setContrast(contrast: Int8, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.setValue(contrast, for: DJICameraKey(param: DJICameraParamContrast)!, withCompletion: { (error: Error?) in
@@ -251,7 +251,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setSaturation:resolve:reject:)
   func setSaturation(saturation: Int8, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.setValue(saturation, for: DJICameraKey(param: DJICameraParamSaturation)!, withCompletion: { (error: Error?) in
@@ -393,7 +393,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(setVideoCaptionsEnabled:resolve:reject:)
   func setVideoCaptionsEnabled(enabled: Bool, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.setValue(enabled, for: DJICameraKey(param: DJICameraParamVideoCaptionEnabled)!, withCompletion: { (error: Error?) in
@@ -404,7 +404,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(startRecording:reject:)
   func startRecording(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.performAction(for: DJICameraKey(param: DJICameraParamStartRecordVideo)!, withArguments: nil, andCompletion: { (finished: Bool, response: DJIKeyedValue?, error: Error?) in
@@ -415,7 +415,7 @@ class CameraControlNative: NSObject {
       }
     })
   }
-  
+
   @objc(stopRecording:reject:)
   func stopRecording(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     DJISDKManager.keyManager()?.performAction(for: DJICameraKey(param: DJICameraParamStopRecordVideo)!, withArguments: nil, andCompletion: { (finished: Bool, response: DJIKeyedValue?, error: Error?) in
