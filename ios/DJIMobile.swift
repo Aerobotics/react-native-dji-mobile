@@ -446,7 +446,7 @@ class DJIMobile: NSObject, RCTInvalidating {
     EventSender.sendReactEvent(type: "CameraDidGenerateNewMediaFile", value: [
       "fileName": newMedia.fileName,
       "dateCreated": newMedia.timeCreated,
-      "fileSizeInBytes": String(newMedia.fileSizeInBytes),
+      "fileSizeInBytes": newMedia.fileSizeInBytes,
       ])
   }
 
