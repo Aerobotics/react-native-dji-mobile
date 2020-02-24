@@ -24,6 +24,7 @@ public class EventSender {
             sendQueuedEvents();
         }
     };
+
     EventSender(ReactContext reactContext) {
         this.reactContext = reactContext;
         if (eventSendLimiterTimer == null) {
@@ -93,6 +94,15 @@ public class EventSender {
             this.eventSendLimiterTimer.cancel();
         }
         this.eventSendLimiterTimer = new Timer();
-        eventSendLimiterTimer.scheduleAtFixedRate(this.eventSendLimiterTimerTask, 0, this.eventSendFrequencyMilliSecs);
+        if (eventSendLimiterTimerTask != null) {
+            eventSendLimiterTimerTask.cancel();
+        }
+        eventSendLimiterTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                sendQueuedEvents();
+            }
+        };
+        eventSendLimiterTimer.scheduleAtFixedRate(eventSendLimiterTimerTask, 0, this.eventSendFrequencyMilliSecs);
     }
 }
