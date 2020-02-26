@@ -18,6 +18,8 @@ import com.facebook.react.bridge.WritableMap;
 import javax.annotation.Nonnull;
 
 import dji.common.error.DJIError;
+import dji.common.gimbal.Rotation;
+import dji.common.gimbal.RotationMode;
 import dji.common.mission.waypoint.WaypointExecutionProgress;
 import dji.common.mission.waypoint.WaypointMission;
 import dji.common.mission.waypoint.WaypointMissionDownloadEvent;
@@ -27,6 +29,8 @@ import dji.common.mission.waypoint.WaypointMissionUploadEvent;
 import dji.common.util.CommonCallbacks;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
+import dji.keysdk.GimbalKey;
+import dji.keysdk.callback.ActionCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.mission.waypoint.WaypointMissionOperator;
 import dji.sdk.mission.waypoint.WaypointMissionOperatorListener;
@@ -275,6 +279,34 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                 promise.reject(new Throwable(djiError.getDescription()));
             }
         });
+    }
+
+    @ReactMethod
+    public void setGimbalRotation(float pitch, float roll, float yaw, double completionTime, final Promise promise) {
+        DJIKey gimbalRotationKey = GimbalKey.create(GimbalKey.ROTATE);
+        Rotation.Builder rotationBuilder = new Rotation.Builder();
+        rotationBuilder.mode(RotationMode.ABSOLUTE_ANGLE);
+        if (pitch == 0) {
+            pitch = Rotation.NO_ROTATION;
+        }
+        if (roll == 0) {
+            roll = Rotation.NO_ROTATION;
+        }
+        if (yaw == 0) {
+            yaw = Rotation.NO_ROTATION;
+        }
+        Rotation rotation = rotationBuilder.pitch(pitch).roll(roll).yaw(yaw).time(completionTime).build();
+        DJISDKManager.getInstance().getKeyManager().performAction(gimbalRotationKey, new ActionCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("Gimbal rotation successfully set");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
+            }
+        }, rotation);
     }
 
     @Nonnull
