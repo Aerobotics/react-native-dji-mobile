@@ -127,6 +127,7 @@ public class VirtualStickTimelineElement extends MissionAction {
   private TimerTask sendVirtualStickDataBlock;
   private TimerTask endTriggerTimerBlock;
   private EventSender eventSender;
+  private boolean allowVerticalThrottleAdjustment = true;
 
   public VirtualStickTimelineElement(ReadableMap parameters) {
 
@@ -334,6 +335,9 @@ public class VirtualStickTimelineElement extends MissionAction {
               }
             });
           }
+          if ((Float) newValue <= ultrasonicEndDistance + 10.0) {
+            allowVerticalThrottleAdjustment = false;
+          }
         }
       }
     };
@@ -398,7 +402,11 @@ public class VirtualStickTimelineElement extends MissionAction {
     HashMap<VirtualStickControl, Double> virtualStickData = new HashMap();
 
     for (VirtualStickControl virtualStickControl : VirtualStickControl.values()) {
-      virtualStickData.put(virtualStickControl, baseVirtualStickControlValues.get(virtualStickControl) + virtualStickAdjustmentValues.get(virtualStickControl));
+      if (virtualStickControl == VirtualStickControl.verticalThrottle && !allowVerticalThrottleAdjustment) {
+        virtualStickData.put(virtualStickControl, baseVirtualStickControlValues.get(virtualStickControl));
+      } else {
+        virtualStickData.put(virtualStickControl, baseVirtualStickControlValues.get(virtualStickControl) + virtualStickAdjustmentValues.get(virtualStickControl));
+      }
     }
 
     try {
@@ -409,7 +417,7 @@ public class VirtualStickTimelineElement extends MissionAction {
         virtualStickData.get(VirtualStickControl.roll).floatValue(),
         virtualStickData.get(VirtualStickControl.pitch).floatValue(),
         virtualStickData.get(VirtualStickControl.yaw).floatValue(),
-        virtualStickData.get(VirtualStickControl.verticalThrottle).floatValue() * self.verticalThrottleLimitPercent.floatValue()
+              virtualStickData.get(VirtualStickControl.verticalThrottle).floatValue() * self.verticalThrottleLimitPercent.floatValue()
       ), null);
     } catch (NullPointerException e) {}
   }
