@@ -27,6 +27,7 @@ import dji.common.mission.waypoint.WaypointMissionUploadEvent;
 import dji.common.util.CommonCallbacks;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
+import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.mission.waypoint.WaypointMissionOperator;
 import dji.sdk.mission.waypoint.WaypointMissionOperatorListener;
@@ -268,6 +269,24 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
             @Override
             public void onSuccess() {
                 promise.resolve(null);
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getUltrasonicHeight(final Promise promise) {
+        DJIKey ultrasonicHeightKey = FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS);
+        DJISDKManager.getInstance().getKeyManager().getValue(ultrasonicHeightKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object value) {
+                if (value instanceof Float) {
+                    promise.resolve(value);
+                }
             }
 
             @Override
