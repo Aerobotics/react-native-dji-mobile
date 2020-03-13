@@ -1,6 +1,8 @@
 package com.aerobotics.DjiMobile;
 
 import androidx.annotation.NonNull;
+
+import android.graphics.PointF;
 import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
@@ -434,6 +436,57 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             @Override
             public void onFailure(@NonNull DJIError djiError) {
                 promise.reject(new Throwable(djiError.getDescription()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setFocusMode(String focusMode, final Promise promise) {
+        DJIKey focusModeKey = CameraKey.create(CameraKey.FOCUS_MODE);
+        DJISDKManager.getInstance().getKeyManager().setValue(focusModeKey, SettingsDefinitions.FocusMode.valueOf(focusMode), new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControlNative: focus mode set successfully");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setFocusTarget(float x, float y, final Promise promise) {
+        PointF targetPoint = new PointF(x, y);
+        DJIKey focusTargetKey = CameraKey.create(CameraKey.FOCUS_TARGET);
+        DJISDKManager.getInstance().getKeyManager().setValue(focusTargetKey, targetPoint, new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControlNative: focus target set successfully");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getFocusStatus(final Promise promise) {
+        DJIKey focusStatusKey = CameraKey.create(CameraKey.FOCUS_STATUS);
+        DJISDKManager.getInstance().getKeyManager().getValue(focusStatusKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object value) {
+                if (value instanceof SettingsDefinitions.FocusStatus) {
+                    promise.resolve(((SettingsDefinitions.FocusStatus) value).name());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.resolve(new Throwable(djiError.getDescription()));
             }
         });
     }
