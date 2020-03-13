@@ -438,4 +438,20 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         });
     }
 
+    @ReactMethod
+    public void setFocusMode(String focusMode, final Promise promise) {
+        DJIKey focusModeKey = CameraKey.create(CameraKey.FOCUS_MODE);
+        DJISDKManager.getInstance().getKeyManager().setValue(focusModeKey, SettingsDefinitions.FocusMode.valueOf(focusMode), new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControlNative: focus mode set successfully");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
+            }
+        });
+    }
+
 }
