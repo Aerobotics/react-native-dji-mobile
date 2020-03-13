@@ -473,4 +473,22 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         });
     }
 
+    @ReactMethod
+    public void getFocusStatus(final Promise promise) {
+        DJIKey focusStatusKey = CameraKey.create(CameraKey.FOCUS_STATUS);
+        DJISDKManager.getInstance().getKeyManager().getValue(focusStatusKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object value) {
+                if (value instanceof SettingsDefinitions.FocusStatus) {
+                    promise.resolve(((SettingsDefinitions.FocusStatus) value).name());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.resolve(new Throwable(djiError.getDescription()));
+            }
+        });
+    }
+
 }
