@@ -1,6 +1,8 @@
 package com.aerobotics.DjiMobile;
 
 import androidx.annotation.NonNull;
+
+import android.graphics.PointF;
 import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
@@ -445,6 +447,23 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             @Override
             public void onSuccess() {
                 promise.resolve("CameraControlNative: focus mode set successfully");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setFocusTarget(float x, float y, final Promise promise) {
+        PointF targetPoint = new PointF(x, y);
+        DJIKey focusTargetKey = CameraKey.create(CameraKey.FOCUS_TARGET);
+        DJISDKManager.getInstance().getKeyManager().setValue(focusTargetKey, targetPoint, new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("CameraControlNative: focus target set successfully");
             }
 
             @Override
