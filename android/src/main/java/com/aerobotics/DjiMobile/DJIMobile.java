@@ -40,6 +40,7 @@ import dji.sdk.media.MediaFile;
 import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKInitEvent;
 import dji.sdk.sdkmanager.DJISDKManager;
+import dji.sdksharedlib.keycatalog.IntelligentFlightAssistantKeys;
 
 
 public class DJIMobile extends ReactContextBaseJavaModule {
@@ -160,16 +161,21 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void setVirtualStickAdvancedModeEnabled(Boolean enabled, Promise promise) {
-    BaseProduct baseProduct = DJISDKManager.getInstance().getProduct();
-    if (baseProduct instanceof Aircraft) {
-      Aircraft aircraft = (Aircraft) baseProduct;
-      FlightController flightController = aircraft.getFlightController();
-      flightController.setVirtualStickAdvancedModeEnabled(enabled);
-      promise.resolve(null);
-    } else {
-      promise.reject("Error: Failed to get flight controller instance");
-    }
+  public void getCollisionAvoidanceEnabled(final Promise promise) {
+    DJIKey collisionAvoidanceKey = FlightControllerKey.createFlightAssistantKey(FlightControllerKey.COLLISION_AVOIDANCE_ENABLED);
+    DJISDKManager.getInstance().getKeyManager().getValue(collisionAvoidanceKey, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        if (value instanceof Boolean) {
+          promise.resolve(value);
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable(djiError.getDescription()));
+      }
+    });
   }
 
   @ReactMethod
