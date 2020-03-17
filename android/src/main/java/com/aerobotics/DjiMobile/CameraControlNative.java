@@ -16,11 +16,14 @@ import dji.common.camera.ResolutionAndFrameRate;
 import dji.common.camera.SettingsDefinitions;
 import dji.common.camera.WhiteBalance;
 import dji.common.error.DJIError;
+import dji.common.util.CommonCallbacks;
 import dji.keysdk.CameraKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.keysdk.callback.ActionCallback;
+import dji.sdk.camera.Camera;
+import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 public class CameraControlNative extends ReactContextBaseJavaModule {
@@ -487,6 +490,24 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             @Override
             public void onFailure(@NonNull DJIError djiError) {
                 promise.resolve(new Throwable(djiError.getDescription()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getFocusRingValue(final Promise promise) {
+        DJIKey focusRingValueKey = CameraKey.create(CameraKey.FOCUS_RING_VALUE);
+        DJISDKManager.getInstance().getKeyManager().getValue(focusRingValueKey, new GetCallback() {
+            @Override
+            public void onSuccess(@NonNull Object value) {
+                if (value instanceof Integer) {
+                    promise.resolve(value);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable(djiError.getDescription()));
             }
         });
     }
