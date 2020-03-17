@@ -29,8 +29,10 @@ import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
+import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.mission.waypoint.WaypointMissionOperator;
 import dji.sdk.mission.waypoint.WaypointMissionOperatorListener;
+import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 public class FlightControllerWrapper extends ReactContextBaseJavaModule {
@@ -294,6 +296,30 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                 promise.reject(new Throwable(djiError.getDescription()));
             }
         });
+    }
+
+    @ReactMethod
+    public void setVirtualStickAdvancedModeEnabled(Boolean enabled, Promise promise) {
+        Aircraft product = ((Aircraft)DJISDKManager.getInstance().getProduct());
+        if (product != null) {
+            final FlightController flightController = product.getFlightController();
+            flightController.setVirtualStickAdvancedModeEnabled(enabled);
+            promise.resolve(null);
+        } else {
+            promise.reject(new Throwable("Error: Failed to get flight controller instance"));
+        }
+    }
+
+    @ReactMethod
+    public void isVirtualStickAdvancedModeEnabled(Promise promise) {
+        Aircraft product = ((Aircraft)DJISDKManager.getInstance().getProduct());
+        if (product != null) {
+            final FlightController flightController = product.getFlightController();
+            Boolean isVirtualStickAdvancedModeEnabled = flightController.isVirtualStickAdvancedModeEnabled();
+            promise.resolve(isVirtualStickAdvancedModeEnabled);
+        } else {
+            promise.reject(new Throwable("Error: Failed to get flight controller instance"));
+        }
     }
 
     @Nonnull
