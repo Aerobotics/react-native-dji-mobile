@@ -3,7 +3,6 @@ package com.aerobotics.DjiMobile;
 import androidx.annotation.NonNull;
 
 import android.graphics.PointF;
-import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -16,14 +15,11 @@ import dji.common.camera.ResolutionAndFrameRate;
 import dji.common.camera.SettingsDefinitions;
 import dji.common.camera.WhiteBalance;
 import dji.common.error.DJIError;
-import dji.common.util.CommonCallbacks;
 import dji.keysdk.CameraKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.keysdk.callback.ActionCallback;
-import dji.sdk.camera.Camera;
-import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 public class CameraControlNative extends ReactContextBaseJavaModule {
@@ -42,13 +38,12 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         DJISDKManager.getInstance().getKeyManager().setValue(photoAspectRatioKey, SettingsDefinitions.PhotoAspectRatio.valueOf(photoAspectRatio), new SetCallback() {
             @Override
             public void onSuccess() {
-                Log.i("REACT", "CameraControlNative: Photo aspect ratio set successfully");
                 promise.resolve("CameraControlNative: Photo aspect ratio set successfully");
             }
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNative: Failed to set photo aspect ratio");
+                promise.reject(new Throwable("setPhotoAspectRatio error: " + djiError.getDescription()));
             }
         });
     }
@@ -66,7 +61,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("getPhotoAspectRatio error: " + djiError.getDescription()));
             }
         });
 
@@ -88,7 +83,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("getWhiteBalance error: " + djiError.getDescription()));
             }
         });
     }
@@ -110,31 +105,29 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             DJISDKManager.getInstance().getKeyManager().setValue(whiteBalanceKey, whiteBalanceObj, new SetCallback() {
                 @Override
                 public void onSuccess() {
-                    Log.i("REACT", "CameraControlNative: White balance preset set successfully");
                     promise.resolve("CameraControlNative: White balance preset set successfully");
                 }
 
                 @Override
                 public void onFailure(@NonNull DJIError djiError) {
-                    promise.reject("CameraControlNative: Failed to set white balance preset");
+                    promise.reject(new Throwable("setWhiteBalancePreset error: " + djiError.getDescription()));
                 }
             });
-        } else if (colorTemperature != null){
+        } else if (colorTemperature != null) {
             WhiteBalance whiteBalanceObj = new WhiteBalance(SettingsDefinitions.WhiteBalancePreset.CUSTOM, whiteBalance.getInt("colorTemperature"));
             DJISDKManager.getInstance().getKeyManager().setValue(whiteBalanceKey, whiteBalanceObj, new SetCallback() {
                 @Override
                 public void onSuccess() {
-                    Log.i("REACT", "CameraControlNative: White balance color temperature set successfully");
                     promise.resolve("CameraControlNative: White balance color temperature set successfully");
                 }
 
                 @Override
                 public void onFailure(@NonNull DJIError djiError) {
-                    promise.reject("CameraControlNative: Failed to set white balance color temperature");
+                    promise.reject(new Throwable("setWhiteBalanceColorTemperate error: " + djiError.getDescription()));
                 }
             });
         } else {
-            promise.reject("CameraControlNative: Error invalid white balance parameters");
+            promise.reject(new Throwable("setWhiteBalance error: Invalid argument"));
         }
     }
 
@@ -151,7 +144,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("getExposureMode error: " + djiError.getDescription()));
             }
         });
     }
@@ -162,13 +155,12 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         DJISDKManager.getInstance().getKeyManager().setValue(exposureModeKey, SettingsDefinitions.ExposureMode.valueOf(exposureMode), new SetCallback() {
             @Override
             public void onSuccess() {
-                Log.i("REACT", "CameraControlNative: Exposure mode set successfully");
                 promise.resolve("CameraControlNative: Exposure mode set successfully");
             }
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNative: Failed to set exposure mode");
+                promise.reject(new Throwable("setExposureMode error: " + djiError.getDescription()));
             }
         });
     }
@@ -179,13 +171,12 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         DJISDKManager.getInstance().getKeyManager().performAction(stopRecordingKey, new ActionCallback() {
             @Override
             public void onSuccess() {
-                Log.i("REACT", "CameraControlNative: startRecording ran successfully");
                 promise.resolve("CameraControlNative: startRecording ran successfully");
             }
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNative: " + djiError.getDescription());
+                promise.reject(new Throwable("startRecording error: " + djiError.getDescription()));
             }
         });
     }
@@ -196,13 +187,12 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
       DJISDKManager.getInstance().getKeyManager().performAction(stopRecordingKey, new ActionCallback() {
         @Override
         public void onSuccess() {
-            Log.i("REACT", "CameraControlNative: stopRecording ran successfully");
             promise.resolve("CameraControlNative: stopRecording ran successfully");
         }
 
         @Override
         public void onFailure(@NonNull DJIError djiError) {
-            promise.reject("CameraControlNative: " + djiError);
+            promise.reject(new Throwable("stopRecording error: " + djiError.getDescription()));
         }
       });
     }
@@ -218,7 +208,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNative: Failed to set Video file format " + djiError.getDescription());
+                promise.reject(new Throwable("setVideoFileFormat error: " + djiError.getDescription()));
             }
         });
     }
@@ -234,7 +224,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNative: Failed to set Video file compression standard " + djiError.getDescription());
+                promise.reject(new Throwable("setVideoFileCompressionStandard error: " + djiError.getDescription()));
             }
         });
     }
@@ -246,14 +236,12 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         DJISDKManager.getInstance().getKeyManager().setValue(videoResolutionAndFrameRateKey, resolutionAndFrameRate, new SetCallback() {
             @Override
             public void onSuccess() {
-                Log.i("REACT", "videoSet");
                 promise.resolve("CameraControlNative: Video file resolution and frame rate set successfully");
             }
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                Log.i("REACT", djiError.getDescription());
-                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set video resolution and frame rate " + djiError.getDescription());
+                promise.reject(new Throwable("setVideoResolutionAndFrameRate error: " + djiError.getDescription()));
             }
         });
     }
@@ -278,7 +266,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to get video resolution and frame rate range " + djiError.getDescription());
+                promise.reject(new Throwable("getVideoResolutionAndFrameRateRange error: " + djiError.getDescription()));
             }
         });
     }
@@ -296,7 +284,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNativeError", djiError.getDescription());
+                promise.reject(new Throwable("isSDCardInserted error: " + djiError.getDescription()));
             }
         });
     }
@@ -312,7 +300,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set ISO " + djiError.getDescription());
+                promise.reject(new Throwable("setISO error: " + djiError.getDescription()));
             }
         });
     }
@@ -328,7 +316,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set shutter speed " + djiError.getDescription());
+                promise.reject(new Throwable("setShutterSpeed error: " + djiError.getDescription()));
             }
         });
     }
@@ -344,7 +332,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set aperture " + djiError.getDescription());
+                promise.reject(new Throwable("setAperture error: " + djiError.getDescription()));
             }
         });
     }
@@ -360,7 +348,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject("CameraControlNativeError", "CameraControlNative: Failed to set camera mode " + djiError.getDescription());
+                promise.reject(new Throwable("setCameraMode error: " + djiError.getDescription()));
             }
         });
     }
@@ -376,7 +364,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("setCameraColor error: " + djiError.getDescription()));
             }
         });
     }
@@ -392,7 +380,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("setSharpness error: " + djiError.getDescription()));
             }
         });
     }
@@ -407,7 +395,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("setContrast error: " + djiError.getDescription()));
             }
         });
     }
@@ -422,7 +410,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("setSaturation error: " + djiError.getDescription()));
             }
         });
     }
@@ -438,7 +426,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("setVideoCaptionsEnabled error: " + djiError.getDescription()));
             }
         });
     }
@@ -454,7 +442,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("setFocusMode error: " + djiError.getDescription()));
             }
         });
     }
@@ -471,7 +459,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("setFocusTarget error: " + djiError.getDescription()));
             }
         });
     }
@@ -489,7 +477,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.resolve(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("getFocusStatus error: " + djiError.getDescription()));
             }
         });
     }
@@ -507,7 +495,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("getFocusRingValue error: " + djiError.getDescription()));
             }
         });
     }
