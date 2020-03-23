@@ -155,7 +155,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onFailure(@NonNull DJIError djiError) {
-        promise.reject(new Throwable(djiError.getDescription()));
+        promise.reject(new Throwable("setCollisionAvoidanceEnabled error: " + djiError.getDescription()));
       }
     });
   }
@@ -173,7 +173,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onFailure(@NonNull DJIError djiError) {
-        promise.reject(new Throwable(djiError.getDescription()));
+        promise.reject(new Throwable("getCollisionAvoidanceEnabled error: " + djiError.getDescription()));
       }
     });
   }
@@ -193,7 +193,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onFailure(@NonNull DJIError djiError) {
-        promise.reject(new Throwable(djiError.getDescription()));
+        promise.reject(new Throwable("setLandingProtectionEnabled error: " + djiError.getDescription()));
       }
     });
   }
@@ -212,7 +212,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onFailure(@NonNull DJIError djiError) {
-        promise.reject(new Throwable(djiError.getDescription()));
+        promise.reject(new Throwable("setVisionAssistedPositioningEnabled error: " + djiError.getDescription()));
       }
     });
   }
@@ -378,7 +378,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onFailure(@NonNull DJIError djiError) {
-        promise.reject("getAircraftLocation Error", djiError.getDescription());
+        promise.reject(new Throwable("getAircraftLocation error: " + djiError.getDescription()));
       }
     });
   }
@@ -396,7 +396,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onFailure(@NonNull DJIError djiError) {
-        promise.reject("getAircraftIsFlying Error", djiError.getDescription());
+        promise.reject(new Throwable("getAircraftIsFlying error: " + djiError.getDescription()));
       }
     });
   }

@@ -76,7 +76,7 @@ public class DJIMedia extends ReactContextBaseJavaModule {
         if (djiError == null) {
           getFileList();
         } else {
-          promise.reject(djiError.toString(), djiError.getDescription());
+          promise.reject(new Throwable("initMediaManager set camera mode error: " + djiError.getDescription()));
         }
       }
     });
@@ -85,10 +85,8 @@ public class DJIMedia extends ReactContextBaseJavaModule {
   private void getFileList() {
 
     if ((currentFileListState == MediaManager.FileListState.SYNCING) || (currentFileListState == MediaManager.FileListState.DELETING)){
-      promise.reject("Media manager is busy");
+      promise.reject(new Throwable("getFileList error: Media manager is busy"));
     } else{
-      System.out.println("Refresh file list");
-
       mediaManager.refreshFileListOfStorageLocation(SettingsDefinitions.StorageLocation.SDCARD, new CommonCallbacks.CompletionCallback() {
         @Override
         public void onResult(DJIError djiError) {
@@ -121,12 +119,9 @@ public class DJIMedia extends ReactContextBaseJavaModule {
               file.putDouble("fileSize", m.getFileSize());
               params.pushMap(file);
             }
-
-            System.out.println("Get Media File List Success");
             promise.resolve(params);
           } else {
-            System.out.println("Get Media File List Failed: " +  djiError.getDescription());
-            promise.reject(djiError.toString(), djiError.getDescription());
+            promise.reject(new Throwable("getFileList error: " + djiError.getDescription()));
           }
         }
       });
@@ -173,7 +168,7 @@ public class DJIMedia extends ReactContextBaseJavaModule {
                       promise.reject(new Throwable("Error: Could not get file list"));
                     }
                   } else {
-                    promise.reject(new Throwable("Error getting file list: " + djiError.getDescription()));
+                    promise.reject(new Throwable("startFullResMediaFileDownload getting file list error: " + djiError.getDescription()));
                   }
                 }
               });
@@ -181,13 +176,13 @@ public class DJIMedia extends ReactContextBaseJavaModule {
               promise.reject(new Throwable("Error: " + e.getMessage()));
             }
           } else {
-            promise.reject(djiError.toString(), djiError.getDescription());
+            promise.reject(new Throwable("startFullResMediaFileDownload set camera mode error: " + djiError.getDescription()));
           }
         }
       });
 
     } else {
-      promise.reject(new Throwable("Error: Camera not connected"));
+      promise.reject(new Throwable("startFullResMediaFileDownload error: Camera not connected"));
     }
   }
 
@@ -264,7 +259,7 @@ public class DJIMedia extends ReactContextBaseJavaModule {
               .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
               .emit("DJIEvent", params);
 
-      fileDownloadPromise.reject(new Throwable("Error: " + djiError.getDescription()));
+      fileDownloadPromise.reject(new Throwable("File download failure: " + djiError.getDescription()));
     }
   };
 
