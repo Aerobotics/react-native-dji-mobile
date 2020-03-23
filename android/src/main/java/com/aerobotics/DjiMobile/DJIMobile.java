@@ -93,7 +93,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
             djisdkManager.startConnectionToProduct();
           }
         } else {
-          promise.reject(djiError.toString(), djiError.getDescription());
+          promise.reject(new Throwable("registerAppInternal error: " + djiError.getDescription()));
         }
       }
 
@@ -745,7 +745,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
         @Override
         public void onFailure(@NonNull DJIError djiError) {
-          promise.reject(new Throwable(djiError.getDescription()));
+          promise.reject(new Throwable("isProductConnected error: " + djiError.getDescription()));
         }
       });
     }

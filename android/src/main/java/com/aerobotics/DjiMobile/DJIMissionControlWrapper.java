@@ -406,7 +406,7 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
     WaypointMissionTimelineElement waypointMissionTimelineElement = new WaypointMissionTimelineElement(parameters);
     DJIError paramError = waypointMissionTimelineElement.checkParameters();
     if (paramError != null) {
-      promise.reject(paramError.toString(), paramError.getDescription());
+      promise.reject(new Throwable("checkWaypointMissionValidity param error: " + paramError.getDescription()));
     } else {
       promise.resolve("Waypoint Mission Valid");
     }
