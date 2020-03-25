@@ -31,7 +31,7 @@ public class GimbalWrapper extends ReactContextBaseJavaModule {
   public void rotate(ReadableMap parameters, final Promise promise) {
     Gimbal gimbal = DJISDKManager.getInstance().getProduct().getGimbal();
     if (gimbal == null) {
-      promise.reject(new Throwable("rotate error: Could not access gimbal"));
+      promise.reject(new Throwable("rotate gimbal error: Could not access gimbal"));
     }
 
     Rotation.Builder rotationBuilder = new Rotation.Builder();
@@ -39,7 +39,7 @@ public class GimbalWrapper extends ReactContextBaseJavaModule {
 
     Double time = parameters.getDouble("time");
     if (time == null) {
-      promise.reject(new Throwable("rotate error: Time value must be supplied"));
+      promise.reject(new Throwable("rotate gimbal error: Time value must be supplied"));
     }
     rotationBuilder.time(time);
 
@@ -60,7 +60,7 @@ public class GimbalWrapper extends ReactContextBaseJavaModule {
       @Override
       public void onResult(DJIError djiError) {
         if (djiError != null) {
-          promise.reject(new Throwable("rotate error: " + djiError.getDescription()));
+          promise.reject(new Throwable("rotate gimbal error: " + djiError.getDescription()));
         } else {
           promise.resolve("gimbal rotated");
         }
@@ -90,7 +90,7 @@ public class GimbalWrapper extends ReactContextBaseJavaModule {
 
       @Override
       public void onFailure(@NonNull DJIError djiError) {
-        promise.reject(new Throwable(djiError.getDescription()));
+        promise.reject(new Throwable("getGimbalAttitude error: " + djiError.getDescription()));
       }
     });
   }

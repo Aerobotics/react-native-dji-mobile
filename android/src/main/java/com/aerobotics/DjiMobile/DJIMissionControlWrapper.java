@@ -137,12 +137,12 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
       DJIError validError = newElement.checkValidity();
       if (validError != null) {
         Log.i("ReactNativeJS", validError.getDescription());
-        promise.reject(validError.getDescription());
+        promise.reject(new Throwable("scheduleElement validation error: " + validError.getDescription()));
       }
       DJIError scheduleError = missionControl.scheduleElement(newElement);
       if (scheduleError != null) {
         Log.i("ReactNativeJS", scheduleError.getDescription());
-        promise.reject(scheduleError.getDescription());
+        promise.reject(new Throwable("scheduleElement schedule error: " + scheduleError.getDescription()));
       }
     }
 
@@ -335,7 +335,7 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
 
           @Override
           public void onFailure(@NonNull DJIError djiError) {
-              promise.reject(djiError.getDescription());
+            promise.reject(new Throwable("startGoHome error: " + djiError.getDescription()));
           }
       });
   }
@@ -406,7 +406,7 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
     WaypointMissionTimelineElement waypointMissionTimelineElement = new WaypointMissionTimelineElement(parameters);
     DJIError paramError = waypointMissionTimelineElement.checkParameters();
     if (paramError != null) {
-      promise.reject(paramError.toString(), paramError.getDescription());
+      promise.reject(new Throwable("checkWaypointMissionValidity param error: " + paramError.getDescription()));
     } else {
       promise.resolve("Waypoint Mission Valid");
     }

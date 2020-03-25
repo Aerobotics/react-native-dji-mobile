@@ -114,7 +114,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                 uploadMission();
             }
         } else {
-            startMissionPromise.reject(new Throwable("Start Mission Error: " + missionParametersError.getDescription()));
+            startMissionPromise.reject(new Throwable("startWaypointMission error: " + missionParametersError.getDescription()));
         }
 
     }
@@ -144,17 +144,13 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                         getWaypointMissionOperator().retryUploadMission((new CommonCallbacks.CompletionCallback() {
                             @Override
                             public void onResult(DJIError error) {
-                                if (error == null) {
-                                    Log.d("REACT", "Upload Success");
-                                } else {
-                                    Log.e("REACT", "Upload Failed " + error.getDescription());
-                                    startMissionPromise.reject(new Throwable("Upload Failed " + error.getDescription()));
+                                if (error != null) {
+                                    startMissionPromise.reject(new Throwable("uploadMission error: Upload Failed" + error.getDescription()));
                                 }
                             }
                         }));
                     } else {
-                        startMissionPromise.reject(new Throwable("Upload Failed"));
-                        Log.e("REACT", "Not ready to upload");
+                        startMissionPromise.reject(new Throwable("uploadMission error: Upload Failed" + error.getDescription()));
                     }
                 }
             }
@@ -175,7 +171,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                 if (djiError == null) {
                     promise.resolve(null);
                 } else {
-                    promise.reject(new Throwable(djiError.getDescription()));
+                    promise.reject(new Throwable("stopWaypointMission error: " + djiError.getDescription()));
                 }
             }
         });
@@ -189,7 +185,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                 if (djiError == null) {
                     promise.resolve(null);
                 } else {
-                    promise.reject(new Throwable(djiError.getDescription()));
+                    promise.reject(new Throwable("setWaypointmMissionAutoFlightSpeed error: " + djiError.getDescription()));
                 }
             }
         });
@@ -258,7 +254,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
                 if (djiError == null) {
                     promise.resolve(null);
                 } else {
-                    promise.reject(new Throwable(djiError.getDescription()));
+                    promise.reject(new Throwable("setAutoFlightSpeed error: " + djiError.getDescription()));
                 }
             }
         });
@@ -275,7 +271,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("setTerrainFollowModeEnabled error: " + djiError.getDescription()));
             }
         });
     }
@@ -293,7 +289,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(@NonNull DJIError djiError) {
-                promise.reject(new Throwable(djiError.getDescription()));
+                promise.reject(new Throwable("getUltrasonicHeight error: " + djiError.getDescription()));
             }
         });
     }
@@ -306,7 +302,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
             flightController.setVirtualStickAdvancedModeEnabled(enabled);
             promise.resolve(null);
         } else {
-            promise.reject(new Throwable("Error: Failed to get flight controller instance"));
+            promise.reject(new Throwable("setVirtualStickAdvancedModeEnabled error: Could not get product instance"));
         }
     }
 
@@ -318,7 +314,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
             Boolean isVirtualStickAdvancedModeEnabled = flightController.isVirtualStickAdvancedModeEnabled();
             promise.resolve(isVirtualStickAdvancedModeEnabled);
         } else {
-            promise.reject(new Throwable("Error: Failed to get flight controller instance"));
+            promise.reject(new Throwable("isVirtualStickAdvancedModeEnabled error: Could not get product instance"));
         }
     }
 
