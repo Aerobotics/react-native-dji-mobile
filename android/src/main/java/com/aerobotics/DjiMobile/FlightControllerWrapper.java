@@ -193,7 +193,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void startVirtualStick(ReadableMap parameters, Promise promise) {
-        virtualStickTimelineElement = new VirtualStickTimelineElement(parameters);
+        virtualStickTimelineElement = new VirtualStickTimelineElement(reactContext, parameters);
         virtualStickTimelineElement.initializeVirtualStickEventSender(eventSender);
         virtualStickTimelineElement.run();
         promise.resolve(null);

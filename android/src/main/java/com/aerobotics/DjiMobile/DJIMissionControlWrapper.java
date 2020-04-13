@@ -298,7 +298,7 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
   }
 
   public VirtualStickTimelineElement buildVirtualStickTimelineElement(ReadableMap parameters) {
-    return new VirtualStickTimelineElement(parameters);
+    return new VirtualStickTimelineElement(reactContext, parameters);
   }
 
   public RealTimeDataLoggerTimelineElement buildRealTimeDataLoggerTimelineElement(ReadableMap parameters) {
