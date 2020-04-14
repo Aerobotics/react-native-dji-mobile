@@ -3,7 +3,6 @@ package com.aerobotics.DjiMobile.DJITimelineElements;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 
@@ -15,12 +14,13 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableMap;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -68,9 +68,9 @@ enum Parameters {
   ultrasonicEndDistance,
   ultrasonicDecreaseVerticalThrottleWithDistance,
   controlStickAdjustments,
-
   stopAltitude,
   altitudeStopDirection,
+  logFilePath,
 }
 
 enum EndTrigger {
@@ -142,6 +142,8 @@ public class VirtualStickTimelineElement extends MissionAction {
   private long previousSampleTimestamp;
   private float currentUltrasonicHeight;
   private ReactContext reactContext;
+  private String logFilePath;
+
   public VirtualStickTimelineElement(ReactContext reactContext, ReadableMap parameters) {
 
     self = this;
@@ -191,6 +193,10 @@ public class VirtualStickTimelineElement extends MissionAction {
 
       try {
         altitudeStopDirection = AltitudeStopDirection.valueOf(parameters.getString(Parameters.altitudeStopDirection.toString()));
+      } catch (Exception e) {}
+
+      try {
+        logFilePath = parameters.getString(String.valueOf(Parameters.logFilePath));
       } catch (Exception e) {}
 
       try {
@@ -366,10 +372,11 @@ public class VirtualStickTimelineElement extends MissionAction {
       public void onSuccess(Object o) {
         startUltrasonicHeightListener();
         mHandler = new Handler();
+        logControlOutputToFile(String.format("%s,%s,%s,%s,%s,%s", "timeStamp", "setPoint", "currentUltrasonicHeight", "heightError", "throttleCommand", "sampleTime"));
         getUltrasonicHeight(new GetCallback() {
           @Override
           public void onSuccess(@NonNull Object value) {
-            final PidController pidController = new PidController(0.5f, 0.0f, 0.4f, baseVirtualStickControlValues.get(VirtualStickControl.verticalThrottle).floatValue(), ultrasonicEndDistance - (Float) value);
+            final PidController pidController = new PidController(0.5f, 0.0f, 0.3f, baseVirtualStickControlValues.get(VirtualStickControl.verticalThrottle).floatValue(), ultrasonicEndDistance - (Float) value);
             previousSampleTimestamp = System.currentTimeMillis();
             currentUltrasonicHeight = (Float) value;
             runnable = new Runnable() {
@@ -395,8 +402,8 @@ public class VirtualStickTimelineElement extends MissionAction {
                   double yaw = baseVirtualStickControlValues.get(VirtualStickControl.yaw) + virtualStickAdjustmentValues.get(VirtualStickControl.yaw);
                   FlightControlData flightControlData = new FlightControlData((float) pitch, (float) roll, (float) yaw, throttleCommand);
                   sendVirtualStickControlData(flightControlData);
-//                  Log.d("REACT", String.format("%f, %f, %f, %f, %f", ultrasonicEndDistance, currentUltrasonicHeight, heightError, throttleCommand, sampleTime));
-//                  logControlOutputToFile(String.format("%f, %f, %f, %f, %f", ultrasonicEndDistance, currentUltrasonicHeight, heightError, throttleCommand, sampleTime));
+                  // Log.d("REACT", String.format(Locale.US,"%.2f,%.2f,%.2f,%.2f,%.2f", ultrasonicEndDistance, currentUltrasonicHeight, heightError, throttleCommand, sampleTime));
+                  logControlOutputToFile(String.format(Locale.US, "%s,%.2f,%.2f,%.2f,%.2f,%.2f", new Date().getTime() ,ultrasonicEndDistance, currentUltrasonicHeight, heightError, throttleCommand, sampleTime));
                   previousSampleTimestamp = timestamp;
                   mHandler.postDelayed(this, 50);
                 }
@@ -434,18 +441,17 @@ public class VirtualStickTimelineElement extends MissionAction {
   }
 
   private void logControlOutputToFile(String data) {
-
-    File downloadsDir =  reactContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-    String pathToDownloads = downloadsDir.getPath();
-
-    try {
-      FileOutputStream stream = new FileOutputStream(pathToDownloads + "/" + String.valueOf(System.currentTimeMillis()) + ".txt", true);
-      stream.write(data.getBytes());
-      stream.close();
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
+    String dataToWrite = data + "\n";
+    if (logFilePath != null) {
+      try {
+        FileOutputStream stream = new FileOutputStream(logFilePath, true);
+        stream.write(dataToWrite.getBytes());
+        stream.close();
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
 
