@@ -400,7 +400,7 @@ public class VirtualStickTimelineElement extends MissionAction {
                   double pitch = baseVirtualStickControlValues.get(VirtualStickControl.pitch) + virtualStickAdjustmentValues.get(VirtualStickControl.pitch);
                   double roll = baseVirtualStickControlValues.get(VirtualStickControl.roll) + virtualStickAdjustmentValues.get(VirtualStickControl.roll);
                   double yaw = baseVirtualStickControlValues.get(VirtualStickControl.yaw) + virtualStickAdjustmentValues.get(VirtualStickControl.yaw);
-                  FlightControlData flightControlData = new FlightControlData((float) pitch, (float) roll, (float) yaw, throttleCommand);
+                  FlightControlData flightControlData = new FlightControlData((float) roll, (float) pitch, (float) yaw, throttleCommand);
                   sendVirtualStickControlData(flightControlData);
                   // Log.d("REACT", String.format(Locale.US,"%.2f,%.2f,%.2f,%.2f,%.2f", ultrasonicEndDistance, currentUltrasonicHeight, heightError, throttleCommand, sampleTime));
                   logControlOutputToFile(String.format(Locale.US, "%s,%.2f,%.2f,%.2f,%.2f,%.2f", new Date().getTime() ,ultrasonicEndDistance, currentUltrasonicHeight, heightError, throttleCommand, sampleTime));
