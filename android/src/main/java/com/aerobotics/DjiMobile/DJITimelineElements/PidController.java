@@ -29,7 +29,7 @@ public class PidController {
         errorIntegral = errorIntegral + errorCurrent*sampleTime;
         errorDerivative = (errorCurrent - errorPrevious)/sampleTime;
 
-        float actuatorCommand = (kP*errorCurrent) + (kD*errorDerivative) + kI* errorIntegral;
+        float actuatorCommand = (kP * errorCurrent) + (kD * errorDerivative) + kI * errorIntegral;
         float throttleSaturation = Math.abs(actuatorCommand/this.actuatorLimit);
         if (throttleSaturation > 1.0) {
             actuatorCommand = (1/throttleSaturation) * actuatorCommand;
@@ -44,4 +44,21 @@ public class PidController {
     public float getErrorIntegral() {
         return this.errorIntegral;
     }
+
+    public float getkP() {
+        return this.kP;
+    }
+
+    public float getkI() {
+        return this.kI;
+    }
+
+    public float getkD() {
+        return this.kD;
+    }
+
+    public float getErrorCurrent() {
+        return this.errorCurrent;
+    }
+
 }
