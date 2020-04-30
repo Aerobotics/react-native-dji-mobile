@@ -38,6 +38,7 @@ public class DescentControllerLogger {
     private Float ultrasonicHeight;
     private Boolean isUltrasonicBeingUsed;
     private Boolean doesUltrasonicHaveError;
+    private Float initialAltitude;
 
     public DescentControllerLogger() {
         this.setUpKeyListeners();
@@ -48,7 +49,7 @@ public class DescentControllerLogger {
         this.tearDownKeyListeners();
     }
     private void getInitialState() {
-        this.getInitialAircraftLatLong();
+        this.getInitialAircraftLatLongAlt();
         this.getInitialUltrasonicStatus();
         this.getInitialVelocities();
     }
@@ -204,7 +205,7 @@ public class DescentControllerLogger {
         });
     }
 
-    private void getInitialAircraftLatLong() {
+    private void getInitialAircraftLatLongAlt() {
         KeyManager.getInstance().getValue(aircraftLatitudeKey, new GetCallback() {
             @Override
             public void onSuccess(@NonNull Object newValue) {
@@ -238,6 +239,7 @@ public class DescentControllerLogger {
             public void onSuccess(@NonNull Object newValue) {
                 if (newValue instanceof Float) {
                     altitude = (Float) newValue;
+                    initialAltitude = (Float) newValue;
                 }
             }
 
@@ -307,7 +309,7 @@ public class DescentControllerLogger {
         }
     }
     public void logControlOutputToFile(String filePath, float sampleTime, float timeElapsed, Float setPoint, PidController pidController, FlightControlData flightControlData, float computeTime) {
-        String dataToWrite = (String.format(Locale.US, "%s,%.6f,%.6f,%.2f,%.5f,%.5f,%.1f,%.1f,%.1f,%.1f,%.1f,%s,%s,%.3f,%.3f,%.3f,%.2f,%.2f,%.2f,%.9f,%.1f,%.1f,%.1f",
+        String dataToWrite = (String.format(Locale.US, "%s,%.6f,%.6f,%.2f,%.5f,%.5f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%s,%s,%.3f,%.3f,%.3f,%.2f,%.2f,%.2f,%.9f,%.1f,%.1f,%.1f",
                 new Date().getTime(),
                 timeElapsed/1000000000.0f,
                 sampleTime,
@@ -318,6 +320,7 @@ public class DescentControllerLogger {
                 velocityX,
                 velocityY,
                 velocityZ,
+                initialAltitude - altitude,
                 ultrasonicHeight,
                 doesUltrasonicHaveError,
                 isUltrasonicBeingUsed,
