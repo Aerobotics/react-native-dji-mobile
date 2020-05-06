@@ -15,13 +15,8 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableMap;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -72,6 +67,7 @@ enum Parameters {
   stopAltitude,
   altitudeStopDirection,
   logFilePath,
+  useController,
 }
 
 enum EndTrigger {
@@ -145,6 +141,9 @@ public class VirtualStickTimelineElement extends MissionAction {
   private ReactContext reactContext;
   private String logFilePath;
   private float totalDescentTime = 0.0f;
+  private Boolean useController = false;
+
+  private DescentControllerLogger descentControllerLogger;
 
   public VirtualStickTimelineElement(ReactContext reactContext, ReadableMap parameters) {
 
@@ -199,6 +198,10 @@ public class VirtualStickTimelineElement extends MissionAction {
 
       try {
         logFilePath = parameters.getString(String.valueOf(Parameters.logFilePath));
+      } catch (Exception e) {}
+
+      try {
+        useController = parameters.getBoolean(String.valueOf(Parameters.useController));
       } catch (Exception e) {}
 
       try {
@@ -359,7 +362,11 @@ public class VirtualStickTimelineElement extends MissionAction {
   private void startVirtualStickEvent(MissionControl missionControl) {
     missionControl.onStart(self);
     if (endTrigger == EndTrigger.ultrasonic && ultrasonicEndDistance != null) {
-      descendWithController();
+      if (useController) {
+        descendWithController();
+      } else {
+        executeUncontrolledDescent();;
+      }
     } else if (endTrigger == EndTrigger.timer && timerEndTime != null) {
       sendVirtualStickCommandAtFixedRate();
       stopAtEndTriggerTime();
@@ -372,88 +379,77 @@ public class VirtualStickTimelineElement extends MissionAction {
   private void descendWithController() {
     isUltrasonicEnabled(new GetCallback() {
       @Override
-      public void onSuccess(Object o) {
-        startUltrasonicHeightListener();
-        final DescentControllerLogger descentControllerLogger = new DescentControllerLogger();
-        mHandler = new Handler();
-        descentControllerLogger.logStringToFile(logFilePath, String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
-                "timeStamp",
-                "timeElapsedInSecs",
-                "sampleTimeInSecs",
-                "heightSetPoint",
-                "latitude",
-                "longitude",
-                "altitude",
-                "velocityX",
-                "velocityY",
-                "velocityZ",
-                "z",
-                "ultrasonicHeight",
-                "doesUltrasonicHaveError",
-                "isUltrasonicBeingUsed",
-                "heightError",
-                "heightErrorInt",
-                "heightErrorDer",
-                "vxCmd",
-                "vyCmd",
-                "vzCmd",
-                "computeTimeInSecs",
-                "kP",
-                "kD",
-                "kI"));
-        getUltrasonicHeight(new GetCallback() {
-          @Override
-          public void onSuccess(@NonNull Object value) {
-            final PidController pidController = new PidController(0.5f, 0.0f, 0.0f, baseVirtualStickControlValues.get(VirtualStickControl.verticalThrottle).floatValue(), ultrasonicEndDistance - (Float) value);
-            previousSampleTimestamp = System.nanoTime();
-            currentUltrasonicHeight = (Float) value;
-            runnable = new Runnable() {
+      public void onSuccess(Object enabled) {
+        if (enabled instanceof Boolean) {
+          if ((Boolean) enabled) {
+            startUltrasonicHeightListener();
+            mHandler = new Handler();
+            getUltrasonicHeight(new GetCallback() {
               @Override
-              public void run() {
-                // get state
-                long timestamp = System.nanoTime();
-                float sampleTimeInSecs = (timestamp - previousSampleTimestamp)/1000000000.0f;
-                float heightError = ultrasonicEndDistance - currentUltrasonicHeight;
-                float throttleCommand = pidController.computeActuatorCommand(heightError, sampleTimeInSecs);
-                // check for exit
-                if (Math.abs(heightError) < 0.1) {
-                  cleanUp(new CompletionCallback() {
+              public void onSuccess(@NonNull Object value) {
+                if (value instanceof Float) {
+                  currentUltrasonicHeight = (Float) value;
+                  descentControllerLogger = new DescentControllerLogger(logFilePath);
+                  final PidController pidController = new PidController(0.5f, 0.0f, 0.0f, baseVirtualStickControlValues.get(VirtualStickControl.verticalThrottle).floatValue(), ultrasonicEndDistance - currentUltrasonicHeight);
+                  previousSampleTimestamp = System.nanoTime();
+                  runnable = new Runnable() {
                     @Override
-                    public void complete(@Nullable DJIError djiError) {
-                      DJISDKManager.getInstance().getMissionControl().onFinishWithError(self, djiError);
+                    public void run() {
+                      // get state
+                      long currentTime = System.nanoTime();
+                      float sampleTimeInSecs = (currentTime - previousSampleTimestamp)/1000000000.0f;
+                      float heightError = ultrasonicEndDistance - currentUltrasonicHeight;
+                      // update control
+                      float throttleCommand = pidController.computeActuatorCommand(heightError, sampleTimeInSecs);
+                      FlightControlData flightControlData = getBaseFlightControlCommand();
+                      flightControlData.setVerticalThrottle(throttleCommand);
+                      sendVirtualStickControlData(flightControlData);
+                      // update logs
+                      descentControllerLogger.updateController(pidController);
+                      descentControllerLogger.updateFlightControlData(flightControlData);
+                      updateTotalDescentTime();
+                      descentControllerLogger.logControlOutputToFile(sampleTimeInSecs, totalDescentTime, ultrasonicEndDistance, System.nanoTime() - currentTime);
+                      previousSampleTimestamp = currentTime;
+                      // check for exit
+                      if (Math.abs(heightError) < 0.3) {
+                        cleanUp(new CompletionCallback() {
+                          @Override
+                          public void complete(@Nullable DJIError djiError) {
+                            DJISDKManager.getInstance().getMissionControl().onFinishWithError(self, djiError);
+                          }
+                        });
+                        descentControllerLogger.stop();
+                      } else {
+                        mHandler.postDelayed(this, 50);
+                      }
                     }
-                  });
-                  descentControllerLogger.stop();
-                } else {
-                  // update control
-                  double pitch = baseVirtualStickControlValues.get(VirtualStickControl.pitch) + virtualStickAdjustmentValues.get(VirtualStickControl.pitch);
-                  double roll = baseVirtualStickControlValues.get(VirtualStickControl.roll) + virtualStickAdjustmentValues.get(VirtualStickControl.roll);
-                  double yaw = baseVirtualStickControlValues.get(VirtualStickControl.yaw) + virtualStickAdjustmentValues.get(VirtualStickControl.yaw);
-                  FlightControlData flightControlData = new FlightControlData((float) roll, (float) pitch, (float) yaw, throttleCommand);
-                  sendVirtualStickControlData(flightControlData);
-                  totalDescentTime = totalDescentTime + (System.nanoTime() - previousSampleTimestamp);
-                  float computeTime = System.nanoTime() - timestamp;
-                  descentControllerLogger.logControlOutputToFile(logFilePath, sampleTimeInSecs, totalDescentTime, ultrasonicEndDistance, pidController, flightControlData, computeTime);
-                  previousSampleTimestamp = timestamp;
-                  mHandler.postDelayed(this, 50);
+                  };
+                  //start control loop
+                  mHandler.post(runnable);
                 }
               }
-            };
-            //start control loop
-            mHandler.post(runnable);
-          }
 
-          @Override
-          public void onFailure(@NonNull DJIError djiError) {
+              @Override
+              public void onFailure(@NonNull DJIError djiError) {
+                cleanUp(new CompletionCallback() {
+                  @Override
+                  public void complete(@Nullable DJIError djiError) {
+                    DJISDKManager.getInstance().getMissionControl().onProgressWithError(self, djiError);
+                    sendVirtualStickTimelineElementEvent("isUltrasonicEnabled error: " + djiError.getDescription());
+                  }
+                });
+              }
+            });
+          } else {
             cleanUp(new CompletionCallback() {
               @Override
               public void complete(@Nullable DJIError djiError) {
                 DJISDKManager.getInstance().getMissionControl().onProgressWithError(self, djiError);
-                sendVirtualStickTimelineElementEvent("isUltrasonicEnabled error: " + djiError.getDescription());
+                sendVirtualStickTimelineElementEvent("getUltrasonicHeight error: " + djiError.getDescription());
               }
             });
           }
-        });
+        }
       }
 
       @Override
@@ -470,19 +466,67 @@ public class VirtualStickTimelineElement extends MissionAction {
 
   }
 
-  private void logControlOutputToFile(String data) {
-    String dataToWrite = data + "\n";
-    if (logFilePath != null) {
-      try {
-        FileOutputStream stream = new FileOutputStream(logFilePath, true);
-        stream.write(dataToWrite.getBytes());
-        stream.close();
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
-        e.printStackTrace();
+  private void updateTotalDescentTime() {
+    totalDescentTime = totalDescentTime + (System.nanoTime() - previousSampleTimestamp);
+  }
+
+  private void executeUncontrolledDescent() {
+    isUltrasonicEnabled(new GetCallback() {
+      @Override
+      public void onSuccess(Object enabled) {
+        if (enabled instanceof Boolean) {
+          if ((Boolean) enabled) {
+            descentControllerLogger = new DescentControllerLogger(logFilePath);
+            sendVirtualStickCommandAtFixedRate();
+            stopAtUltrasonicHeight();
+          }
+        } else {
+          cleanUp(new CompletionCallback() {
+            @Override
+            public void complete(@Nullable DJIError djiError) {
+              DJISDKManager.getInstance().getMissionControl().onProgressWithError(self, djiError);
+              sendVirtualStickTimelineElementEvent("getUltrasonicHeight error: " + djiError.getDescription());
+            }
+          });
+        }
       }
-    }
+
+      @Override
+      public void onFailure(DJIError djiError) {
+        cleanUp(new CompletionCallback() {
+          @Override
+          public void complete(@Nullable DJIError djiError) {
+            DJISDKManager.getInstance().getMissionControl().onProgressWithError(self, djiError);
+            sendVirtualStickTimelineElementEvent("getUltrasonicHeight error: " + djiError.getDescription());
+          }
+        });
+      }
+    });
+  }
+  private void stopAtUltrasonicHeight() {
+    final MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
+    DJIKey ultrasonicHeightKey = FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS);
+    KeyListener ultrasonicHeightKeyListener = new KeyListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Float) {
+          if ((Float) newValue <= ultrasonicEndDistance) {
+            sendVirtualStickDataTimer.cancel();
+            cleanUp(new CompletionCallback() {
+              @Override
+              public void complete(@Nullable DJIError djiError) {
+                missionControl.onFinishWithError(self, djiError);
+              }
+            });
+          }
+          if ((Float) newValue <= ultrasonicEndDistance + 10.0) {
+            allowVerticalThrottleAdjustment = false;
+          }
+        }
+      }
+    };
+    DJISDKManager.getInstance().getKeyManager().addListener(ultrasonicHeightKey, ultrasonicHeightKeyListener);
+    runningKeyListeners.add(ultrasonicHeightKeyListener);
   }
 
   private void startUltrasonicHeightListener() {
@@ -550,12 +594,19 @@ public class VirtualStickTimelineElement extends MissionAction {
     sendVirtualStickDataBlock = new TimerTask() {
       @Override
       public void run() {
-        sendVirtualStickTimelineEvent("sentData");
         FlightControlData flightControlData = getBaseFlightControlCommand();
         self.sendVirtualStickControlData(flightControlData);
+        if (logFilePath != null) {
+          long currentTime = System.nanoTime();
+          float sampleTimeInSecs = (currentTime - previousSampleTimestamp)/1000000000.0f;
+          descentControllerLogger.updateFlightControlData(flightControlData);
+          updateTotalDescentTime();
+          descentControllerLogger.logControlOutputToFile(sampleTimeInSecs, totalDescentTime, ultrasonicEndDistance, System.nanoTime() - currentTime);
+          previousSampleTimestamp = currentTime;
+        }
       }
     };
-
+    previousSampleTimestamp = System.nanoTime();
     sendVirtualStickDataTimer.scheduleAtFixedRate(sendVirtualStickDataBlock, 0, 50);
   }
   private FlightControlData getBaseFlightControlCommand() {

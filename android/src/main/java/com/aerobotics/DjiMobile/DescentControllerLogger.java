@@ -40,9 +40,58 @@ public class DescentControllerLogger {
     private Boolean doesUltrasonicHaveError;
     private Float initialAltitude;
 
-    public DescentControllerLogger() {
+    private float pitch;
+    private float roll;
+    private float yaw;
+    private float verticalThrottle;
+
+    private float controllerErrorCurrent = 0;
+    private float controllerIntError = 0;
+    private float controllerDerError = 0;
+
+    private float kP = 0;
+    private float kD = 0;
+    private float kI = 0;
+
+    private float sampleTime;
+    private float computeTime;
+    private float timeStamp;
+
+    private String filePath;
+
+    public DescentControllerLogger(String filePath) {
+        this.filePath = filePath;
         this.setUpKeyListeners();
         this.getInitialState();
+        setLogFileHeadings();
+    }
+
+    private void setLogFileHeadings() {
+            logStringToFile(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                    "timeStamp",
+                    "timeElapsedInSecs",
+                    "sampleTimeInSecs",
+                    "heightSetPoint",
+                    "latitude",
+                    "longitude",
+                    "altitude",
+                    "velocityX",
+                    "velocityY",
+                    "velocityZ",
+                    "z",
+                    "ultrasonicHeight",
+                    "doesUltrasonicHaveError",
+                    "isUltrasonicBeingUsed",
+                    "heightError",
+                    "heightErrorInt",
+                    "heightErrorDer",
+                    "vxCmd",
+                    "vyCmd",
+                    "vzCmd",
+                    "computeTimeInSecs",
+                    "kP",
+                    "kD",
+                    "kI"));
     }
 
     public void stop() {
@@ -294,7 +343,7 @@ public class DescentControllerLogger {
         });
     }
 
-    public void logStringToFile(String filePath, String data) {
+    private void logStringToFile(String data) {
         String dataToWrite = data + "\n";
         if (filePath != null) {
             try {
@@ -308,7 +357,24 @@ public class DescentControllerLogger {
             }
         }
     }
-    public void logControlOutputToFile(String filePath, float sampleTime, float timeElapsed, Float setPoint, PidController pidController, FlightControlData flightControlData, float computeTime) {
+
+    public void updateFlightControlData(FlightControlData flightControlData) {
+        roll = flightControlData.getRoll();
+        pitch = flightControlData.getPitch();
+        yaw = flightControlData.getYaw();
+        verticalThrottle = flightControlData.getVerticalThrottle();
+    }
+
+    public void updateController(PidController pidController) {
+        kP = pidController.getkP();
+        kI = pidController.getkI();
+        kD = pidController.getkD();
+        controllerErrorCurrent = pidController.getErrorCurrent();
+        controllerDerError = pidController.getErrorDerivative();
+        controllerIntError = pidController.getErrorIntegral();
+    }
+
+    public void logControlOutputToFile(float sampleTime, float timeElapsed, Float setPoint, float computeTime) {
         String dataToWrite = (String.format(Locale.US, "%s,%.6f,%.6f,%.2f,%.5f,%.5f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%s,%s,%.3f,%.3f,%.3f,%.2f,%.2f,%.2f,%.9f,%.1f,%.1f,%.1f",
                 new Date().getTime(),
                 timeElapsed/1000000000.0f,
@@ -324,16 +390,16 @@ public class DescentControllerLogger {
                 ultrasonicHeight,
                 doesUltrasonicHaveError,
                 isUltrasonicBeingUsed,
-                pidController.getErrorCurrent(),
-                pidController.getErrorIntegral(),
-                pidController.getErrorDerivative(),
-                flightControlData.getRoll(),
-                flightControlData.getPitch(),
-                flightControlData.getVerticalThrottle(),
+                controllerErrorCurrent,
+                controllerIntError,
+                controllerDerError,
+                roll,
+                pitch,
+                verticalThrottle,
                 computeTime/1000000000.0f,
-                pidController.getkP(),
-                pidController.getkD(),
-                pidController.getkI())) + "\n";
+                kP,
+                kD,
+                kI)) + "\n";
         if (filePath != null) {
             try {
                 FileOutputStream stream = new FileOutputStream(filePath, true);
