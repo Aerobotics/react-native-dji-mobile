@@ -471,46 +471,20 @@ public class VirtualStickTimelineElement extends MissionAction {
   }
 
   private void executeUncontrolledDescent() {
-    isUltrasonicEnabled(new GetCallback() {
-      @Override
-      public void onSuccess(Object enabled) {
-        if (enabled instanceof Boolean) {
-          if ((Boolean) enabled) {
-            descentControllerLogger = new DescentControllerLogger(logFilePath);
-            sendVirtualStickCommandAtFixedRate();
-            stopAtUltrasonicHeight();
-          }
-        } else {
-          cleanUp(new CompletionCallback() {
-            @Override
-            public void complete(@Nullable DJIError djiError) {
-              DJISDKManager.getInstance().getMissionControl().onProgressWithError(self, djiError);
-              sendVirtualStickTimelineElementEvent("getUltrasonicHeight error: " + djiError.getDescription());
-            }
-          });
-        }
-      }
-
-      @Override
-      public void onFailure(DJIError djiError) {
-        cleanUp(new CompletionCallback() {
-          @Override
-          public void complete(@Nullable DJIError djiError) {
-            DJISDKManager.getInstance().getMissionControl().onProgressWithError(self, djiError);
-            sendVirtualStickTimelineElementEvent("getUltrasonicHeight error: " + djiError.getDescription());
-          }
-        });
-      }
-    });
+    descentControllerLogger = new DescentControllerLogger(logFilePath);
+    sendVirtualStickCommandAtFixedRate();
+    startHeightSetpointListener();
   }
-  private void stopAtUltrasonicHeight() {
+
+  private void startHeightSetpointListener() {
     final MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
     DJIKey ultrasonicHeightKey = FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS);
     KeyListener ultrasonicHeightKeyListener = new KeyListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue instanceof Float) {
-          if ((Float) newValue <= ultrasonicEndDistance) {
+          Float ultrasonicHeight = (Float) newValue;
+          if (ultrasonicHeight > 0 && ultrasonicHeight <= ultrasonicEndDistance) {
             sendVirtualStickDataTimer.cancel();
             cleanUp(new CompletionCallback() {
               @Override
@@ -518,8 +492,9 @@ public class VirtualStickTimelineElement extends MissionAction {
                 missionControl.onFinishWithError(self, djiError);
               }
             });
+            descentControllerLogger.stop();
           }
-          if ((Float) newValue <= ultrasonicEndDistance + 10.0) {
+          if (ultrasonicHeight <= ultrasonicEndDistance + 10.0) {
             allowVerticalThrottleAdjustment = false;
           }
         }
@@ -530,7 +505,6 @@ public class VirtualStickTimelineElement extends MissionAction {
   }
 
   private void startUltrasonicHeightListener() {
-    final MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
     DJIKey ultrasonicHeightKey = FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS);
     KeyListener ultrasonicHeightKeyListener = new KeyListener() {
       @Override
