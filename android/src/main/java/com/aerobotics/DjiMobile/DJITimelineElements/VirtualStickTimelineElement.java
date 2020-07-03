@@ -484,7 +484,7 @@ public class VirtualStickTimelineElement extends MissionAction {
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue instanceof Float) {
           Float ultrasonicHeight = (Float) newValue;
-          if (ultrasonicHeight > 0 && ultrasonicHeight <= ultrasonicEndDistance) {
+          if (ultrasonicHeight > 1 && ultrasonicHeight <= ultrasonicEndDistance) {
             sendVirtualStickDataTimer.cancel();
             cleanUp(new CompletionCallback() {
               @Override
