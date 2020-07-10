@@ -401,6 +401,24 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     });
   }
 
+  @ReactMethod
+  public void getAircraftCompassHeading(final Promise promise) {
+    DJIKey compassHeadingKey = FlightControllerKey.create(FlightControllerKey.COMPASS_HEADING);
+    DJISDKManager.getInstance().getKeyManager().getValue(compassHeadingKey, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        if (value instanceof Float) {
+          promise.resolve(value);
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable("getAircraftCompassHeading error: " + djiError.getDescription()));
+      }
+    });
+  }
+
   private void startAircraftVelocityListener() {
     SDKEvent[] velocityEvents = {
       SDKEvent.AircraftVelocityX,
