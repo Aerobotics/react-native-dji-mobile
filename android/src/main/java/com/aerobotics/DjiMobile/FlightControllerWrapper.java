@@ -211,8 +211,8 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void startYawAction(Float relAngle, final Integer timeoutMs, final Promise promise) {
-    final AircraftYawAction aircraftYawAction = new AircraftYawAction(relAngle, true);
+  public void startYawAction(Float angle, boolean isAbsolute, final Integer timeoutMs, final Promise promise) {
+    final AircraftYawAction aircraftYawAction = new AircraftYawAction(angle, isAbsolute);
     final Handler handler = new Handler(reactContext.getMainLooper());
     final long delayMs = 100;
     final long startTimeMs[] = {0};
