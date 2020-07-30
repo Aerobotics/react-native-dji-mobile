@@ -92,7 +92,7 @@ public class CameraEventDelegate implements SystemState.Callback, MediaFile.Call
               camera.setMediaFileCallback(cameraDelegateSenderInstance);
             }
         }
-      }, 3000);
+      }, 6000);
 
     }
   }
