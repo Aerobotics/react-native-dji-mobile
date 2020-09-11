@@ -352,6 +352,24 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     }
   }
 
+  @ReactMethod
+  public void isOnboardSDKDeviceAvailable(final Promise promise) {
+    DJIKey isOnboardSDKDeviceAvailableKey = FlightControllerKey.create(FlightControllerKey.IS_ON_BOARD_SDK_AVAILABLE);
+    DJISDKManager.getInstance().getKeyManager().getValue(isOnboardSDKDeviceAvailableKey, new GetCallback() {
+      @Override
+      public void onSuccess(Object value) {
+        if (value instanceof Boolean){
+          promise.resolve(value);
+        }
+      }
+
+      @Override
+      public void onFailure(DJIError djiError) {
+        promise.reject(new Throwable("isOnboardSDKDeviceAvailable error: " + djiError.getDescription()));
+      }
+    });
+  }
+
   @Nonnull
   @Override
   public String getName() {
