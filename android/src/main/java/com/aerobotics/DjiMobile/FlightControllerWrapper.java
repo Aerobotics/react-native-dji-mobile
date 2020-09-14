@@ -17,6 +17,8 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 
+import java.nio.charset.StandardCharsets;
+
 import javax.annotation.Nonnull;
 
 import dji.common.error.DJIError;
@@ -51,6 +53,8 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
   private boolean enableWaypointExecutionFinishListener = false;
   private boolean enableWaypointExecutionUpdateListener = false;
+  private FlightController.OnboardSDKDeviceDataCallback onboardSDKDeviceDataCallback;
+
 
   private WaypointMissionOperatorListener waypointMissionOperatorListener = new WaypointMissionOperatorListener() {
     @Override
@@ -377,6 +381,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
   public void sendDataToOnboardSDKDevice(String data, final Promise promise) {
     if (data == null) {
       promise.reject(new Throwable("sendDataToOnboardSDKDevice error: no data to send"));
+      return;
     }
     byte[] dataByteArray = hexStringToByteArray(data);
     DJIKey sendDataToOnboardSDKDeviceKey = FlightControllerKey.create(FlightControllerKey.SEND_DATA_TO_ON_BOARD_SDK_DEVICE);
@@ -391,6 +396,31 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
         promise.reject(new Throwable("sendDataToOnboardSDKDevice error: " + djiError.getDescription()));
       }
     }, dataByteArray);
+  }
+
+  @ReactMethod
+  public void startOnboardSDKDeviceDataListener(final Promise promise) {
+    Aircraft product = ((Aircraft)DJISDKManager.getInstance().getProduct());
+    if (product == null) {
+      promise.reject(new Throwable("startOnboardSDKDeviceDataListener error: could not connect to product"));
+      return;
+    }
+    final FlightController flightController = product.getFlightController();
+    if (flightController == null) {
+      promise.reject(new Throwable("startOnboardSDKDeviceDataListener error: could not connect to flight controller"));
+      return;
+    }
+
+    if (onboardSDKDeviceDataCallback == null) {
+      onboardSDKDeviceDataCallback = new FlightController.OnboardSDKDeviceDataCallback() {
+        @Override
+        public void onReceive(byte[] bytes) {
+          eventSender.processEvent(SDKEvent.OnboardSDKDeviceData, new String(bytes, StandardCharsets.UTF_8), true);
+        }
+      };
+      flightController.setOnboardSDKDeviceDataCallback(onboardSDKDeviceDataCallback);
+    }
+    promise.resolve(null);
   }
 
   @Nonnull

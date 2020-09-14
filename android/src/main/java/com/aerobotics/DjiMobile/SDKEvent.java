@@ -47,6 +47,8 @@ public enum SDKEvent {
 
   AircraftVirtualStickEnabled(FlightControllerKey.create(FlightControllerKey.VIRTUAL_STICK_CONTROL_MODE_ENABLED), EventType.DJI_KEY_MANAGER_EVENT),
 
+  OnboardSDKDeviceData(null, EventType.DJI_ONBOARD_SDK_DEVICE_DATA_EVENT),
+
   CameraDidUpdateSystemState(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
   CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT);
 
