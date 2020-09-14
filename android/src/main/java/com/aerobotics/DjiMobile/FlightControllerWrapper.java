@@ -29,6 +29,7 @@ import dji.common.mission.waypoint.WaypointMissionUploadEvent;
 import dji.common.util.CommonCallbacks;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
+import dji.keysdk.callback.ActionCallback;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.flightcontroller.FlightController;
@@ -37,6 +38,8 @@ import dji.sdk.mission.waypoint.WaypointMissionOperator;
 import dji.sdk.mission.waypoint.WaypointMissionOperatorListener;
 import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
+
+import static com.aerobotics.DjiMobile.Utils.hexStringToByteArray;
 
 public class FlightControllerWrapper extends ReactContextBaseJavaModule {
   private final ReactApplicationContext reactContext;
@@ -368,6 +371,26 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
         promise.reject(new Throwable("isOnboardSDKDeviceAvailable error: " + djiError.getDescription()));
       }
     });
+  }
+
+  @ReactMethod
+  public void sendDataToOnboardSDKDevice(String data, final Promise promise) {
+    if (data == null) {
+      promise.reject(new Throwable("sendDataToOnboardSDKDevice error: no data to send"));
+    }
+    byte[] dataByteArray = hexStringToByteArray(data);
+    DJIKey sendDataToOnboardSDKDeviceKey = FlightControllerKey.create(FlightControllerKey.SEND_DATA_TO_ON_BOARD_SDK_DEVICE);
+    DJISDKManager.getInstance().getKeyManager().performAction(sendDataToOnboardSDKDeviceKey, new ActionCallback() {
+      @Override
+      public void onSuccess() {
+        promise.resolve(null);
+      }
+
+      @Override
+      public void onFailure(DJIError djiError) {
+        promise.reject(new Throwable("sendDataToOnboardSDKDevice error: " + djiError.getDescription()));
+      }
+    }, dataByteArray);
   }
 
   @Nonnull
