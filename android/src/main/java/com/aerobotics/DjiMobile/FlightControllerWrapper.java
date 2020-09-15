@@ -1,7 +1,6 @@
 package com.aerobotics.DjiMobile;
 
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -9,7 +8,6 @@ import androidx.annotation.Nullable;
 import com.aerobotics.DjiMobile.DJITimelineElements.VirtualStickTimelineElement;
 import com.aerobotics.DjiMobile.DJITimelineElements.WaypointMissionTimelineElement;
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -17,7 +15,8 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
@@ -41,7 +40,6 @@ import dji.sdk.mission.waypoint.WaypointMissionOperatorListener;
 import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 
-import static com.aerobotics.DjiMobile.Utils.hexStringToByteArray;
 
 public class FlightControllerWrapper extends ReactContextBaseJavaModule {
   private final ReactApplicationContext reactContext;
@@ -378,12 +376,20 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void sendDataToOnboardSDKDevice(String data, final Promise promise) {
+  public void sendDataToOnboardSDKDevice(Integer opCode, String data, final Promise promise) {
     if (data == null) {
       promise.reject(new Throwable("sendDataToOnboardSDKDevice error: no data to send"));
       return;
     }
-    byte[] dataByteArray = hexStringToByteArray(data);
+    byte[] strByteArray = data.getBytes();
+    byte[] bytesToSend = new byte[strByteArray.length + 2];
+    int lsbInt = opCode % 0xFF;
+    int msbInt = (opCode - lsbInt) >> 8;
+    bytesToSend[0] = (byte) msbInt;
+    bytesToSend[1] = (byte) lsbInt;
+    for (int i=0; i<strByteArray.length; i++) {
+      bytesToSend[i+2] = strByteArray[i];
+    }
     DJIKey sendDataToOnboardSDKDeviceKey = FlightControllerKey.create(FlightControllerKey.SEND_DATA_TO_ON_BOARD_SDK_DEVICE);
     DJISDKManager.getInstance().getKeyManager().performAction(sendDataToOnboardSDKDeviceKey, new ActionCallback() {
       @Override
@@ -395,7 +401,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       public void onFailure(DJIError djiError) {
         promise.reject(new Throwable("sendDataToOnboardSDKDevice error: " + djiError.getDescription()));
       }
-    }, dataByteArray);
+    }, bytesToSend);
   }
 
   @ReactMethod
@@ -415,7 +421,19 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       onboardSDKDeviceDataCallback = new FlightController.OnboardSDKDeviceDataCallback() {
         @Override
         public void onReceive(byte[] bytes) {
-          eventSender.processEvent(SDKEvent.OnboardSDKDeviceData, new String(bytes, StandardCharsets.UTF_8), true);
+          WritableMap dataReceived = Arguments.createMap();
+          byte[] opCode = new byte[2];
+          byte[] messageData = new byte[bytes.length - 2];
+          for (int i = 0; i<bytes.length; i++) {
+            if (i <= 1) {
+              opCode[i] = bytes[i];
+            } else {
+              messageData[i] = bytes[i];
+            }
+          }
+          dataReceived.putInt("opCode", ByteBuffer.wrap(opCode).getShort());
+          dataReceived.putString("data", Arrays.toString(messageData));
+          eventSender.processEvent(SDKEvent.OnboardSDKDeviceData, dataReceived, true);
         }
       };
       flightController.setOnboardSDKDeviceDataCallback(onboardSDKDeviceDataCallback);
