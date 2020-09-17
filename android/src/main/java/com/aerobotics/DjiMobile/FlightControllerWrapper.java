@@ -17,6 +17,7 @@ import com.facebook.react.bridge.WritableMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Vector;
 
 import javax.annotation.Nonnull;
 
@@ -381,8 +382,14 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       promise.reject(new Throwable("sendDataToOnboardSDKDevice error: no data to send"));
       return;
     }
-    byte[] bytesToSend = data.getBytes(StandardCharsets.UTF_8);
-    if (bytesToSend.length > 100) {
+
+    Vector<Byte> bytesToSend = new Vector<>();
+
+    for (char c : data.toCharArray()) {
+      bytesToSend.add((byte)c);
+    }
+
+    if (bytesToSend.size() > 100) {
       promise.reject(new Throwable("sendDataToOnboardSDKDevice error: data exceeds max number of bytes"));
     }
     DJIKey sendDataToOnboardSDKDeviceKey = FlightControllerKey.create(FlightControllerKey.SEND_DATA_TO_ON_BOARD_SDK_DEVICE);
