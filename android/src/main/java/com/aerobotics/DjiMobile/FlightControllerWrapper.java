@@ -12,6 +12,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 
@@ -377,19 +378,20 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void sendDataToOnboardSDKDevice(String data, final Promise promise) {
+  public void sendDataToOnboardSDKDevice(ReadableArray data, final Promise promise) {
     if (data == null) {
       promise.reject(new Throwable("sendDataToOnboardSDKDevice error: no data to send"));
       return;
     }
 
-    Vector<Byte> bytesToSend = new Vector<>();
-
-    for (char c : data.toCharArray()) {
-      bytesToSend.add((byte)c);
+    byte[] bytesToSend = new byte[data.size()];
+    for (int i = 0; i < data.size(); i++) {
+      bytesToSend[i] = (byte) data.getInt(i);
     }
-
-    if (bytesToSend.size() > 100) {
+    if (bytesToSend.length < 1) {
+      promise.reject(new Throwable("sendDataToOnboardSDKDevice error: no data to send " + String.valueOf(data.size())));
+    }
+    if (bytesToSend.length > 100) {
       promise.reject(new Throwable("sendDataToOnboardSDKDevice error: data exceeds max number of bytes"));
     }
     DJIKey sendDataToOnboardSDKDeviceKey = FlightControllerKey.create(FlightControllerKey.SEND_DATA_TO_ON_BOARD_SDK_DEVICE);
@@ -403,7 +405,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       public void onFailure(DJIError djiError) {
         promise.reject(new Throwable("sendDataToOnboardSDKDevice error: " + djiError.getDescription()));
       }
-    }, bytesToSend.toArray());
+    }, bytesToSend);
   }
 
   @ReactMethod
