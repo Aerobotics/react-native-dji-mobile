@@ -403,7 +403,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       public void onFailure(DJIError djiError) {
         promise.reject(new Throwable("sendDataToOnboardSDKDevice error: " + djiError.getDescription()));
       }
-    }, bytesToSend);
+    }, bytesToSend.toArray());
   }
 
   @ReactMethod
