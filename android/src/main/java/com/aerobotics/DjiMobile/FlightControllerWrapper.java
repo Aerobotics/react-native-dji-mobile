@@ -1,7 +1,6 @@
 package com.aerobotics.DjiMobile;
 
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -9,13 +8,17 @@ import androidx.annotation.Nullable;
 import com.aerobotics.DjiMobile.DJITimelineElements.VirtualStickTimelineElement;
 import com.aerobotics.DjiMobile.DJITimelineElements.WaypointMissionTimelineElement;
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Vector;
 
 import javax.annotation.Nonnull;
 
@@ -29,6 +32,7 @@ import dji.common.mission.waypoint.WaypointMissionUploadEvent;
 import dji.common.util.CommonCallbacks;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
+import dji.keysdk.callback.ActionCallback;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.flightcontroller.FlightController;
@@ -37,6 +41,7 @@ import dji.sdk.mission.waypoint.WaypointMissionOperator;
 import dji.sdk.mission.waypoint.WaypointMissionOperatorListener;
 import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
+
 
 public class FlightControllerWrapper extends ReactContextBaseJavaModule {
   private final ReactApplicationContext reactContext;
@@ -48,6 +53,8 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
   private boolean enableWaypointExecutionFinishListener = false;
   private boolean enableWaypointExecutionUpdateListener = false;
+  private FlightController.OnboardSDKDeviceDataCallback onboardSDKDeviceDataCallback;
+
 
   private WaypointMissionOperatorListener waypointMissionOperatorListener = new WaypointMissionOperatorListener() {
     @Override
@@ -350,6 +357,80 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     } else {
       promise.reject(new Throwable("isVirtualStickAdvancedModeEnabled error: Could not get product instance"));
     }
+  }
+
+  @ReactMethod
+  public void isOnboardSDKDeviceAvailable(final Promise promise) {
+    DJIKey isOnboardSDKDeviceAvailableKey = FlightControllerKey.create(FlightControllerKey.IS_ON_BOARD_SDK_AVAILABLE);
+    DJISDKManager.getInstance().getKeyManager().getValue(isOnboardSDKDeviceAvailableKey, new GetCallback() {
+      @Override
+      public void onSuccess(Object value) {
+        if (value instanceof Boolean){
+          promise.resolve(value);
+        }
+      }
+
+      @Override
+      public void onFailure(DJIError djiError) {
+        promise.reject(new Throwable("isOnboardSDKDeviceAvailable error: " + djiError.getDescription()));
+      }
+    });
+  }
+
+  @ReactMethod
+  public void sendDataToOnboardSDKDevice(ReadableArray data, final Promise promise) {
+    if (data == null) {
+      promise.reject(new Throwable("sendDataToOnboardSDKDevice error: no data to send"));
+      return;
+    }
+
+    byte[] bytesToSend = new byte[data.size()];
+    for (int i = 0; i < data.size(); i++) {
+      bytesToSend[i] = (byte) data.getInt(i);
+    }
+    if (bytesToSend.length < 1) {
+      promise.reject(new Throwable("sendDataToOnboardSDKDevice error: no data to send " + String.valueOf(data.size())));
+    }
+    if (bytesToSend.length > 100) {
+      promise.reject(new Throwable("sendDataToOnboardSDKDevice error: data exceeds max number of bytes"));
+    }
+    DJIKey sendDataToOnboardSDKDeviceKey = FlightControllerKey.create(FlightControllerKey.SEND_DATA_TO_ON_BOARD_SDK_DEVICE);
+    DJISDKManager.getInstance().getKeyManager().performAction(sendDataToOnboardSDKDeviceKey, new ActionCallback() {
+      @Override
+      public void onSuccess() {
+        promise.resolve(null);
+      }
+
+      @Override
+      public void onFailure(DJIError djiError) {
+        promise.reject(new Throwable("sendDataToOnboardSDKDevice error: " + djiError.getDescription()));
+      }
+    }, bytesToSend);
+  }
+
+  @ReactMethod
+  public void startOnboardSDKDeviceDataListener(final Promise promise) {
+    Aircraft product = ((Aircraft)DJISDKManager.getInstance().getProduct());
+    if (product == null) {
+      promise.reject(new Throwable("startOnboardSDKDeviceDataListener error: could not connect to product"));
+      return;
+    }
+    final FlightController flightController = product.getFlightController();
+    if (flightController == null) {
+      promise.reject(new Throwable("startOnboardSDKDeviceDataListener error: could not connect to flight controller"));
+      return;
+    }
+
+    if (onboardSDKDeviceDataCallback == null) {
+      onboardSDKDeviceDataCallback = new FlightController.OnboardSDKDeviceDataCallback() {
+        @Override
+        public void onReceive(byte[] bytes) {
+          eventSender.processEvent(SDKEvent.OnboardSDKDeviceData, Arrays.toString(bytes), true);
+        }
+      };
+      flightController.setOnboardSDKDeviceDataCallback(onboardSDKDeviceDataCallback);
+    }
+    promise.resolve(null);
   }
 
   @Nonnull

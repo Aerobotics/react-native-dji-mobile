@@ -25,6 +25,7 @@ import dji.sdk.sdkmanager.DJISDKManager;
 enum EventType {
   DJI_KEY_MANAGER_EVENT,
   DJI_CAMERA_DELEGATE_EVENT,
+  DJI_ONBOARD_SDK_DEVICE_DATA_EVENT,
 }
 
 interface EventListener {
