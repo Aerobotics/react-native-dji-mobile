@@ -500,4 +500,22 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         });
     }
 
+    @ReactMethod
+    public void getDisplayName(final Promise promise) {
+        DJIKey getDisplayNameKey = CameraKey.create(CameraKey.DISPLAY_NAME);
+        DJISDKManager.getInstance().getKeyManager().getValue(getDisplayNameKey, new GetCallback() {
+            @Override
+            public void onSuccess(Object value) {
+                if (value instanceof String) {
+                    promise.resolve(value);
+                }
+            }
+
+            @Override
+            public void onFailure(DJIError djiError) {
+                promise.reject(new Throwable("getDisplayName error: " + djiError.getDescription()));
+            }
+        });
+    }
+
 }
