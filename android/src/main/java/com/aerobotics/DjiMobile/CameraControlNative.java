@@ -257,8 +257,8 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
                     WritableArray array = new WritableNativeArray();
                     for (int i = 0; i < resolutionAndFrameRates.length; i++) {
                         ResolutionAndFrameRate resolutionAndFrameRate = resolutionAndFrameRates[i];
-                        String resolutionAndFrameRateString = resolutionAndFrameRate.toString();
-                        array.pushString(resolutionAndFrameRateString);
+                        array.pushString(resolutionAndFrameRate.getResolution().toString()
+                                + "," + resolutionAndFrameRate.getFrameRate().toString());
                     }
                     promise.resolve(array);
                 }
