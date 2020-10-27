@@ -4,12 +4,14 @@ import androidx.annotation.NonNull;
 
 import android.graphics.PointF;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import dji.common.camera.ResolutionAndFrameRate;
 import dji.common.camera.SettingsDefinitions;
@@ -256,9 +258,11 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
                     ResolutionAndFrameRate[] resolutionAndFrameRates = (ResolutionAndFrameRate[]) value;
                     WritableArray array = new WritableNativeArray();
                     for (int i = 0; i < resolutionAndFrameRates.length; i++) {
+                        WritableMap map = Arguments.createMap();
                         ResolutionAndFrameRate resolutionAndFrameRate = resolutionAndFrameRates[i];
-                        array.pushString(resolutionAndFrameRate.getResolution().toString()
-                                + "," + resolutionAndFrameRate.getFrameRate().toString());
+                        map.putString("videoRes", resolutionAndFrameRate.getResolution().toString());
+                        map.putString("frameRate", resolutionAndFrameRate.getFrameRate().toString());
+                        array.pushMap(map);
                     }
                     promise.resolve(array);
                 }
