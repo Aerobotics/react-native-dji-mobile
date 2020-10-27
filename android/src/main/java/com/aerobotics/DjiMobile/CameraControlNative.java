@@ -9,8 +9,8 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableArray;
-import com.facebook.react.bridge.WritableNativeArray;
 import dji.common.camera.ResolutionAndFrameRate;
 import dji.common.camera.SettingsDefinitions;
 import dji.common.camera.WhiteBalance;
@@ -254,7 +254,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             public void onSuccess(@NonNull Object value) {
                 if (value instanceof ResolutionAndFrameRate[]) {
                     ResolutionAndFrameRate[] resolutionAndFrameRates = (ResolutionAndFrameRate[]) value;
-                    WritableArray array = new WritableNativeArray();
+                    WritableArray array = Arguments.createArray();
                     for (int i = 0; i < resolutionAndFrameRates.length; i++) {
                         ResolutionAndFrameRate resolutionAndFrameRate = resolutionAndFrameRates[i];
                         String resolutionAndFrameRateString = resolutionAndFrameRate.toString();

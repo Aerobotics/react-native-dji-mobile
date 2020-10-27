@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.aerobotics.DjiMobile.DJITimelineElements.VirtualStickTimelineElement;
 import com.aerobotics.DjiMobile.DJITimelineElements.WaypointMissionTimelineElement;
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -425,7 +426,11 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       onboardSDKDeviceDataCallback = new FlightController.OnboardSDKDeviceDataCallback() {
         @Override
         public void onReceive(byte[] bytes) {
-          eventSender.processEvent(SDKEvent.OnboardSDKDeviceData, Arrays.toString(bytes), true);
+          WritableArray RNFormattedByteArray = Arguments.createArray();
+          for (byte b : bytes) {
+            RNFormattedByteArray.pushInt(b);
+          }
+          eventSender.processEvent(SDKEvent.OnboardSDKDeviceData, RNFormattedByteArray, true);
         }
       };
       flightController.setOnboardSDKDeviceDataCallback(onboardSDKDeviceDataCallback);
