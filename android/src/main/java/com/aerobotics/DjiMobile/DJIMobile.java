@@ -26,6 +26,7 @@ import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
 import dji.common.model.LocationCoordinate2D;
+import dji.common.product.Model;
 import dji.keysdk.AirLinkKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
@@ -764,6 +765,24 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         @Override
         public void onFailure(@NonNull DJIError djiError) {
           promise.reject(new Throwable("isProductConnected error: " + djiError.getDescription()));
+        }
+      });
+    }
+
+    @ReactMethod
+    public void getModelName(final Promise promise) {
+      ProductKey modelNameKey = ProductKey.create(ProductKey.MODEL_NAME);
+      KeyManager.getInstance().getValue(modelNameKey, new GetCallback() {
+        @Override
+        public void onSuccess(@NonNull Object value) {
+          if (value instanceof Model) {
+            promise.resolve(((Model) value).getDisplayName());
+          }
+        }
+
+        @Override
+        public void onFailure(@NonNull DJIError djiError) {
+          promise.reject(new Throwable("getModelName error: " + djiError.getDescription()));
         }
       });
     }

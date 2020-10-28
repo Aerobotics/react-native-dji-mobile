@@ -216,6 +216,10 @@ const DJIMobileWrapper = {
     return await DJIMobile.getAircraftCompassHeading();
   },
 
+  getModelName: async () => {
+    return await DJIMobile.getModelName();
+  },
+
 };
 
 export default DJIMobileWrapper;

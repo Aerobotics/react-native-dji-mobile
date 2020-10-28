@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import android.graphics.PointF;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -11,6 +12,8 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeArray;
 import dji.common.camera.ResolutionAndFrameRate;
 import dji.common.camera.SettingsDefinitions;
 import dji.common.camera.WhiteBalance;
@@ -256,9 +259,11 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
                     ResolutionAndFrameRate[] resolutionAndFrameRates = (ResolutionAndFrameRate[]) value;
                     WritableArray array = Arguments.createArray();
                     for (int i = 0; i < resolutionAndFrameRates.length; i++) {
+                        WritableMap map = Arguments.createMap();
                         ResolutionAndFrameRate resolutionAndFrameRate = resolutionAndFrameRates[i];
-                        String resolutionAndFrameRateString = resolutionAndFrameRate.toString();
-                        array.pushString(resolutionAndFrameRateString);
+                        map.putString("videoRes", resolutionAndFrameRate.getResolution().toString());
+                        map.putString("frameRate", resolutionAndFrameRate.getFrameRate().toString());
+                        array.pushMap(map);
                     }
                     promise.resolve(array);
                 }
@@ -496,6 +501,24 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
             @Override
             public void onFailure(@NonNull DJIError djiError) {
                 promise.reject(new Throwable("getFocusRingValue error: " + djiError.getDescription()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getDisplayName(final Promise promise) {
+        DJIKey getDisplayNameKey = CameraKey.create(CameraKey.DISPLAY_NAME);
+        DJISDKManager.getInstance().getKeyManager().getValue(getDisplayNameKey, new GetCallback() {
+            @Override
+            public void onSuccess(Object value) {
+                if (value instanceof String) {
+                    promise.resolve(value);
+                }
+            }
+
+            @Override
+            public void onFailure(DJIError djiError) {
+                promise.reject(new Throwable("getDisplayName error: " + djiError.getDescription()));
             }
         });
     }
