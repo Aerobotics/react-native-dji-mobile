@@ -12,12 +12,14 @@ import com.facebook.react.bridge.WritableMap;
 
 import dji.common.error.DJIError;
 import dji.common.gimbal.Attitude;
+import dji.common.gimbal.GimbalMode;
 import dji.common.gimbal.Rotation;
 import dji.common.gimbal.RotationMode;
 import dji.common.util.CommonCallbacks;
 import dji.keysdk.DJIKey;
 import dji.keysdk.GimbalKey;
 import dji.keysdk.callback.GetCallback;
+import dji.keysdk.callback.SetCallback;
 import dji.sdk.gimbal.Gimbal;
 import dji.sdk.sdkmanager.DJISDKManager;
 
@@ -94,6 +96,41 @@ public class GimbalWrapper extends ReactContextBaseJavaModule {
       }
     });
   }
+
+  @ReactMethod
+  public void getMode(final Promise promise) {
+    DJIKey gimbalModeKey = GimbalKey.create(GimbalKey.MODE);
+    DJISDKManager.getInstance().getKeyManager().getValue(gimbalModeKey, new GetCallback() {
+      @Override
+      public void onSuccess(Object o) {
+        promise.resolve(((GimbalMode) o).name());
+
+      }
+
+      @Override
+      public void onFailure(DJIError djiError) {
+        promise.reject(new Throwable("getMode error: " + djiError.getDescription()));
+      }
+    });
+  }
+
+  @ReactMethod
+  public void setMode(String mode, final Promise promise) {
+    DJIKey gimbalModeKey = GimbalKey.create(GimbalKey.MODE);
+    DJISDKManager.getInstance().getKeyManager().setValue(gimbalModeKey, GimbalMode.valueOf(mode), new SetCallback() {
+      @Override
+      public void onSuccess() {
+        promise.resolve("setMode success");
+      }
+
+      @Override
+      public void onFailure(DJIError djiError) {
+        promise.reject(new Throwable("setMode error: " + djiError.getDescription()));
+      }
+    });
+  }
+
+
 
   @Override
   public String getName() {
