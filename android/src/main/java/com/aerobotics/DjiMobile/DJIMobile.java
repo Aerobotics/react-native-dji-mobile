@@ -503,6 +503,9 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   private void startAircraftHomeLocationListener() {
+
+    final Double[] homeLocation = {null, null, null};
+
     startEventListener(SDKEvent.AircraftHomeLocation, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
@@ -511,14 +514,40 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           Double longitude = location.getLongitude();
           Double latitude = location.getLatitude();
           if (!latitude.isNaN() && !latitude.isInfinite() && !longitude.isNaN() && !longitude.isInfinite()) {
-              WritableMap params = Arguments.createMap();
-              params.putDouble("longitude", longitude);
-              params.putDouble("latitude", latitude);
-              sendEvent(SDKEvent.AircraftHomeLocation, params);
+            homeLocation[0] = latitude;
+            homeLocation[1] = longitude;
+            sendAircraftHomeLocationEvent(homeLocation[0], homeLocation[1], homeLocation[2]);
           }
         }
       }
     });
+
+    startEventListener(SDKEvent.TakeoffLocationAltitude, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Float) {
+          Float takeoffLocationAltitude = (Float) newValue;
+          if (!takeoffLocationAltitude.isNaN() && !takeoffLocationAltitude.isInfinite()) {
+            homeLocation[2] = Double.valueOf(takeoffLocationAltitude);
+            sendAircraftHomeLocationEvent(homeLocation[0], homeLocation[1], homeLocation[2]);
+          }
+        }
+      }
+    });
+  }
+
+  private void sendAircraftHomeLocationEvent(Double latitude, Double longitude, Double altitude) {
+    WritableMap homeLocation = Arguments.createMap();
+    if (latitude != null) {
+      homeLocation.putDouble("latitude", latitude);
+    }
+    if (longitude != null) {
+      homeLocation.putDouble("longitude", longitude);
+    }
+    if (altitude != null) {
+      homeLocation.putDouble("altitude", altitude);
+    }
+    sendEvent(SDKEvent.AircraftHomeLocation, homeLocation);
   }
 
   private void startUltrasonicHeightListener() {
@@ -599,6 +628,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         final int finalI = i;
         stopEventListenerInternal(velocityEvents[i]);
       }
+
+    } else if (eventName.equals(SDKEvent.AircraftHomeLocation)) {
+      stopEventListenerInternal(SDKEvent.AircraftHomeLocation);
+      stopEventListenerInternal(SDKEvent.TakeoffLocationAltitude);
 
     } else {
       SDKEvent sdkEvent = SDKEvent.valueOf(eventName);
