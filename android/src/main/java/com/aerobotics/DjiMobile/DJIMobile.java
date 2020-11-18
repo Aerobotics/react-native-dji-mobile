@@ -526,7 +526,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue instanceof Float) {
-          Log.i("I/ReactNativeJS", String.valueOf(newValue));
           Float takeoffLocationAltitude = (Float) newValue;
           homeLocation[2] = Double.valueOf(takeoffLocationAltitude);
           sendAircraftHomeLocationEvent(homeLocation[0], homeLocation[1], homeLocation[2]);
