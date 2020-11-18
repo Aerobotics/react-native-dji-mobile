@@ -513,9 +513,9 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           LocationCoordinate2D location = (LocationCoordinate2D) newValue;
           Double longitude = location.getLongitude();
           Double latitude = location.getLatitude();
-          homeLocation[0] = latitude;
-          homeLocation[1] = longitude;
           if (!latitude.isNaN() && !latitude.isInfinite() && !longitude.isNaN() && !longitude.isInfinite()) {
+            homeLocation[0] = latitude;
+            homeLocation[1] = longitude;
             sendAircraftHomeLocationEvent(homeLocation[0], homeLocation[1], homeLocation[2]);
           }
         }
@@ -527,8 +527,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue instanceof Float) {
           Float takeoffLocationAltitude = (Float) newValue;
-          homeLocation[2] = Double.valueOf(takeoffLocationAltitude);
-          sendAircraftHomeLocationEvent(homeLocation[0], homeLocation[1], homeLocation[2]);
+          if (!takeoffLocationAltitude.isNaN() && !takeoffLocationAltitude.isInfinite()) {
+            homeLocation[2] = Double.valueOf(takeoffLocationAltitude);
+            sendAircraftHomeLocationEvent(homeLocation[0], homeLocation[1], homeLocation[2]);
+          }
         }
       }
     });
