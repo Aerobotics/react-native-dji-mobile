@@ -36,12 +36,9 @@ import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
-import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.media.MediaFile;
-import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKInitEvent;
 import dji.sdk.sdkmanager.DJISDKManager;
-import dji.sdksharedlib.keycatalog.IntelligentFlightAssistantKeys;
 
 
 public class DJIMobile extends ReactContextBaseJavaModule {
