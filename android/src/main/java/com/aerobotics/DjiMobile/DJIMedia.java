@@ -218,11 +218,6 @@ public class DJIMedia extends ReactContextBaseJavaModule {
     }
 
     @Override
-    public void onRealtimeDataUpdate(byte[] bytes, long l, boolean b) {
-      
-    }
-
-    @Override
     public void onProgress(long total, long current) {
       WritableMap params = Arguments.createMap();
       WritableMap eventInfo = Arguments.createMap();
