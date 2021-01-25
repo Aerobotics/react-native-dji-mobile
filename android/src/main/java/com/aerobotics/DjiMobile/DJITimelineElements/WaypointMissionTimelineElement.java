@@ -49,8 +49,12 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
       double latitude = waypointParams.getDouble("latitude");
       double altitude = waypointParams.getDouble("altitude");
       Integer heading = null;
+      Double speed = null;
       try {
         heading = waypointParams.getInt("heading");
+      } catch (Exception e) {}
+      try {
+        speed = waypointParams.getDouble("speed");
       } catch (Exception e) {}
 
       Waypoint waypointObject = new Waypoint(
@@ -61,6 +65,9 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
 
       if (heading != null) {
         waypointObject.heading = heading;
+      }
+      if (speed != null) {
+        waypointObject.speed = speed.floatValue();
       }
 
       if (waypointParams.hasKey("cornerRadiusInMeters")) {
