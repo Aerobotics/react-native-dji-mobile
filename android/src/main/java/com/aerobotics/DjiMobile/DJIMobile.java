@@ -25,6 +25,9 @@ import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
+import dji.common.flightcontroller.VisionDetectionState;
+import dji.common.flightcontroller.VisionSensorPosition;
+import dji.common.flightcontroller.VisionSystemWarning;
 import dji.common.model.LocationCoordinate2D;
 import dji.common.product.Model;
 import dji.keysdk.AirLinkKey;
@@ -280,6 +283,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
         case AircraftVirtualStickEnabled:
           startVirtualStickEnabledListener();
+          break;
+
+        case VisionDetectionState:
+          startVisionDetectionStateListener();
           break;
 
         default:
@@ -608,6 +615,35 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue instanceof Boolean) {
           sendEvent(SDKEvent.SDCardIsReadOnly, newValue);
+        }
+      }
+    });
+  }
+
+  private void startVisionDetectionStateListener() {
+    final HashMap<VisionSensorPosition, VisionSystemWarning> sensorValues = new HashMap<>();
+    sensorValues.put(VisionSensorPosition.LEFT, VisionSystemWarning.UNKNOWN);
+    sensorValues.put(VisionSensorPosition.NOSE, VisionSystemWarning.UNKNOWN);
+    sensorValues.put(VisionSensorPosition.RIGHT, VisionSystemWarning.UNKNOWN);
+    sensorValues.put(VisionSensorPosition.TAIL, VisionSystemWarning.UNKNOWN);
+
+    startEventListener(SDKEvent.VisionDetectionState, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof VisionDetectionState) {
+          VisionDetectionState visionDetectionState = ((VisionDetectionState) newValue);
+          VisionSystemWarning visionSystemWarning = visionDetectionState.getSystemWarning();
+          VisionSensorPosition visionSensorPosition = visionDetectionState.getPosition();
+
+          if (sensorValues.get(visionSensorPosition) != visionSystemWarning) {
+            final WritableMap params = Arguments.createMap();
+            for (VisionSensorPosition key : sensorValues.keySet()) {
+              params.putString(key.name(), sensorValues.get(key).name());
+            }
+            sendEvent(SDKEvent.VisionDetectionState, params);
+          }
+          sensorValues.put(visionSensorPosition, visionSystemWarning);
+
         }
       }
     });
