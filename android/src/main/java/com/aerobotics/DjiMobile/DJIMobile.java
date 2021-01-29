@@ -25,6 +25,7 @@ import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
+import dji.common.flightcontroller.VisionControlState;
 import dji.common.flightcontroller.VisionDetectionState;
 import dji.common.flightcontroller.VisionSensorPosition;
 import dji.common.flightcontroller.VisionSystemWarning;
@@ -39,7 +40,10 @@ import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
+import dji.sdk.flightcontroller.FlightAssistant;
+import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.media.MediaFile;
+import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKInitEvent;
 import dji.sdk.sdkmanager.DJISDKManager;
 
@@ -58,6 +62,22 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   private Handler handler;
   private FileObserver flightLogObserver;
   private EventSender eventSender;
+
+  private VisionControlState.Callback visionControlStateCallback = new VisionControlState.Callback() {
+    @Override
+    public void onUpdate(VisionControlState visionControlState) {
+      if (visionControlStateIsBraking != visionControlState.isBraking()) {
+        WritableMap params = Arguments.createMap();
+        params.putBoolean("isBraking", visionControlState.isBraking());
+        sendEvent(SDKEvent.VisionControlState, params);
+      }
+      visionControlStateIsBraking = visionControlState.isBraking();
+    }
+  };
+  private boolean visionControlStateIsBraking = false;
+
+  // Used to set up the vision control state listener when the aircraft connects, if currently unavailable
+  private boolean startVisionControlStateListenerOnNextConnect = false;
 
   public DJIMobile(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -106,12 +126,14 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onProductConnect(BaseProduct baseProduct) {
         product = baseProduct;
-        Log.i("REACT", "connected");
       }
 
       @Override
       public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent baseComponent, BaseComponent baseComponent1) {
         // TODO
+        if (startVisionControlStateListenerOnNextConnect) {
+          startVisionControlStateListener();
+        }
       }
 
       @Override
@@ -287,6 +309,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
         case VisionDetectionState:
           startVisionDetectionStateListener();
+          break;
+
+        case VisionControlState:
+          startVisionControlStateListener();
           break;
 
         default:
@@ -649,6 +675,36 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     });
   }
 
+  private void startVisionControlStateListener() {
+    Log.i("Vision", "startVisionControlStateListener");
+    Aircraft drone = (Aircraft) DJISDKManager.getInstance().getProduct();
+    if (drone == null) {
+      startVisionControlStateListenerOnNextConnect = true;
+      return;
+    }
+    FlightController flightController = drone.getFlightController();
+    if (flightController == null) {
+      startVisionControlStateListenerOnNextConnect = true;
+      return;
+    }
+    FlightAssistant flightAssistant = flightController.getFlightAssistant();
+    if (flightAssistant == null) {
+      startVisionControlStateListenerOnNextConnect = true;
+      return;
+    }
+    startVisionControlStateListenerOnNextConnect = false;
+    flightAssistant.setVisionControlStateUpdatedcallback(visionControlStateCallback);
+  }
+
+  private void stopVisionControlStateListener() {
+    Aircraft drone = (Aircraft) DJISDKManager.getInstance().getProduct();
+    FlightController flightController = drone.getFlightController();
+    FlightAssistant flightAssistant = flightController.getFlightAssistant();
+    if (flightAssistant != null) {
+      flightAssistant.setVisionControlStateUpdatedcallback(null);
+    }
+  }
+
   @ReactMethod
   public void stopEventListener(String eventName, Promise promise) {
     if (eventName.equals(SDKEvent.AircraftVelocity)) {
@@ -665,6 +721,9 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     } else if (eventName.equals(SDKEvent.AircraftHomeLocation)) {
       stopEventListenerInternal(SDKEvent.AircraftHomeLocation);
       stopEventListenerInternal(SDKEvent.TakeoffLocationAltitude);
+
+    } else if (eventName.equals(SDKEvent.VisionControlState)) {
+      stopVisionControlStateListener();
 
     } else {
       SDKEvent sdkEvent = SDKEvent.valueOf(eventName);
