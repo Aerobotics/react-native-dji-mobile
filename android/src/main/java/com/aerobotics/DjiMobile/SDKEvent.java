@@ -51,7 +51,10 @@ public enum SDKEvent {
   OnboardSDKDeviceData(null, EventType.DJI_ONBOARD_SDK_DEVICE_DATA_EVENT),
 
   CameraDidUpdateSystemState(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
-  CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT);
+  CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
+
+  VisionDetectionState(FlightControllerKey.createFlightAssistantKey(FlightControllerKey.VISION_DETECTION_STATE), EventType.DJI_KEY_MANAGER_EVENT),
+  VisionControlState(null, EventType.DJI_CALLBACK_EVENT);
 
   private Object key;
   private EventType eventType;

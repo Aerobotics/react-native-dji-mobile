@@ -145,6 +145,12 @@ const DJIMobileWrapper = {
   startAircraftVirtualStickEnabledListener: startListener(DJIMobile.AircraftVirtualStickEnabled),
   stopAircraftVirtualStickEnabledListener: stopListener(DJIMobile.AircraftVirtualStickEnabled),
 
+  startVisionDetectionStateListener: startListener(DJIMobile.VisionDetectionState),
+  stopVisionDetectionStateListener: stopListener(DJIMobile.VisionDetectionState),
+
+  startVisionControlStateListener: startListener(DJIMobile.VisionControlState),
+  stopVisionControlStateListener: stopListener(DJIMobile.VisionControlState),
+
   getAircraftLocation: async () => {
     return await DJIMobile.getAircraftLocation();
   },

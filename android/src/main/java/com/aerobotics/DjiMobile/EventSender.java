@@ -63,8 +63,8 @@ public class EventSender {
         }
     }
 
-    private void queueEvent(SDKEvent SDKEvent, Object value) {
-        String type = SDKEvent.toString();
+    private void queueEvent(SDKEvent event, Object value) {
+        String type = event.toString();
         this.queuedEvents.put(type, value);
     }
 
