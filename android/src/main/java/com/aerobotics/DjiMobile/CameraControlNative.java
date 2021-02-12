@@ -523,4 +523,22 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         });
     }
 
+    @ReactMethod
+    public void isRecording(final Promise promise) {
+        DJIKey isRecordingKey = CameraKey.create(CameraKey.IS_RECORDING);
+        DJISDKManager.getInstance().getKeyManager().getValue(isRecordingKey, new GetCallback() {
+            @Override
+            public void onSuccess(Object value) {
+                if (value instanceof Boolean) {
+                    promise.resolve(value);
+                }
+            }
+
+            @Override
+            public void onFailure(DJIError djiError) {
+                promise.reject(new Throwable("isRecording error: " + djiError.getDescription()));
+            }
+        });
+    }
+
 }
