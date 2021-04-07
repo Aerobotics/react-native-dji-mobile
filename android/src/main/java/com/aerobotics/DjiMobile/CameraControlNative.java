@@ -421,7 +421,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void setVideoCaptionsEnabled(String enabled, final Promise promise) {
+    public void setVideoCaptionsEnabled(Boolean enabled, final Promise promise) {
         DJIKey videoCaptionKey = CameraKey.create(CameraKey.VIDEO_CAPTION_ENABLED);
         DJISDKManager.getInstance().getKeyManager().setValue(videoCaptionKey, enabled, new SetCallback() {
             @Override
