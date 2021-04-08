@@ -222,6 +222,13 @@ const DJIMobileWrapper = {
     return await DJIMobile.getAircraftCompassHeading();
   },
 
+  /**
+   * ANDROID ONLY
+   */
+  setPowerSupplyPortEnabled: async (enabled: boolean) => {
+    return await DJIMobile.setPowerSupplyPortEnabled(enabled);
+  },
+
   getModelName: async () => {
     return await DJIMobile.getModelName();
   },
