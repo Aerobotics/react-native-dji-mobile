@@ -460,13 +460,17 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
   @ReactMethod
   public void setPowerSupplyPortEnabled(Boolean enabled, Promise promise) {
     Aircraft product = ((Aircraft)DJISDKManager.getInstance().getProduct());
-    if (product != null) {
-      final FlightController flightController = product.getFlightController();
-      flightController.setPowerSupplyPortEnabled(enabled);
-      promise.resolve(true);
-    } else {
-      promise.reject(new Throwable("setPowerSupplyPortEnabled error: Could not get product instance"));
+    if (product == null) {
+      promise.reject(new Throwable("setPowerSupplyPortEnabled error: could not connect to product"));
+      return;
     }
+    final FlightController flightController = product.getFlightController();
+    if (flightController == null) {
+      promise.reject(new Throwable("setPowerSupplyPortEnabled error: could not connect to flight controller"));
+      return;
+    }
+    flightController.setPowerSupplyPortEnabled(enabled);
+    promise.resolve(true);
   }
 
   @Nonnull
