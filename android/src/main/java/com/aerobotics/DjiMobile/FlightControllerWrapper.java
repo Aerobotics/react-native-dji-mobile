@@ -463,7 +463,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     if (product != null) {
       final FlightController flightController = product.getFlightController();
       flightController.setPowerSupplyPortEnabled(enabled);
-      promise.resolve(null);
+      promise.resolve(true);
     } else {
       promise.reject(new Throwable("setPowerSupplyPortEnabled error: Could not get product instance"));
     }
