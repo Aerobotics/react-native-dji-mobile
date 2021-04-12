@@ -470,6 +470,22 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void setVideoStandard(String videoStandard, final Promise promise) {
+        DJIKey videoStandardKey = CameraKey.create(CameraKey.VIDEO_STANDARD);
+        DJISDKManager.getInstance().getKeyManager().setValue(videoStandardKey, SettingsDefinitions.VideoStandard.valueOf(videoStandard), new SetCallback() {
+            @Override
+            public void onSuccess() {
+                promise.resolve("setVideoStandard: focus mode set successfully");
+            }
+
+            @Override
+            public void onFailure(@NonNull DJIError djiError) {
+                promise.reject(new Throwable("setVideoStandard error: " + djiError.getDescription()));
+            }
+        });
+    }
+
+    @ReactMethod
     public void getFocusStatus(final Promise promise) {
         DJIKey focusStatusKey = CameraKey.create(CameraKey.FOCUS_STATUS);
         DJISDKManager.getInstance().getKeyManager().getValue(focusStatusKey, new GetCallback() {
