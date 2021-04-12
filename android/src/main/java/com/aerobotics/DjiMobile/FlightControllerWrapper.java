@@ -474,10 +474,12 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       public void onResult(DJIError error) {
         if (error != null) {
           promise.reject(new Throwable("setPowerSupplyPortEnabled error: " + error.getDescription()));
+        } else {
+          promise.resolve(true);
         }
       }
     });
-    promise.resolve(true);
+
   }
 
   @ReactMethod
