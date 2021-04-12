@@ -458,7 +458,7 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void setPowerSupplyPortEnabled(Boolean enabled, Promise promise) {
+  public void setPowerSupplyPortEnabled(Boolean enabled, final Promise promise) {
     Aircraft product = ((Aircraft)DJISDKManager.getInstance().getProduct());
     if (product == null) {
       promise.reject(new Throwable("setPowerSupplyPortEnabled error: could not connect to product"));
@@ -469,7 +469,14 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       promise.reject(new Throwable("setPowerSupplyPortEnabled error: could not connect to flight controller"));
       return;
     }
-    flightController.setPowerSupplyPortEnabled(enabled);
+    flightController.setPowerSupplyPortEnabled(enabled, new CommonCallbacks.CompletionCallback() {
+      @Override
+      public void onResult(DJIError error) {
+        if (error != null) {
+          promise.reject(new Throwable("setPowerSupplyPortEnabled error: " + error.getDescription()));
+        }
+      }
+    });
     promise.resolve(true);
   }
 
@@ -485,8 +492,19 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       promise.reject(new Throwable("getPowerSupplyPortEnabled error: could not connect to flight controller"));
       return;
     }
-    const isPowerSupplyEnabled = flightController.getPowerSupplyPortEnabled();
-    promise.resolve(isPowerSupplyEnabled);
+    flightController.getPowerSupplyPortEnabled(new CommonCallbacks.CompletionCallbackWith() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        if (value instanceof Boolean) {
+          promise.resolve(value);
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable("getPowerSupplyPortEnabled error: " + djiError.getDescription()));
+      }
+    });
   }
 
   @Nonnull
