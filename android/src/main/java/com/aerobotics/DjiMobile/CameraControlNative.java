@@ -475,7 +475,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         DJISDKManager.getInstance().getKeyManager().setValue(videoStandardKey, SettingsDefinitions.VideoStandard.valueOf(videoStandard), new SetCallback() {
             @Override
             public void onSuccess() {
-                promise.resolve("setVideoStandard: focus mode set successfully");
+                promise.resolve("setVideoStandard: video standard set successfully");
             }
 
             @Override
