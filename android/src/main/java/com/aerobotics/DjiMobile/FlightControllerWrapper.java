@@ -509,6 +509,24 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     });
   }
 
+  @ReactMethod
+  public void doesCompassNeedCalibrating(final Promise promise) {
+    DJIKey compassCalibrationKey = FlightControllerKey.create(FlightControllerKey.COMPASS_HAS_ERROR);
+    DJISDKManager.getInstance().getKeyManager().getValue(compassCalibrationKey, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        if (value instanceof Boolean) {
+          promise.resolve(value);
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable("doesCompassNeedCalibrating error: " + djiError.getDescription()));
+      }
+    });
+  }
+
   @Nonnull
   @Override
   public String getName() {
