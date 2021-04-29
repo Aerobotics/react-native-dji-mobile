@@ -18,6 +18,7 @@ import dji.common.gimbal.RotationMode;
 import dji.common.util.CommonCallbacks;
 import dji.keysdk.DJIKey;
 import dji.keysdk.GimbalKey;
+import dji.keysdk.callback.ActionCallback;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.gimbal.Gimbal;
@@ -130,7 +131,21 @@ public class GimbalWrapper extends ReactContextBaseJavaModule {
     });
   }
 
+  @ReactMethod
+  public void resetPose(final Promise promise) {
+    DJIKey gimbalResetKey = GimbalKey.create(GimbalKey.RESET_GIMBAL);
+    DJISDKManager.getInstance().getKeyManager().performAction(gimbalResetKey, new ActionCallback() {
+      @Override
+      public void onSuccess() {
+        promise.resolve(true);
+      }
 
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable("resetPose error: " + djiError.getDescription()));
+      }
+    });
+  }
 
   @Override
   public String getName() {
