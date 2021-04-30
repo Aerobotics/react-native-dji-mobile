@@ -105,3 +105,25 @@ If you are unable to add `use_modular_headers!` to your Podfile as it breaks you
 ---
 
 ### Android (TODO)
+
+### Adding Logs to Android Java Code Using Android Studio
+
+To add log statements to the Android Java code, you can do the following:
+
+In your `.java` file, import the Android [Log](https://developer.android.com/reference/android/util/Log) package and use it to log a message with a tag:
+
+```java
+import android.util.Log;
+
+Log.d("SomeTag", "Some message");
+```
+
+Then, in Android Studio, if you connect your device over USB, you can view the Log statements using [Logcat](https://developer.android.com/studio/debug/am-logcat):
+1. Build and run your app
+2. Open Logcat in **View > Tool Windows > Logcat**
+3. Filter for the tag you added to your log statement
+
+If you need to connect your device over WIFI (which is the nominal case since the USB needs to be connected to the DJI RC remote), you can do the following:
+1. Install an Android Studio WIFI ADB plugin. At the time of writing, I am using [Android WiFiADB](https://plugins.jetbrains.com/plugin/13156-android-wifiadb)
+2. Connect to the mobile device using the WIFI ADB plugin
+3. Unplug the USB and do the same three steps above as you would if you were connected over USB.
