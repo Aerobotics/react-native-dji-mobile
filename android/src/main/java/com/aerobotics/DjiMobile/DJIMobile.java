@@ -55,7 +55,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   private HashMap eventListeners = new HashMap();
 
   // This must only be initialized once the SDK has registered, as it uses the SDK
-  private SdkEventHandler sdkEventHandler;
+  private static SdkEventHandler sdkEventHandler;
   private BaseProduct product;
 
   private DJIRealTimeDataLogger djiRealTimeDataLogger;

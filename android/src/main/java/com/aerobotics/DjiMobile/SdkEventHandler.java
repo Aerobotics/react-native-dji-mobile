@@ -11,13 +11,8 @@ import java.util.Observable;
 import java.util.Observer;
 
 import dji.common.error.DJIError;
-import dji.keysdk.AirLinkKey;
-import dji.keysdk.BatteryKey;
-import dji.keysdk.CameraKey;
 import dji.keysdk.DJIKey;
-import dji.keysdk.FlightControllerKey;
 import dji.keysdk.KeyManager;
-import dji.keysdk.ProductKey;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.KeyListener;
 import dji.sdk.sdkmanager.DJISDKManager;
@@ -35,7 +30,7 @@ interface EventListener {
 
 public class SdkEventHandler {
 
-  private CameraEventDelegate cameraEventDelegate = new CameraEventDelegate();
+  private static CameraEventDelegate cameraEventDelegate = new CameraEventDelegate();
   private Handler handler;
 
   private class EventInfo {
