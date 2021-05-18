@@ -147,6 +147,24 @@ public class GimbalWrapper extends ReactContextBaseJavaModule {
     });
   }
 
+  @ReactMethod
+  public void isYawAtLimit(final Promise promise) {
+    DJIKey gimbalYawKey = GimbalKey.create(GimbalKey.IS_YAW_AT_STOP);
+    DJISDKManager.getInstance().getKeyManager().getValue(gimbalYawKey, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        if(value instanceof Boolean) {
+          promise.resolve(value);
+        }
+      }
+
+      @Override
+      public void onFailure(DJIError djiError) {
+        promise.reject(new Throwable("isYawAtLimit error: " + djiError.getDescription()));
+      }
+    });
+  }
+
   @Override
   public String getName() {
     return "GimbalWrapper";
