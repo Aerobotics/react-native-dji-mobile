@@ -4,6 +4,7 @@ import dji.keysdk.AirLinkKey;
 import dji.keysdk.BatteryKey;
 import dji.keysdk.CameraKey;
 import dji.keysdk.FlightControllerKey;
+import dji.keysdk.GimbalKey;
 import dji.keysdk.ProductKey;
 
 public enum SDKEvent {
@@ -39,6 +40,8 @@ public enum SDKEvent {
   CameraIsRecording(CameraKey.create(CameraKey.IS_RECORDING), EventType.DJI_KEY_MANAGER_EVENT),
   SDCardIsInserted(CameraKey.create(CameraKey.SDCARD_IS_INSERTED), EventType.DJI_KEY_MANAGER_EVENT),
   SDCardIsReadOnly(CameraKey.create(CameraKey.SDCARD_IS_READ_ONLY), EventType.DJI_KEY_MANAGER_EVENT),
+
+  GimbalIsAtYawStop(GimbalKey.create(GimbalKey.IS_YAW_AT_STOP), EventType.DJI_KEY_MANAGER_EVENT),
 
   WaypointMissionFinished(null, EventType.DJI_KEY_MANAGER_EVENT),
   WaypointMissionStarted(null, EventType.DJI_KEY_MANAGER_EVENT),
