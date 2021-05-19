@@ -303,6 +303,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startSDCardIsReadOnlyListener();
           break;
 
+        case GimbalIsAtYawStop:
+          startGimbalIsAtYawStopListener();
+          break;
+
         case AircraftVirtualStickEnabled:
           startVirtualStickEnabledListener();
           break;
@@ -641,6 +645,17 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue instanceof Boolean) {
           sendEvent(SDKEvent.SDCardIsReadOnly, newValue);
+        }
+      }
+    });
+  }
+
+  private void startGimbalIsAtYawStopListener() {
+    startEventListener(SDKEvent.GimbalIsAtYawStop, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.GimbalIsAtYawStop, newValue);
         }
       }
     });

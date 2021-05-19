@@ -142,6 +142,9 @@ const DJIMobileWrapper = {
   startSDCardIsReadOnlyListener: startListener(DJIMobile.SDCardIsReadOnly),
   stopSDCardIsReadOnlyListener: stopListener(DJIMobile.SDCardIsReadOnly),
 
+  startGimbalIsAtYawStopListener: startListener(DJIMobile.GimbalIsAtYawStop),
+  stopGimbalIsAtYawStopListener: stopListener(DJIMobile.GimbalIsAtYawStop),
+
   startAircraftVirtualStickEnabledListener: startListener(DJIMobile.AircraftVirtualStickEnabled),
   stopAircraftVirtualStickEnabledListener: stopListener(DJIMobile.AircraftVirtualStickEnabled),
 
