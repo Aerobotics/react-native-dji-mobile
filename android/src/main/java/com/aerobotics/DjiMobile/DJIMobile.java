@@ -916,7 +916,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         @Override
         public void onSuccess(@NonNull Object value) {
           if (value instanceof Model) {
-            promise.resolve(((Model) value).getDisplayName());
+            promise.resolve(((Model) value).name());
           }
         }
 
