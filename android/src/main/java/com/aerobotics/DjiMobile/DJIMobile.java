@@ -571,7 +571,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           // Don't send updates which are negligible
           Float oldTakeoffLocationAltitude = (Float) oldValue;
           Float altitudeDelta = Math.abs(oldTakeoffLocationAltitude - takeoffLocationAltitude);
-          if (altitudeDelta > 0.25) {
+          if (altitudeDelta > 0.2) {
             homeLocation[2] = Double.valueOf(takeoffLocationAltitude);
             sendAircraftHomeLocationEvent(homeLocation[0], homeLocation[1], homeLocation[2]);
           }
