@@ -559,15 +559,33 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     startEventListener(SDKEvent.TakeoffLocationAltitude, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue instanceof Float) {
-          Float takeoffLocationAltitude = (Float) newValue;
-          if (!takeoffLocationAltitude.isNaN() && !takeoffLocationAltitude.isInfinite()) {
+        if (!isObjectValidFloatValue(newValue)) {
+          return;
+        }
+        Float takeoffLocationAltitude = (Float) newValue;
+
+        if (!isObjectValidFloatValue(oldValue)) {
+          homeLocation[2] = Double.valueOf(takeoffLocationAltitude);
+          sendAircraftHomeLocationEvent(homeLocation[0], homeLocation[1], homeLocation[2]);
+        } else {
+          // Only send update if new value is significantly (0.5m) different to old value
+          Float oldTakeoffLocationAltitude = (Float) oldValue;
+          Float altitudeDelta = Math.abs(oldTakeoffLocationAltitude - takeoffLocationAltitude);
+          if (altitudeDelta > 0.25) {
             homeLocation[2] = Double.valueOf(takeoffLocationAltitude);
             sendAircraftHomeLocationEvent(homeLocation[0], homeLocation[1], homeLocation[2]);
           }
         }
       }
     });
+  }
+
+  private boolean isObjectValidFloatValue(@Nullable Object value) {
+    if (!(value instanceof Float)) {
+      return false;
+    }
+    Float valueAsFloat = (Float) value;
+    return (!valueAsFloat.isNaN() && !valueAsFloat.isInfinite());
   }
 
   private void sendAircraftHomeLocationEvent(Double latitude, Double longitude, Double altitude) {
