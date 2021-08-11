@@ -2,13 +2,13 @@ package com.aerobotics.DjiMobile.DroneVideo;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.aerobotics.DjiMobile.R;
 
+import dji.midware.usb.P3.UsbAccessoryService;
 import dji.sdk.camera.VideoFeeder;
 import dji.sdk.codec.DJICodecManager;
 import dji.sdk.sdkmanager.DJISDKManager;
@@ -31,7 +31,7 @@ public class DroneVideo extends RelativeLayout implements TextureView.SurfaceTex
         @Override
         public void onReceive(byte[] buffer, int size) {
           if (codecManager != null) {
-            codecManager.sendDataToDecoder(buffer, size);
+            codecManager.sendDataToDecoder(buffer, size, UsbAccessoryService.VideoStreamSource.Camera.getIndex());
           }
         }
       });
@@ -48,19 +48,23 @@ public class DroneVideo extends RelativeLayout implements TextureView.SurfaceTex
   @Override
   public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
     if (codecManager == null) {
-      codecManager = new DJICodecManager(getContext(), surface, width, height);
+      codecManager = new DJICodecManager(getContext(), surface, width, height, UsbAccessoryService.VideoStreamSource.Camera);
     }
   }
 
   @Override
   public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
     codecManager.cleanSurface();
-    codecManager = new DJICodecManager(getContext(), surface, width, height);
+    codecManager = new DJICodecManager(getContext(), surface, width, height, UsbAccessoryService.VideoStreamSource.Camera);
   }
 
   @Override
   public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-    codecManager.destroyCodec();
+    if (codecManager != null) {
+      codecManager.cleanSurface();
+      codecManager.destroyCodec();
+      codecManager = null;
+    }
     return false;
   }
 
