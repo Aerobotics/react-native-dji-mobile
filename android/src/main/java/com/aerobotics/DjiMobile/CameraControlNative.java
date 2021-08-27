@@ -575,4 +575,22 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         });
     }
 
+    @ReactMethod
+    public void setExposureCompensation(String exposureCompensation, final Promise promise) {
+        DJIKey exposureCompensationKey = CameraKey.create(CameraKey.EXPOSURE_COMPENSATION);
+        DJISDKManager.getInstance().getKeyManager().setValue(exposureCompensationKey,
+                SettingsDefinitions.ExposureCompensation.valueOf(exposureCompensation),
+                new SetCallback() {
+                    @Override
+                    public void onSuccess() {
+                        promise.resolve("setExposureCompensation: exposure compensation set successfully");
+                    }
+
+                    @Override
+                    public void onFailure(DJIError djiError) {
+                        promise.reject(new Throwable("setExposureCompensation error: " + djiError.getDescription()));
+                    }
+                });
+    }
+
 }
