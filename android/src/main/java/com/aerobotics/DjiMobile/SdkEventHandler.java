@@ -30,16 +30,28 @@ interface EventListener {
 
 public class SdkEventHandler {
 
-  private static CameraEventDelegate cameraEventDelegate = new CameraEventDelegate();
+  private static CameraEventDelegate cameraEventDelegate;
   private Handler handler;
-
-  private class EventInfo {
-    String key;
-    EventType eventType;
-  }
 
   public SdkEventHandler() {
     handler = new Handler(Looper.getMainLooper());
+  }
+
+  public void initCameraEventDelegate() {
+    cameraEventDelegate = new CameraEventDelegate();
+  }
+
+  public boolean isCameraCallbacksInitialized() {
+    if (cameraEventDelegate == null) {
+      return false;
+    }
+    return cameraEventDelegate.areCameraCallbacksSet();
+  }
+
+  public void setCameraCallbacks() {
+    if (cameraEventDelegate != null) {
+      cameraEventDelegate.setCameraCallbacks();
+    }
   }
 
   public Object startEventListener(final SDKEvent sdkEvent, final EventListener eventListener) {
@@ -71,6 +83,9 @@ public class SdkEventHandler {
 
         }
       };
+      if (cameraEventDelegate == null) {
+        cameraEventDelegate = new CameraEventDelegate();
+      }
       cameraEventDelegate.addObserver(observer);
       return observer;
     }
