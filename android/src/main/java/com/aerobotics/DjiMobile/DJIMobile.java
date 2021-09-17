@@ -40,6 +40,7 @@ import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
+import dji.sdk.camera.Camera;
 import dji.sdk.flightcontroller.FlightAssistant;
 import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.media.MediaFile;
@@ -126,6 +127,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onProductConnect(BaseProduct baseProduct) {
         product = baseProduct;
+        sdkEventHandler.initCameraEventDelegate();
       }
 
       @Override
@@ -519,6 +521,20 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void startNewMediaFileListener(Promise promise) {
+    boolean isCallbacksSet = sdkEventHandler.isCameraCallbacksInitialized();
+    if (!isCallbacksSet) {
+      if (product == null) {
+        promise.reject(new Throwable("Error product not connected"));
+        return;
+      }
+      Camera camera = product.getCamera();
+      if (camera == null) {
+        promise.reject(new Throwable("Error camera not connected"));
+        return;
+      }
+      sdkEventHandler.setCameraCallbacks();
+    }
+
     startEventListener(SDKEvent.CameraDidGenerateNewMediaFile, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
@@ -529,7 +545,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           params.putString("fileName", mediaFile.getFileName());
           params.putString("dateCreated", mediaFile.getDateCreated());
           params.putDouble("fileSizeInBytes",mediaFile.getFileSize());
-          sendEvent(SDKEvent.CameraDidGenerateNewMediaFile, params);
+          sendRealTimeEvent(SDKEvent.CameraDidGenerateNewMediaFile, params);
         }
       }
     });
@@ -793,6 +809,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   private void sendEvent(SDKEvent SDKEvent, Object value) {
     this.eventSender.processEvent(SDKEvent, value, false);
+  }
+
+  private void sendRealTimeEvent(SDKEvent SDKEvent, Object value) {
+    this.eventSender.processEvent(SDKEvent, value, true);
   }
 
   private void sendEvent(String eventName, Object value) {
