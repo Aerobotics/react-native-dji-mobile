@@ -173,8 +173,13 @@ const DJIMobileWrapper = {
   /**
    * ANDROID ONLY
    */
-  getFileList: async () => {
-    return await DJIMobile.getFileList();
+   getMediaFileList: async (numberOfResults: number = null) => {
+    console.log(numberOfResults);
+    if (numberOfResults != null ) {
+      return await DJIMobile.getLimitedMediaFileList(numberOfResults)
+    } else {
+      return await DJIMobile.getMediaFileList();
+    }
   },
 
   getFlightLogPath: async () => {
