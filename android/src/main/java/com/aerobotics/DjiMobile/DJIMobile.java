@@ -152,12 +152,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   public void getMediaFileList(final Promise promise) {
     DJIMedia m = new DJIMedia(reactContext);
     if (product == null) {
-        product = DJISDKManager.getInstance().getProduct();
-        if (product == null) {
-            promise.reject(new Throwable("getMediaFileList error: No product connected"));
-        } else {
-            m.getMediaFileList(promise, product);
-        }
+      promise.reject(new Throwable("getMediaFileList error: No product connected"));
     } else {
       m.getMediaFileList(promise, product);
     }
@@ -167,12 +162,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   public void getLimitedMediaFileList(Integer numberOfResults, final Promise promise) {
     DJIMedia m = new DJIMedia(reactContext);
     if (product == null) {
-        product = DJISDKManager.getInstance().getProduct();
-        if (product == null) {
-            promise.reject(new Throwable("getLimitedMediaFileList error: No product connected"));
-        } else {
-            m.getMediaFileList(promise, product, numberOfResults);
-        }
+      promise.reject(new Throwable("getLimitedMediaFileList error: No product connected"));
     } else {
       m.getMediaFileList(promise, product, numberOfResults);
     }
