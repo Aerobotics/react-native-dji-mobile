@@ -133,8 +133,8 @@ public class DJIMedia extends ReactContextBaseJavaModule {
               MediaFile m  = mediaFileList.get(fileIndex);
               WritableMap file = Arguments.createMap();
               file.putString("fileName", m.getFileName());
-              file.putDouble("timeCreatedAt", m.getTimeCreated());
-              file.putDouble("fileSize", m.getFileSize());
+              file.putString("dateCreated", m.getDateCreated());
+              file.putDouble("fileSizeInBytes", m.getFileSize());
               params.pushMap(file);
             }
             promise.resolve(params);
