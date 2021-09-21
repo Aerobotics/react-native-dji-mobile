@@ -173,7 +173,7 @@ const DJIMobileWrapper = {
   /**
    * ANDROID ONLY
    */
-   getMediaFileList: async (numberOfResults: number = null) => {
+   getMediaFileList: async (numberOfResults: ?number) => {
     if (numberOfResults != null ) {
       return await DJIMobile.getLimitedMediaFileList(numberOfResults)
     } else {
