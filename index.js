@@ -58,6 +58,12 @@ export type FlightLogListenerEvent = {
   type: string,
 }
 
+export type mediaFileData = {
+  fileName: string,
+  fileSizeInBytes: number,
+  dateCreated: string,
+};
+
 const DJIMobileWrapper = {
 
   registerApp: async (bridgeIp?: string) => {
