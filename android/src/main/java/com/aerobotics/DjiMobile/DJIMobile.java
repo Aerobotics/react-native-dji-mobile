@@ -281,6 +281,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startAirlinkUplinkSignalQualityListener();
           break;
 
+        case AirLinkDownlinkSignalQuality:
+          startAirlinkDownlinkSignalQualityListener();
+          break;
+
         case AircraftHomeLocation:
           startAircraftHomeLocationListener();
           break;
@@ -921,6 +925,45 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     }
+
+  private void startAirlinkDownlinkSignalQualityListener() {
+    DJIKey isLightbridgeSupportedKey = AirLinkKey.create(AirLinkKey.IS_LIGHTBRIDGE_LINK_SUPPORTED);
+    KeyManager.getInstance().getValue(isLightbridgeSupportedKey, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        if (value instanceof Boolean) {
+          if ((Boolean) value) {
+            startEventListener(SDKEvent.AirLinkLightbridgeDownlinkSignalQuality, new EventListener() {
+              @Override
+              public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+                if (newValue != null && newValue instanceof Integer) {
+                  sendEvent(SDKEvent.AirLinkDownlinkSignalQuality, newValue);
+                }
+              }
+            });
+          }
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+
+      }
+    });
+    if (product != null && product.getAirLink() != null) {
+      boolean isOcuSyncLinkSupported = product.getAirLink().isOcuSyncLinkSupported();
+      if (isOcuSyncLinkSupported) {
+        startEventListener(SDKEvent.AirLinkOcuSyncDownlinkSignalQuality, new EventListener() {
+          @Override
+          public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+            if (newValue != null && newValue instanceof Integer) {
+              sendEvent(SDKEvent.AirLinkDownlinkSignalQuality, newValue);
+            }
+          }
+        });
+      }
+    }
+  }
 
     @ReactMethod
     public void limitEventFrequency(double newEventSendFrequencyInHz, Promise promise) {
