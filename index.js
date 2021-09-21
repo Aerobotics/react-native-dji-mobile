@@ -58,7 +58,7 @@ export type FlightLogListenerEvent = {
   type: string,
 }
 
-export type mediaFileData = {
+export type MediaFileData = {
   fileName: string,
   fileSizeInBytes: number,
   dateCreated: string,
