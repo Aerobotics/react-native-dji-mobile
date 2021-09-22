@@ -58,6 +58,12 @@ export type FlightLogListenerEvent = {
   type: string,
 }
 
+export type MediaFileData = {
+  fileName: string,
+  fileSizeInBytes: number,
+  dateCreated: string,
+};
+
 const DJIMobileWrapper = {
 
   registerApp: async (bridgeIp?: string) => {
@@ -176,8 +182,12 @@ const DJIMobileWrapper = {
   /**
    * ANDROID ONLY
    */
-  getFileList: async () => {
-    return await DJIMobile.getFileList();
+   getMediaFileList: async (numberOfResults: ?number) => {
+    if (numberOfResults != null ) {
+      return await DJIMobile.getLimitedMediaFileList(numberOfResults)
+    } else {
+      return await DJIMobile.getMediaFileList();
+    }
   },
 
   getFlightLogPath: async () => {

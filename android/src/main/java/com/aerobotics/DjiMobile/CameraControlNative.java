@@ -612,4 +612,25 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
                 });
     }
 
+    @ReactMethod
+    public void getCameraMode(final Promise promise) {
+        DJIKey cameraModeKey = CameraKey.create(CameraKey.MODE);
+        DJISDKManager.getInstance().getKeyManager().getValue(cameraModeKey,
+                new GetCallback() {
+                    @Override
+                    public void onSuccess(Object cameraMode) {
+                        if (cameraMode instanceof SettingsDefinitions.CameraMode) {
+                            promise.resolve(((SettingsDefinitions.CameraMode) cameraMode).name());
+                        } else {
+                            promise.reject(new Throwable("getCameraMode error: camera mode not instance of SettingsDefinitions.CameraMode"));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(DJIError djiError) {
+                        promise.reject(new Throwable("getCameraMode error: " + djiError.getDescription()));
+                    }
+                });
+    }
+
 }

@@ -36,6 +36,7 @@ public class DJIMedia extends ReactContextBaseJavaModule {
   private Camera camera;
   private List<MediaFile> mediaFileList = new ArrayList<MediaFile>();
   private final ReactApplicationContext reactContext;
+  private Integer fileResultsLimit;
 
   private MediaManager.FileListStateListener updateFileListStateListener = new MediaManager.FileListStateListener() {
     @Override
@@ -52,38 +53,43 @@ public class DJIMedia extends ReactContextBaseJavaModule {
     this.reactContext = reactContext;
   }
 
-  public void getFileList(final Promise promise, BaseProduct baseProduct) {
+  public void getMediaFileList(final Promise promise, BaseProduct baseProduct) {
+    this.getMediaFileList(promise, baseProduct, null);
+  }
+
+  public void getMediaFileList(final Promise promise, BaseProduct baseProduct, Integer numberOfResults) {
     this.promise = promise;
+    // Set to null to get all results
+    this.fileResultsLimit = numberOfResults;
 
     Aircraft aircraft =  (Aircraft) baseProduct;
 
     camera = aircraft.getCamera();
     if (camera == null){
-      promise.reject("No camera connected");
+      promise.reject(new Throwable("getMediaFileList error: No camera connected"));
       return;
     }
     mediaManager = camera.getMediaManager();
 
     initMediaManager();
-    // getFileList();
   }
 
   private void initMediaManager() {
     mediaManager.addUpdateFileListStateListener(this.updateFileListStateListener);
+    // fails with "Not Support" error if video is busy being recorded
     camera.setMode(SettingsDefinitions.CameraMode.MEDIA_DOWNLOAD, new CommonCallbacks.CompletionCallback() {
       @Override
       public void onResult(DJIError djiError) {
         if (djiError == null) {
           getFileList();
         } else {
-          promise.reject(new Throwable("initMediaManager set camera mode error: " + djiError.getDescription()));
+          promise.reject(new Throwable("setMode (camera) error: " + djiError.getDescription()));
         }
       }
     });
   }
 
   private void getFileList() {
-
     if ((currentFileListState == MediaManager.FileListState.SYNCING) || (currentFileListState == MediaManager.FileListState.DELETING)){
       promise.reject(new Throwable("getFileList error: Media manager is busy"));
     } else{
@@ -96,6 +102,7 @@ public class DJIMedia extends ReactContextBaseJavaModule {
               mediaFileList.clear();
             }
 
+            // stops video if video is busy recording
             mediaFileList = mediaManager.getSDCardFileListSnapshot();
 
             // Sort to get latest file first
@@ -111,12 +118,23 @@ public class DJIMedia extends ReactContextBaseJavaModule {
               }
             });
 
+            // Limit number of results
+            int resultsSize;
+            if (fileResultsLimit == null) {
+              resultsSize = mediaFileList.size();
+            } else if (fileResultsLimit.intValue() > mediaFileList.size()) {
+              resultsSize = mediaFileList.size();
+            } else {
+              resultsSize = fileResultsLimit;
+            }
+
             WritableArray params = Arguments.createArray();
-            for (MediaFile m : mediaFileList){
+            for (int fileIndex = 0; fileIndex < resultsSize; fileIndex++) {
+              MediaFile m  = mediaFileList.get(fileIndex);
               WritableMap file = Arguments.createMap();
               file.putString("fileName", m.getFileName());
-              file.putDouble("timeCreatedAt", m.getTimeCreated());
-              file.putDouble("fileSize", m.getFileSize());
+              file.putString("dateCreated", m.getDateCreated());
+              file.putDouble("fileSizeInBytes", m.getFileSize());
               params.pushMap(file);
             }
             promise.resolve(params);
