@@ -36,6 +36,7 @@ public class CameraEventDelegate implements SystemState.Callback, MediaFile.Call
 
   private boolean isCameraConnected = false;
   private boolean callbacksSet = false;
+  private final CameraEventDelegate cameraDelegateSenderInstance = this;
 
   private KeyListener CameraConnectedKeyListener = new KeyListener() {
     @Override
@@ -43,7 +44,14 @@ public class CameraEventDelegate implements SystemState.Callback, MediaFile.Call
       if (newValue != null && newValue instanceof Boolean) {
         if ((boolean) newValue && !isCameraConnected) {
           isCameraConnected = (boolean)newValue;
-          setCameraCallbacks();
+          // When the SDK has just registered, calling getProduct may return null, so wait a second before trying
+          Handler handler = new Handler();
+          handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+              cameraDelegateSenderInstance.setCameraCallbacks();
+            }
+          }, 1000);
         }
       }
     }
