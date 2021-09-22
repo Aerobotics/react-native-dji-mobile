@@ -40,6 +40,7 @@ import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
+import dji.sdk.camera.Camera;
 import dji.sdk.flightcontroller.FlightAssistant;
 import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.media.MediaFile;
@@ -126,6 +127,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onProductConnect(BaseProduct baseProduct) {
         product = baseProduct;
+        sdkEventHandler.initCameraEventDelegate();
       }
 
       @Override
@@ -282,6 +284,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
         case AirLinkUplinkSignalQuality:
           startAirlinkUplinkSignalQualityListener();
+          break;
+
+        case AirLinkDownlinkSignalQuality:
+          startAirlinkDownlinkSignalQualityListener();
           break;
 
         case AircraftHomeLocation:
@@ -524,6 +530,20 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void startNewMediaFileListener(Promise promise) {
+    boolean isCallbacksSet = sdkEventHandler.isCameraCallbacksInitialized();
+    if (!isCallbacksSet) {
+      if (product == null) {
+        promise.reject(new Throwable("Error product not connected"));
+        return;
+      }
+      Camera camera = product.getCamera();
+      if (camera == null) {
+        promise.reject(new Throwable("Error camera not connected"));
+        return;
+      }
+      sdkEventHandler.setCameraCallbacks();
+    }
+
     startEventListener(SDKEvent.CameraDidGenerateNewMediaFile, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
@@ -534,7 +554,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           params.putString("fileName", mediaFile.getFileName());
           params.putString("dateCreated", mediaFile.getDateCreated());
           params.putDouble("fileSizeInBytes",mediaFile.getFileSize());
-          sendEvent(SDKEvent.CameraDidGenerateNewMediaFile, params);
+          sendRealTimeEvent(SDKEvent.CameraDidGenerateNewMediaFile, params);
         }
       }
     });
@@ -800,6 +820,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     this.eventSender.processEvent(SDKEvent, value, false);
   }
 
+  private void sendRealTimeEvent(SDKEvent SDKEvent, Object value) {
+    this.eventSender.processEvent(SDKEvent, value, true);
+  }
+
   private void sendEvent(String eventName, Object value) {
     WritableMap params = buildEventParams(value);
     params.putString("type", eventName);
@@ -906,6 +930,45 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     }
+
+  private void startAirlinkDownlinkSignalQualityListener() {
+    DJIKey isLightbridgeSupportedKey = AirLinkKey.create(AirLinkKey.IS_LIGHTBRIDGE_LINK_SUPPORTED);
+    KeyManager.getInstance().getValue(isLightbridgeSupportedKey, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        if (value instanceof Boolean) {
+          if ((Boolean) value) {
+            startEventListener(SDKEvent.AirLinkLightbridgeDownlinkSignalQuality, new EventListener() {
+              @Override
+              public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+                if (newValue != null && newValue instanceof Integer) {
+                  sendEvent(SDKEvent.AirLinkDownlinkSignalQuality, newValue);
+                }
+              }
+            });
+          }
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+
+      }
+    });
+    if (product != null && product.getAirLink() != null) {
+      boolean isOcuSyncLinkSupported = product.getAirLink().isOcuSyncLinkSupported();
+      if (isOcuSyncLinkSupported) {
+        startEventListener(SDKEvent.AirLinkOcuSyncDownlinkSignalQuality, new EventListener() {
+          @Override
+          public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+            if (newValue != null && newValue instanceof Integer) {
+              sendEvent(SDKEvent.AirLinkDownlinkSignalQuality, newValue);
+            }
+          }
+        });
+      }
+    }
+  }
 
     @ReactMethod
     public void limitEventFrequency(double newEventSendFrequencyInHz, Promise promise) {

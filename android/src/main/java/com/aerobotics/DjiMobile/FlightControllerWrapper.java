@@ -24,6 +24,7 @@ import java.util.Vector;
 import javax.annotation.Nonnull;
 
 import dji.common.error.DJIError;
+import dji.common.flightcontroller.RemoteControllerFlightMode;
 import dji.common.mission.waypoint.WaypointExecutionProgress;
 import dji.common.mission.waypoint.WaypointMission;
 import dji.common.mission.waypoint.WaypointMissionDownloadEvent;
@@ -523,6 +524,24 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       @Override
       public void onFailure(@NonNull DJIError djiError) {
         promise.reject(new Throwable("doesCompassNeedCalibrating error: " + djiError.getDescription()));
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getRemoteControllerFlightMode(final Promise promise) {
+    DJIKey remoteControllerFlightModeKey = FlightControllerKey.create(FlightControllerKey.CURRENT_MODE);
+    DJISDKManager.getInstance().getKeyManager().getValue(remoteControllerFlightModeKey, new GetCallback() {
+      @Override
+      public void onSuccess(Object value) {
+        if (value instanceof RemoteControllerFlightMode) {
+          promise.resolve(((RemoteControllerFlightMode) value).name());
+        }
+      }
+
+      @Override
+      public void onFailure(DJIError djiError) {
+        promise.reject(new Throwable("getRemoteControllerFlightMode error: " + djiError.getDescription()));
       }
     });
   }

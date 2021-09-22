@@ -34,40 +34,49 @@ public class CameraEventDelegate implements SystemState.Callback, MediaFile.Call
 
   private CameraEventObservable cameraEventObservable = new CameraEventObservable();
 
-  private CameraEventDelegate cameraDelegateSenderInstance = this;
-
-  private boolean isProductConnected = false;
   private boolean isCameraConnected = false;
-
-  private KeyListener ProductConnectedKeyListener = new KeyListener() {
-    @Override
-    public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-      if (newValue != null && newValue instanceof Boolean) {
-        isProductConnected = (boolean)newValue;
-        setCameraCallbacks();
-      }
-    }
-  };
+  private boolean callbacksSet = false;
 
   private KeyListener CameraConnectedKeyListener = new KeyListener() {
     @Override
     public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
       if (newValue != null && newValue instanceof Boolean) {
-        isCameraConnected = (boolean)newValue;
-        setCameraCallbacks();
+        if ((boolean) newValue && !isCameraConnected) {
+          isCameraConnected = (boolean)newValue;
+          setCameraCallbacks();
+        }
       }
     }
   };
 
   CameraEventDelegate() {
-    // Sometimes the camera component is reported as connected before the base product, so we need to ensure that both are connected before
-    // attempting to access the camera via the base product.
-    KeyManager keyManager = DJISDKManager.getInstance().getKeyManager();
-//    keyManager.addListener(ProductKey.create(ProductKey.CONNECTION), ProductConnectedKeyListener);
-    keyManager.addListener(CameraKey.create(CameraKey.CONNECTION), CameraConnectedKeyListener);
+    boolean cameraConnected = isCameraConnected();
+    if (!cameraConnected) {
+      startCameraConnectionListener();
+    } else {
+      isCameraConnected = true;
+      setCameraCallbacks();
+    }
   }
 
+  private boolean isCameraConnected() {
+    BaseProduct product = DJISDKManager.getInstance().getProduct();
+    if (product == null) {
+      // cannot access the camera if the product is null
+      return false;
+    }
+    Camera camera = product.getCamera();
+    return camera != null;
+  }
 
+  public boolean areCameraCallbacksSet() {
+    return callbacksSet;
+  }
+
+  private void startCameraConnectionListener() {
+    KeyManager keyManager = DJISDKManager.getInstance().getKeyManager();
+    keyManager.addListener(CameraKey.create(CameraKey.CONNECTION), CameraConnectedKeyListener);
+  }
 
   private void postEvent(SDKEvent sdkEvent, Object eventData) {
     HashMap payload = new HashMap();
@@ -76,25 +85,14 @@ public class CameraEventDelegate implements SystemState.Callback, MediaFile.Call
     cameraEventObservable.sendEvent(payload);
   }
 
-  private void setCameraCallbacks() {
-    if (isCameraConnected) {
-
-      // When the SDK has just registered, calling getProduct may return null, so wait before trying
-      Handler handler = new Handler();
-      handler.postDelayed(new Runnable() {
-        @Override
-        public void run() {
-            Camera camera = DJISDKManager.getInstance().getProduct().getCamera();
-            Log.i("REACT", "SETTING CALLBACKS!");
-            if (camera != null) {
-              // Add additional callbacks here as required
-              camera.setSystemStateCallback(cameraDelegateSenderInstance);
-              camera.setMediaFileCallback(cameraDelegateSenderInstance);
-            }
-        }
-      }, 6000);
-
+  public void setCameraCallbacks() {
+    if (!callbacksSet) {
+      Camera camera = DJISDKManager.getInstance().getProduct().getCamera();
+      camera.setSystemStateCallback(this);
+      camera.setMediaFileCallback(this);
+      callbacksSet = true;
     }
+
   }
 
   public void addObserver(Observer observer) {

@@ -127,6 +127,9 @@ const DJIMobileWrapper = {
   startAirLinkUplinkSignalQualityListener: startListener(DJIMobile.AirLinkUplinkSignalQuality),
   stopAirLinkUplinkSignalQualityListener: stopListener(DJIMobile.AirLinkUplinkSignalQuality),
 
+  startAirLinkDownlinkSignalQualityListener: startListener(DJIMobile.AirLinkDownlinkSignalQuality),
+  stopAirLinkDownlinkSignalQualityListener: stopListener(DJIMobile.AirLinkDownlinkSignalQuality),
+
   startHomeLocationListener: startListener(DJIMobile.AircraftHomeLocation),
   stopHomeLocationListener: stopListener(DJIMobile.AircraftHomeLocation),
 
