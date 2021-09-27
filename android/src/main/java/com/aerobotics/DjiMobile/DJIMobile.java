@@ -127,14 +127,16 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onProductConnect(BaseProduct baseProduct) {
         product = baseProduct;
-        sdkEventHandler.initCameraEventDelegate();
       }
 
       @Override
-      public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent baseComponent, BaseComponent baseComponent1) {
-        // TODO
+      public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent oldBaseComponent, BaseComponent newBaseComponent) {
         if (startVisionControlStateListenerOnNextConnect) {
           startVisionControlStateListener();
+        }
+
+        if (newBaseComponent != null && newBaseComponent instanceof Camera) {
+          sdkEventHandler.initCameraEventDelegate((Camera) newBaseComponent);
         }
       }
 
@@ -541,7 +543,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         promise.reject(new Throwable("Error camera not connected"));
         return;
       }
-      sdkEventHandler.setCameraCallbacks();
+      sdkEventHandler.setCameraCallbacks(camera);
     }
 
     startEventListener(SDKEvent.CameraDidGenerateNewMediaFile, new EventListener() {

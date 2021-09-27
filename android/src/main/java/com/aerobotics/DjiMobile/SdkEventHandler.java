@@ -15,6 +15,7 @@ import dji.keysdk.DJIKey;
 import dji.keysdk.KeyManager;
 import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.KeyListener;
+import dji.sdk.camera.Camera;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 enum EventType {
@@ -37,8 +38,10 @@ public class SdkEventHandler {
     handler = new Handler(Looper.getMainLooper());
   }
 
-  public void initCameraEventDelegate() {
-    cameraEventDelegate = new CameraEventDelegate();
+  public void initCameraEventDelegate(Camera camera) {
+    if (cameraEventDelegate == null) {
+      cameraEventDelegate = new CameraEventDelegate(camera);
+    }
   }
 
   public boolean isCameraCallbacksInitialized() {
@@ -48,9 +51,11 @@ public class SdkEventHandler {
     return cameraEventDelegate.areCameraCallbacksSet();
   }
 
-  public void setCameraCallbacks() {
+  public void setCameraCallbacks(Camera camera) {
     if (cameraEventDelegate != null) {
-      cameraEventDelegate.setCameraCallbacks();
+      cameraEventDelegate.setCameraCallbacks(camera);
+    } else {
+      initCameraEventDelegate(camera);
     }
   }
 
@@ -80,16 +85,11 @@ public class SdkEventHandler {
               eventListener.onValueChange(null, payload);
             }
           }
-
         }
       };
-      if (cameraEventDelegate == null) {
-        cameraEventDelegate = new CameraEventDelegate();
-      }
       cameraEventDelegate.addObserver(observer);
       return observer;
     }
-
     return null;
   }
 
