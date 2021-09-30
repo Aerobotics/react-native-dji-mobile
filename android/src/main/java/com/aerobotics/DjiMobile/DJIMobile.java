@@ -135,7 +135,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startVisionControlStateListener();
         }
 
-        if (newBaseComponent != null && newBaseComponent instanceof Camera) {
+        if (newBaseComponent != null && newBaseComponent instanceof Camera && sdkEventHandler != null) {
           sdkEventHandler.initCameraEventDelegate((Camera) newBaseComponent);
         }
       }
