@@ -97,7 +97,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         String preset = null;
         Integer colorTemperature = null;
         try {
-           preset = whiteBalance.getString("preset");
+            preset = whiteBalance.getString("preset");
         } catch (Exception e) {}
         try {
             colorTemperature =  whiteBalance.getInt("colorTemperature");
