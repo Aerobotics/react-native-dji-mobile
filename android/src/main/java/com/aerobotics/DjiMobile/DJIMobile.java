@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dji.common.error.DJIError;
@@ -31,6 +32,7 @@ import dji.common.flightcontroller.VisionSensorPosition;
 import dji.common.flightcontroller.VisionSystemWarning;
 import dji.common.model.LocationCoordinate2D;
 import dji.common.product.Model;
+import dji.internal.diagnostics.DiagnosticsBaseHandler;
 import dji.keysdk.AirLinkKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
@@ -40,6 +42,7 @@ import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
+import dji.sdk.base.DJIDiagnostics;
 import dji.sdk.camera.Camera;
 import dji.sdk.flightcontroller.FlightAssistant;
 import dji.sdk.flightcontroller.FlightController;
@@ -332,6 +335,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startVisionControlStateListener();
           break;
 
+        case DJIDiagnostics:
+          startDiagnosticsListener();
+          break;
+
         default:
           promise.reject("Invalid Key", "Invalid Key");
           break;
@@ -528,6 +535,34 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       }
       }
     });
+  }
+
+  private void startDiagnosticsListener() {
+    // Add product connection listener
+    DJIDiagnostics.DiagnosticsInformationCallback diagnosticsInformationCallback = new DJIDiagnostics.DiagnosticsInformationCallback() {
+      @Override
+      public void onUpdate(List<DJIDiagnostics> list) {
+        if (!list.isEmpty()) {
+          WritableArray diagnosticsToSend = Arguments.createArray();
+          for (DJIDiagnostics djiDiagnostics : list) {
+            DiagnosticsBaseHandler.DJIDiagnosticsError error = DiagnosticsBaseHandler.DJIDiagnosticsError.find(djiDiagnostics.getCode());
+            WritableMap params = Arguments.createMap();
+            params.putString("type", djiDiagnostics.getType().name());
+            params.putString("reason", djiDiagnostics.getReason());
+            params.putString("solution", djiDiagnostics.getSolution());
+            params.putString("error", error.name());
+            diagnosticsToSend.pushMap(params);
+          }
+          sendEvent(SDKEvent.DJIDiagnostics, diagnosticsToSend);
+        }
+      }
+    };
+    if (product != null) {
+      product.setDiagnosticsInformationCallback(diagnosticsInformationCallback);
+      Log.d("REACT", "set diag callback");
+    } else {
+      Log.d("REACT", "product null: could set diag callback");
+    }
   }
 
   @ReactMethod
