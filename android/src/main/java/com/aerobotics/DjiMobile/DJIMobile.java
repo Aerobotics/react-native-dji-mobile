@@ -559,7 +559,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     };
     if (product != null) {
       product.setDiagnosticsInformationCallback(diagnosticsInformationCallback);
-      Log.d("REACT", "set diag callback");
     } else {
       Log.d("REACT", "product null: could set diag callback");
     }
