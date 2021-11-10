@@ -163,6 +163,9 @@ const DJIMobileWrapper = {
   startVisionControlStateListener: startListener(DJIMobile.VisionControlState),
   stopVisionControlStateListener: stopListener(DJIMobile.VisionControlState),
 
+  startDiagnosticsListener: startListener(DJIMobile.DJIDiagnostics),
+  stopDiagnosticsListener: stopListener(DJIMobile.DJIDiagnostics),
+
   getAircraftLocation: async () => {
     return await DJIMobile.getAircraftLocation();
   },
