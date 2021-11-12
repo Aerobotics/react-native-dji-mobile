@@ -58,6 +58,12 @@ export type FlightLogListenerEvent = {
   type: string,
 }
 
+export type MediaFileData = {
+  fileName: string,
+  fileSizeInBytes: number,
+  dateCreated: string,
+};
+
 const DJIMobileWrapper = {
 
   registerApp: async (bridgeIp?: string) => {
@@ -121,6 +127,9 @@ const DJIMobileWrapper = {
   startAirLinkUplinkSignalQualityListener: startListener(DJIMobile.AirLinkUplinkSignalQuality),
   stopAirLinkUplinkSignalQualityListener: stopListener(DJIMobile.AirLinkUplinkSignalQuality),
 
+  startAirLinkDownlinkSignalQualityListener: startListener(DJIMobile.AirLinkDownlinkSignalQuality),
+  stopAirLinkDownlinkSignalQualityListener: stopListener(DJIMobile.AirLinkDownlinkSignalQuality),
+
   startHomeLocationListener: startListener(DJIMobile.AircraftHomeLocation),
   stopHomeLocationListener: stopListener(DJIMobile.AircraftHomeLocation),
 
@@ -154,6 +163,9 @@ const DJIMobileWrapper = {
   startVisionControlStateListener: startListener(DJIMobile.VisionControlState),
   stopVisionControlStateListener: stopListener(DJIMobile.VisionControlState),
 
+  startDiagnosticsListener: startListener(DJIMobile.DJIDiagnostics),
+  stopDiagnosticsListener: stopListener(DJIMobile.DJIDiagnostics),
+
   getAircraftLocation: async () => {
     return await DJIMobile.getAircraftLocation();
   },
@@ -173,8 +185,12 @@ const DJIMobileWrapper = {
   /**
    * ANDROID ONLY
    */
-  getFileList: async () => {
-    return await DJIMobile.getFileList();
+   getMediaFileList: async (numberOfResults: ?number) => {
+    if (numberOfResults != null ) {
+      return await DJIMobile.getLimitedMediaFileList(numberOfResults)
+    } else {
+      return await DJIMobile.getMediaFileList();
+    }
   },
 
   getFlightLogPath: async () => {

@@ -97,7 +97,7 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
         String preset = null;
         Integer colorTemperature = null;
         try {
-           preset = whiteBalance.getString("preset");
+            preset = whiteBalance.getString("preset");
         } catch (Exception e) {}
         try {
             colorTemperature =  whiteBalance.getInt("colorTemperature");
@@ -573,6 +573,64 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
                 promise.reject(new Throwable("isRecording error: " + djiError.getDescription()));
             }
         });
+    }
+
+    @ReactMethod
+    public void setExposureCompensation(String exposureCompensation, final Promise promise) {
+        DJIKey exposureCompensationKey = CameraKey.create(CameraKey.EXPOSURE_COMPENSATION);
+        DJISDKManager.getInstance().getKeyManager().setValue(exposureCompensationKey,
+                SettingsDefinitions.ExposureCompensation.valueOf(exposureCompensation),
+                new SetCallback() {
+                    @Override
+                    public void onSuccess() {
+                        promise.resolve("setExposureCompensation: exposure compensation set successfully");
+                    }
+
+                    @Override
+                    public void onFailure(DJIError djiError) {
+                        promise.reject(new Throwable("setExposureCompensation error: " + djiError.getDescription()));
+                    }
+                });
+    }
+
+    @ReactMethod
+    public void getExposureCompensation(final Promise promise) {
+        DJIKey exposureCompensationKey = CameraKey.create(CameraKey.EXPOSURE_COMPENSATION);
+        DJISDKManager.getInstance().getKeyManager().getValue(exposureCompensationKey,
+                new GetCallback() {
+                    @Override
+                    public void onSuccess(Object evValue) {
+                        if (evValue instanceof SettingsDefinitions.ExposureCompensation) {
+                            promise.resolve(((SettingsDefinitions.ExposureCompensation) evValue).name());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(DJIError djiError) {
+                        promise.reject(new Throwable("setExposureCompensation error: " + djiError.getDescription()));
+                    }
+                });
+    }
+
+    @ReactMethod
+    public void getCameraMode(final Promise promise) {
+        DJIKey cameraModeKey = CameraKey.create(CameraKey.MODE);
+        DJISDKManager.getInstance().getKeyManager().getValue(cameraModeKey,
+                new GetCallback() {
+                    @Override
+                    public void onSuccess(Object cameraMode) {
+                        if (cameraMode instanceof SettingsDefinitions.CameraMode) {
+                            promise.resolve(((SettingsDefinitions.CameraMode) cameraMode).name());
+                        } else {
+                            promise.reject(new Throwable("getCameraMode error: camera mode not instance of SettingsDefinitions.CameraMode"));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(DJIError djiError) {
+                        promise.reject(new Throwable("getCameraMode error: " + djiError.getDescription()));
+                    }
+                });
     }
 
 }

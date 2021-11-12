@@ -29,6 +29,9 @@ public enum SDKEvent {
   AirLinkUplinkSignalQuality(null, EventType.DJI_KEY_MANAGER_EVENT),
   AirLinkLightbridgeUplinkSignalQuality(AirLinkKey.createLightbridgeLinkKey(AirLinkKey.UPLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
   AirLinkOcuSyncUplinkSignalQuality(AirLinkKey.createOcuSyncLinkKey(AirLinkKey.UPLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
+  AirLinkDownlinkSignalQuality(null, EventType.DJI_KEY_MANAGER_EVENT),
+  AirLinkLightbridgeDownlinkSignalQuality(AirLinkKey.createLightbridgeLinkKey(AirLinkKey.DOWNLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
+  AirLinkOcuSyncDownlinkSignalQuality(AirLinkKey.createOcuSyncLinkKey(AirLinkKey.DOWNLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftHomeLocation(FlightControllerKey.create(FlightControllerKey.HOME_LOCATION), EventType.DJI_KEY_MANAGER_EVENT),
   TakeoffLocationAltitude(FlightControllerKey.create(FlightControllerKey.TAKEOFF_LOCATION_ALTITUDE), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftUltrasonicHeight(FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS), EventType.DJI_KEY_MANAGER_EVENT),
@@ -57,7 +60,9 @@ public enum SDKEvent {
   CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
 
   VisionDetectionState(FlightControllerKey.createFlightAssistantKey(FlightControllerKey.VISION_DETECTION_STATE), EventType.DJI_KEY_MANAGER_EVENT),
-  VisionControlState(null, EventType.DJI_CALLBACK_EVENT);
+  VisionControlState(null, EventType.DJI_CALLBACK_EVENT),
+
+  DJIDiagnostics(null, EventType.DJI_CALLBACK_EVENT);
 
   private Object key;
   private EventType eventType;

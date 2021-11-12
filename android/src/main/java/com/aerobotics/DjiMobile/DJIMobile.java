@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dji.common.error.DJIError;
@@ -31,6 +32,7 @@ import dji.common.flightcontroller.VisionSensorPosition;
 import dji.common.flightcontroller.VisionSystemWarning;
 import dji.common.model.LocationCoordinate2D;
 import dji.common.product.Model;
+import dji.internal.diagnostics.DiagnosticsBaseHandler;
 import dji.keysdk.AirLinkKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
@@ -40,6 +42,8 @@ import dji.keysdk.callback.GetCallback;
 import dji.keysdk.callback.SetCallback;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
+import dji.sdk.base.DJIDiagnostics;
+import dji.sdk.camera.Camera;
 import dji.sdk.flightcontroller.FlightAssistant;
 import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.media.MediaFile;
@@ -129,15 +133,15 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       }
 
       @Override
-      public void onProductChanged(BaseProduct baseProduct) {
+      public void onProductChanged(BaseProduct baseProduct) {}
 
-      }
-
-      @Override
-      public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent baseComponent, BaseComponent baseComponent1) {
-        // TODO
+      public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent oldBaseComponent, BaseComponent newBaseComponent) {
         if (startVisionControlStateListenerOnNextConnect) {
           startVisionControlStateListener();
+        }
+
+        if (newBaseComponent != null && newBaseComponent instanceof Camera && sdkEventHandler != null) {
+          sdkEventHandler.initCameraEventDelegate((Camera) newBaseComponent);
         }
       }
 
@@ -154,17 +158,22 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void getFileList(final Promise promise) {
+  public void getMediaFileList(final Promise promise) {
     DJIMedia m = new DJIMedia(reactContext);
     if (product == null) {
-        product = DJISDKManager.getInstance().getProduct();
-        if (product == null) {
-            promise.reject("No product connected");
-        } else {
-            m.getFileList(promise, product);
-        }
+      promise.reject(new Throwable("getMediaFileList error: No product connected"));
     } else {
-      m.getFileList(promise, product);
+      m.getMediaFileList(promise, product);
+    }
+  }
+
+  @ReactMethod
+  public void getLimitedMediaFileList(Integer numberOfResults, final Promise promise) {
+    DJIMedia m = new DJIMedia(reactContext);
+    if (product == null) {
+      promise.reject(new Throwable("getLimitedMediaFileList error: No product connected"));
+    } else {
+      m.getMediaFileList(promise, product, numberOfResults);
     }
   }
 
@@ -284,6 +293,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startAirlinkUplinkSignalQualityListener();
           break;
 
+        case AirLinkDownlinkSignalQuality:
+          startAirlinkDownlinkSignalQualityListener();
+          break;
+
         case AircraftHomeLocation:
           startAircraftHomeLocationListener();
           break;
@@ -322,6 +335,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
         case VisionControlState:
           startVisionControlStateListener();
+          break;
+
+        case DJIDiagnostics:
+          startDiagnosticsListener();
           break;
 
         default:
@@ -522,8 +539,49 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     });
   }
 
+  private void startDiagnosticsListener() {
+    // Add product connection listener
+    DJIDiagnostics.DiagnosticsInformationCallback diagnosticsInformationCallback = new DJIDiagnostics.DiagnosticsInformationCallback() {
+      @Override
+      public void onUpdate(List<DJIDiagnostics> list) {
+        if (!list.isEmpty()) {
+          WritableArray diagnosticsToSend = Arguments.createArray();
+          for (DJIDiagnostics djiDiagnostics : list) {
+            DiagnosticsBaseHandler.DJIDiagnosticsError error = DiagnosticsBaseHandler.DJIDiagnosticsError.find(djiDiagnostics.getCode());
+            WritableMap params = Arguments.createMap();
+            params.putString("type", djiDiagnostics.getType().name());
+            params.putString("reason", djiDiagnostics.getReason());
+            params.putString("solution", djiDiagnostics.getSolution());
+            params.putString("error", error.name());
+            diagnosticsToSend.pushMap(params);
+          }
+          sendEvent(SDKEvent.DJIDiagnostics, diagnosticsToSend);
+        }
+      }
+    };
+    if (product != null) {
+      product.setDiagnosticsInformationCallback(diagnosticsInformationCallback);
+    } else {
+      Log.d("REACT", "product null: could not set diag callback");
+    }
+  }
+
   @ReactMethod
   public void startNewMediaFileListener(Promise promise) {
+    boolean isCallbacksSet = sdkEventHandler.isCameraCallbacksInitialized();
+    if (!isCallbacksSet) {
+      if (product == null) {
+        promise.reject(new Throwable("Error product not connected"));
+        return;
+      }
+      Camera camera = product.getCamera();
+      if (camera == null) {
+        promise.reject(new Throwable("Error camera not connected"));
+        return;
+      }
+      sdkEventHandler.setCameraCallbacks(camera);
+    }
+
     startEventListener(SDKEvent.CameraDidGenerateNewMediaFile, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
@@ -534,7 +592,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           params.putString("fileName", mediaFile.getFileName());
           params.putString("dateCreated", mediaFile.getDateCreated());
           params.putDouble("fileSizeInBytes",mediaFile.getFileSize());
-          sendEvent(SDKEvent.CameraDidGenerateNewMediaFile, params);
+          sendRealTimeEvent(SDKEvent.CameraDidGenerateNewMediaFile, params);
         }
       }
     });
@@ -800,6 +858,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     this.eventSender.processEvent(SDKEvent, value, false);
   }
 
+  private void sendRealTimeEvent(SDKEvent SDKEvent, Object value) {
+    this.eventSender.processEvent(SDKEvent, value, true);
+  }
+
   private void sendEvent(String eventName, Object value) {
     WritableMap params = buildEventParams(value);
     params.putString("type", eventName);
@@ -906,6 +968,45 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     }
+
+  private void startAirlinkDownlinkSignalQualityListener() {
+    DJIKey isLightbridgeSupportedKey = AirLinkKey.create(AirLinkKey.IS_LIGHTBRIDGE_LINK_SUPPORTED);
+    KeyManager.getInstance().getValue(isLightbridgeSupportedKey, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        if (value instanceof Boolean) {
+          if ((Boolean) value) {
+            startEventListener(SDKEvent.AirLinkLightbridgeDownlinkSignalQuality, new EventListener() {
+              @Override
+              public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+                if (newValue != null && newValue instanceof Integer) {
+                  sendEvent(SDKEvent.AirLinkDownlinkSignalQuality, newValue);
+                }
+              }
+            });
+          }
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+
+      }
+    });
+    if (product != null && product.getAirLink() != null) {
+      boolean isOcuSyncLinkSupported = product.getAirLink().isOcuSyncLinkSupported();
+      if (isOcuSyncLinkSupported) {
+        startEventListener(SDKEvent.AirLinkOcuSyncDownlinkSignalQuality, new EventListener() {
+          @Override
+          public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+            if (newValue != null && newValue instanceof Integer) {
+              sendEvent(SDKEvent.AirLinkDownlinkSignalQuality, newValue);
+            }
+          }
+        });
+      }
+    }
+  }
 
     @ReactMethod
     public void limitEventFrequency(double newEventSendFrequencyInHz, Promise promise) {
