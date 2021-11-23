@@ -8,11 +8,12 @@ import {
 
 import {
   filter as $filter,
+  map as $map,
 } from 'rxjs/operators';
 
 import DJIMissionControl from './lib/DJIMissionControl';
 
-import CameraControl from './lib/CameraControl';
+import CameraControl, { exposureCompensationValues } from './lib/CameraControl';
 
 import DJIMediaControl from './lib/DJIMedia';
 
@@ -165,6 +166,26 @@ const DJIMobileWrapper = {
 
   startDiagnosticsListener: startListener(DJIMobile.DJIDiagnostics),
   stopDiagnosticsListener: stopListener(DJIMobile.DJIDiagnostics),
+
+  startCameraExposureSettingsListener: async () => {
+    await DJIMobile.startCameraExposureSettingsListener();
+    return DJIEventSubject.pipe(
+        $filter(evt => evt.type === 'CameraExposureSettings'),
+        $map(evt => {
+          // Get exposure value from lookup. The possible values should only be
+          // string representations of floats.
+          evt.value = {
+            ...evt.value,
+            exposureValue: parseFloat(Object.keys(exposureCompensationValues).find(key => exposureCompensationValues[key] === evt.value.exposureValue)),
+          }
+          return evt;
+        }),
+      ).asObservable();
+  },
+
+  stopCameraExposureSettingsListener: async () => {
+    await DJIMobile.stopEventListener('CameraExposureSettings');
+  },
 
   getAircraftLocation: async () => {
     return await DJIMobile.getAircraftLocation();
