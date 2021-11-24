@@ -58,6 +58,7 @@ public enum SDKEvent {
 
   CameraDidUpdateSystemState(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
   CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
+  CameraExposureSettings(CameraKey.create(CameraKey.EXPOSURE_SETTINGS), EventType.DJI_KEY_MANAGER_EVENT),
 
   VisionDetectionState(FlightControllerKey.createFlightAssistantKey(FlightControllerKey.VISION_DETECTION_STATE), EventType.DJI_KEY_MANAGER_EVENT),
   VisionControlState(null, EventType.DJI_CALLBACK_EVENT),

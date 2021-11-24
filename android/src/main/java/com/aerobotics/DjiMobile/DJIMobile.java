@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dji.common.camera.ExposureSettings;
+import dji.common.camera.SettingsDefinitions;
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
@@ -562,6 +564,48 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     } else {
       Log.d("REACT", "product null: could not set diag callback");
     }
+  }
+
+  @ReactMethod
+  public void startCameraExposureSettingsListener(Promise promise) {
+    startEventListener(SDKEvent.CameraExposureSettings, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue != null && newValue instanceof ExposureSettings) {
+          ExposureSettings exposureSettings = (ExposureSettings) newValue;
+          WritableMap params = Arguments.createMap();
+
+          // Form of DJI exposure settings:
+          // * Aperture: 100*f-stop number. E.g. 110 = f/1.1
+          // * Shutter Speed: evaluated double, e.g. 0.0008 = 1/1250
+          // * ISO: int value of ISO
+          // * EV: an enum value, e.g. N_0_7 = -0.7
+          // Camera setting is not sent in event if setting is in error mode
+
+          SettingsDefinitions.Aperture aperture = exposureSettings.getAperture();
+          if (aperture != SettingsDefinitions.Aperture.UNKNOWN) {
+            params.putDouble("aperture", aperture.value() / 100.0);
+          }
+
+          SettingsDefinitions.ShutterSpeed shutterSpeed = exposureSettings.getShutterSpeed();
+          if (shutterSpeed != SettingsDefinitions.ShutterSpeed.UNKNOWN) {
+            params.putDouble("shutterSpeed", shutterSpeed.value());
+          }
+
+          params.putInt("iso", exposureSettings.getISO());
+
+          SettingsDefinitions.ExposureCompensation exposureValue = exposureSettings.getExposureCompensation();
+          if (exposureValue != SettingsDefinitions.ExposureCompensation.FIXED &&
+                  exposureValue != SettingsDefinitions.ExposureCompensation.UNKNOWN) {
+            // transformation to float is handled in Camera Control js file
+            params.putString("exposureValue", exposureValue.toString());
+          }
+
+          sendEvent(SDKEvent.CameraExposureSettings, params);
+        }
+      }
+    });
+    promise.resolve(null);
   }
 
   @ReactMethod
