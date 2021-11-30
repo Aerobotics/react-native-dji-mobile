@@ -164,8 +164,13 @@ const DJIMobileWrapper = {
   startVisionControlStateListener: startListener(DJIMobile.VisionControlState),
   stopVisionControlStateListener: stopListener(DJIMobile.VisionControlState),
 
-  startDiagnosticsListener: startListener(DJIMobile.DJIDiagnostics),
-  stopDiagnosticsListener: stopListener(DJIMobile.DJIDiagnostics),
+  startDiagnosticsListener: async () => {
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'DJIDiagnostics')).asObservable();
+  },
+
+  stopDiagnosticsListener: async () => {
+    await DJIMobile.stopEventListener('DJIDiagnostics');
+  },
 
   startCameraExposureSettingsListener: async () => {
     await DJIMobile.startCameraExposureSettingsListener();
