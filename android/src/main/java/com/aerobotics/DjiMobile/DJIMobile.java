@@ -132,6 +132,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onProductConnect(BaseProduct baseProduct) {
         product = baseProduct;
+        startDiagnosticsListener();
       }
 
       @Override
@@ -335,10 +336,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
         case VisionControlState:
           startVisionControlStateListener();
-          break;
-
-        case DJIDiagnostics:
-          startDiagnosticsListener();
           break;
 
         default:
@@ -583,19 +580,19 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           // Camera setting is not sent in event if setting is in error mode
 
           SettingsDefinitions.Aperture aperture = exposureSettings.getAperture();
-          if (aperture != SettingsDefinitions.Aperture.UNKNOWN) {
+          if (aperture != null && aperture != SettingsDefinitions.Aperture.UNKNOWN) {
             params.putDouble("aperture", aperture.value() / 100.0);
           }
 
           SettingsDefinitions.ShutterSpeed shutterSpeed = exposureSettings.getShutterSpeed();
-          if (shutterSpeed != SettingsDefinitions.ShutterSpeed.UNKNOWN) {
+          if (shutterSpeed != null && shutterSpeed != SettingsDefinitions.ShutterSpeed.UNKNOWN) {
             params.putDouble("shutterSpeed", shutterSpeed.value());
           }
 
           params.putInt("iso", exposureSettings.getISO());
 
           SettingsDefinitions.ExposureCompensation exposureValue = exposureSettings.getExposureCompensation();
-          if (exposureValue != SettingsDefinitions.ExposureCompensation.FIXED &&
+          if (exposureValue != null && exposureValue != SettingsDefinitions.ExposureCompensation.FIXED &&
                   exposureValue != SettingsDefinitions.ExposureCompensation.UNKNOWN) {
             // transformation to float is handled in Camera Control js file
             params.putString("exposureValue", exposureValue.toString());
