@@ -127,8 +127,6 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       @Override
       public void onProductDisconnect() {
         product = null;
-        // TODO: Do we need to stop this?
-        stopEventListenerInternal(SDKEvent.DJIDiagnostics);
       }
 
       @Override
