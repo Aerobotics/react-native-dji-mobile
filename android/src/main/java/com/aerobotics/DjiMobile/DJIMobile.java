@@ -136,6 +136,11 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       }
 
       @Override
+      public void onProductChanged(BaseProduct baseProduct) {
+
+      }
+
+      @Override
       public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent oldBaseComponent, BaseComponent newBaseComponent) {
         if (startVisionControlStateListenerOnNextConnect) {
           startVisionControlStateListener();
