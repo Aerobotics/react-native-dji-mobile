@@ -1,18 +1,16 @@
-// @flow strict
-
 import CustomTimelineElement from './CustomTimelineElement';
 
 class RecordFlightDataElement extends CustomTimelineElement {
-  parameters: {|
+  parameters: {
     stopRecordFlightData?: boolean,
     fileName?: string,
-  |} = {};
+  } = {};
 
   constructor(
-    parameters?: {|
+    parameters?: {
       stopRecordFlightData?: boolean,
       fileName: string,
-    |}
+    }
   ) {
     super('RecordFlightData');
 

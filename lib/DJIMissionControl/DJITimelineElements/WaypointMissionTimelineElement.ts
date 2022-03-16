@@ -1,5 +1,3 @@
-// @flow strict
-
 import {
   NativeModules,
 } from 'react-native';
@@ -7,8 +5,8 @@ import {
 import CustomTimelineElement from './CustomTimelineElement';
 
 import {
-  type Waypoint,
-} from '../DJIMissionControlTypes.js';
+  Waypoint,
+} from '../DJIMissionControlTypes';
 
 const {
   DJIMissionControlWrapper,
@@ -20,7 +18,7 @@ const GO_TO_WAYPOINT_MODES = ['POINT_TO_POINT', 'SAFELY'];
 
 const FLIGHT_PATH_MODES = ['NORMAL', 'CURVED'];
 
-export type WaypointMissionParameters = {|
+export type WaypointMissionParameters = {
   waypoints: Waypoint[],
   autoFlightSpeed: number, // m/s
   maxFlightSpeed: number, // m/s
@@ -28,7 +26,7 @@ export type WaypointMissionParameters = {|
   pauseSecondsAtWaypoints?: number,
   goToWaypointMode?: string,
   flightPathMode?: string,
-|}
+}
 
 class WaypointMissionTimelineElement extends CustomTimelineElement {
   parameters: WaypointMissionParameters;
@@ -99,50 +97,50 @@ class WaypointMissionTimelineElement extends CustomTimelineElement {
   // FIXME: (Adam) the app will crash if any waypoint is missing an altitude, rather throw an error!
   addWaypoint(waypoint: Waypoint) {
     // this._throwErrorIfMissionBuilt();
-    this.waypoints.push(waypoint);
+    this.parameters.waypoints.push(waypoint);
   }
 
   addWaypoints(waypoints: Waypoint[]) {
     // this._throwErrorIfMissionBuilt();
-    this.waypoints = [...this.waypoints, ...waypoints];
+    this.parameters.waypoints = [...this.parameters.waypoints, ...waypoints];
   }
 
   removeWaypoint() {
     // this._throwErrorIfMissionBuilt();
-    this.waypoints.pop();
+    this.parameters.waypoints.pop();
   }
 
   removeWaypointAtIndex(index: number) {
     // this._throwErrorIfMissionBuilt();
-    this.waypoints.splice(index, 1);
+    this.parameters.waypoints.splice(index, 1);
   }
 
   removeAllWaypoints() {
     // this._throwErrorIfMissionBuilt();
-    this.waypoints = [];
+    this.parameters.waypoints = [];
   }
 
   setAutoFlightSpeed(autoFlightSpeed: number) {
-    const maxFlightSpeed = this.maxFlightSpeed;
+    const maxFlightSpeed = this.parameters.maxFlightSpeed;
     if (autoFlightSpeed > maxFlightSpeed) {
       throw Error(
         'Invalid Auto Flight Speed: Received auto flight speed is invalid as it cannot be greater than '
         + `the set max flight speed of ${maxFlightSpeed} m/s.`
       );
     } else {
-      this.autoFlightSpeed = autoFlightSpeed;
+      this.parameters.autoFlightSpeed = autoFlightSpeed;
     }
   }
 
   setMaxFlightSpeed(maxFlightSpeed: number) {
-    const autoFlightSpeed = this.autoFlightSpeed;
+    const autoFlightSpeed = this.parameters.autoFlightSpeed;
     if (maxFlightSpeed < autoFlightSpeed) {
       throw Error(
         'Invalid Max Flight Speed: Received max flight speed is invalid as it cannot be less than '
         + `the set auto flight speed of ${autoFlightSpeed} m/s.`
       );
     } else {
-      this.maxFlightSpeed = maxFlightSpeed;
+      this.parameters.maxFlightSpeed = maxFlightSpeed;
     }
   }
 
@@ -152,7 +150,7 @@ class WaypointMissionTimelineElement extends CustomTimelineElement {
         `Invalid headingMode ${headingMode}, make sure it is one of ${VALID_HEADING_MODES}`
       );
     } else {
-      this.headingMode = headingMode;
+      this.parameters.headingMode = headingMode;
     }
   }
 

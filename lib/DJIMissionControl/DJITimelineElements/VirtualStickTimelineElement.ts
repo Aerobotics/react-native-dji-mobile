@@ -19,7 +19,7 @@ type yawControlStickAdjustmentSettings = {
 // Vertical throttle [-4, 4]
 // Others [-15, 15]
 
-export type VirtualStickParameters = {|
+export type VirtualStickParameters = {
   baseVirtualStickControlValues?: {
     pitch?: number,
     roll?: number,
@@ -42,7 +42,7 @@ export type VirtualStickParameters = {|
     yaw?: yawControlStickAdjustmentSettings,
     verticalThrottle?: controlStickAdjustmentSettings,
   }
-|}
+}
 
 const throwErrorIfSetAndNotBoolean = (variable: any, variableName: string) => {
   if (variable != null && typeof variable != 'boolean') {

@@ -7,7 +7,7 @@
   "typings": "dist/index",
   "scripts": {
     "dev": "node ./scripts/make.js",
-    "postinstall": "tsc"
+    "prepare": "tsc"
   },
   "keywords": [
     "react-native",

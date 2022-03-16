@@ -1,31 +1,22 @@
-// @flow strict
-
 import {
   NativeModules,
 } from 'react-native';
-import {
-  DJIEventSubject,
-} from '../utilities';
-import {
-  filter as $filter,
-} from 'rxjs/operators';
 
 const {
   GimbalWrapper,
 } = NativeModules;
 
 type RotateParameters = {
-  roll: ?number,
-  pitch: ?number,
-  yaw: ?number,
-  time: ?number,
+  roll?: number,
+  pitch?: number,
+  yaw?: number,
+  time?: number,
 }
 
-const gimbalModes = Object.freeze({
-  'FREE': 'FREE',
-  'FPV': 'FPV',
-  'YAW_FOLLOW': 'YAW_FOLLOW',
-});
+type GimbalModes =
+  'FREE' |
+  'FPV' |
+  'YAW_FOLLOW'
 
 const DJIGimbal = {
   getGimbalAttitude: async () => {
@@ -37,8 +28,8 @@ const DJIGimbal = {
   getMode: async () => {
     return await GimbalWrapper.getMode();
   },
-  setMode: async(gimbalModeName: $Keys<typeof gimbalModes>) => {
-    return await GimbalWrapper.setMode(gimbalModes[gimbalModeName]);
+  setMode: async(gimbalModeName: GimbalModes) => {
+    return await GimbalWrapper.setMode(gimbalModeName);
   },
   resetPose: async() => {
     return await GimbalWrapper.resetPose();

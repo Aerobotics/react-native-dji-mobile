@@ -1,6 +1,4 @@
-// @flow strict
 
-// TODO: (Adam)
 export type CreateWaypointMissionParameters = {
   autoFlightSpeed: number,
   maxFlightSpeed: number,
@@ -16,7 +14,7 @@ export type Waypoint = {
   latitude: number,
   altitude: number,
   actions?: Array<{
-    actionType: $Values<typeof WaypointActionType>,
+    actionType: typeof WaypointActionType,
     actionParam: number,
   }>,
   cornerRadiusInMeters?: number,

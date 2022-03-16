@@ -1,9 +1,4 @@
-// @flow strict
-
-import {
-  NativeModules,
-  Platform,
-} from 'react-native';
+import { NativeModules, } from 'react-native';
 
 const {
   CameraControlNative,
@@ -190,7 +185,6 @@ const CameraControl = {
       if (!(parameters.preset in whiteBalancePresets)) {
         throw new Error(`White balance value ${parameters.preset} is not recognised`);
       }
-      parameters.preset = whiteBalancePresets[parameters.preset];
     } else if (parameters.colorTemperature != null) {
       if (parameters.colorTemperature < 20 || parameters.colorTemperature > 100) {
         throw new Error(`White balance value ${parameters.colorTemperature} is outside of range 20 to 100`);
@@ -198,7 +192,11 @@ const CameraControl = {
     } else {
       throw new Error("Cannot set white balance with null values");
     }
-    return await CameraControlNative.setWhiteBalance(parameters);
+    const newParameters = {
+      preset:  whiteBalancePresets[parameters.preset],
+      colorTemperature: parameters.colorTemperature,
+    }
+    return await CameraControlNative.setWhiteBalance(newParameters);
   },
 
   setExposureMode: async (exposureMode: ExposureMode) => {
@@ -280,14 +278,14 @@ const CameraControl = {
   setExposureCompensation: async (exposureCompensationValue: ExposureCompensationValues) => {
     return await CameraControlNative.setExposureCompensation(exposureCompensationValues[exposureCompensationValue]);
   },
-  getExposureCompensation: async (): ExposureCompensationValues => {
+  getExposureCompensation: async (): Promise<ExposureCompensationValues> => {
     const djiExposureCompensationValue = await CameraControlNative.getExposureCompensation();
     // map the DJI exposure value string to a ExposureCompensationValues type
-    return Object.keys(exposureCompensationValues).find(key => exposureCompensationValues[key] === djiExposureCompensationValue)
+    return Object.keys(exposureCompensationValues).find(key => exposureCompensationValues[key] === djiExposureCompensationValue) as ExposureCompensationValues;
   },
-  getCameraMode: async (): CameraModes => {
-    const cameraMode = await CameraControlNative.getCameraMode();
-    return Object.keys(cameraModes).find(key => cameraModes[key] === cameraMode)
+  getCameraMode: async (): Promise<CameraModes> => {
+    const djiCameraMode = await CameraControlNative.getCameraMode();
+    return Object.keys(cameraModes).find(key => cameraModes[key] === djiCameraMode) as CameraModes;
   }
 };
 

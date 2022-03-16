@@ -1,5 +1,3 @@
-// @flow strict
-
 import {
   Platform,
   NativeModules,
@@ -27,7 +25,7 @@ import {
 
 const startListener = (eventName: string) => async () => {
   await DJIMobile.startEventListener(eventName);
-  return DJIEventSubject.pipe($filter(evt => evt.type === eventName)).asObservable();
+  return DJIEventSubject.pipe($filter(evt => evt.type === eventName));
 };
 
 const stopListener = (eventName: string) => async () => {
@@ -53,7 +51,7 @@ export const FlightLogListenerEventNames = Object.freeze({
 
 export type FlightLogListenerEvent = {
   value: {
-    eventName: $Values<typeof FlightLogListenerEventNames>,
+    eventName: typeof FlightLogListenerEventNames,
     fileName: string,
   },
   type: string,
@@ -165,7 +163,7 @@ const DJIMobileWrapper = {
   stopVisionControlStateListener: stopListener(DJIMobile.VisionControlState),
 
   startDiagnosticsListener: async () => {
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'DJIDiagnostics')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'DJIDiagnostics'));
   },
 
   stopDiagnosticsListener: async () => {
@@ -185,7 +183,7 @@ const DJIMobileWrapper = {
           }
           return evt;
         }),
-      ).asObservable();
+      );
   },
 
   stopCameraExposureSettingsListener: async () => {
@@ -198,7 +196,7 @@ const DJIMobileWrapper = {
 
   startNewMediaFileListener: async () => {
     await DJIMobile.startNewMediaFileListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'CameraDidGenerateNewMediaFile')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'CameraDidGenerateNewMediaFile'));
   },
   stopNewMediaFileListener: async () => {
     // TODO: (Adam) generalize & merge these!
@@ -211,7 +209,7 @@ const DJIMobileWrapper = {
   /**
    * ANDROID ONLY
    */
-   getMediaFileList: async (numberOfResults: ?number) => {
+   getMediaFileList: async (numberOfResults?: number) => {
     if (numberOfResults != null ) {
       return await DJIMobile.getLimitedMediaFileList(numberOfResults)
     } else {
@@ -225,7 +223,7 @@ const DJIMobileWrapper = {
 
   startFlightLogListener: async () => {
     await DJIMobile.startFlightLogListener();
-    return DJIEventSubject.pipe($filter((evt: FlightLogListenerEvent) => evt.type === 'DJIFlightLogEvent')).asObservable();
+    return DJIEventSubject.pipe($filter((evt: FlightLogListenerEvent) => evt.type === 'DJIFlightLogEvent'));
   },
 
   stopFlightLogListener: async () => {

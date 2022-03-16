@@ -6,7 +6,7 @@ import {
 
 import PlatformEventEmitter from './platformEventEmitter';
 
-const DJIEventSubject = new Subject();
+const DJIEventSubject: Subject<any> = new Subject();
 
 PlatformEventEmitter.addListener('DJIEvent', evt => {
   DJIEventSubject.next(evt);

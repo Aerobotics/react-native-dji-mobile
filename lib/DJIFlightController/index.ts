@@ -1,25 +1,13 @@
-// @flow strict
-
 import {
   NativeModules,
 } from 'react-native';
-
-import type {
-  CreateWaypointMissionParameters,
-  Waypoint,
-} from './DJIMissionControlTypes';
 
 import {
   DJIEventSubject,
 } from '../utilities';
 
 import {
-  type Observer,
-} from 'rxjs';
-
-import {
   filter as $filter,
-  map as $map,
 } from 'rxjs/operators';
 
 const {
@@ -27,7 +15,7 @@ const {
 } = NativeModules;
 
 import {
-  type VirtualStickParameters,
+  VirtualStickParameters,
 } from '../DJIMissionControl/DJITimelineElements/VirtualStickTimelineElement';
 
 type RemoteControllerFlightModes = 'P' | 'A' | 'S' | 'G' | 'M' | 'F' | 'T' | 'UNKNOWN'
@@ -53,7 +41,7 @@ const DJIFlightController = {
   },
 
   startVirtualStickTimelineElementEventListener: async () => {
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'VirtualStickTimelineElementEvent')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'VirtualStickTimelineElementEvent'));
   },
   stopVirtualStickTimelineElementEventListener: async () => {
     return; // The events are sent automatically when a virtual stick timeline event is running, so no listener needs to be started or stopped
@@ -61,14 +49,14 @@ const DJIFlightController = {
 
   startWaypointMissionFinishedListener: async () => {
     await FlightControllerWrapper.startWaypointMissionFinishedListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionFinished')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionFinished'));
   },
   startWaypointMissionStartedListener: async () => {
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionStarted')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionStarted'));
   },
   startWaypointExecutionUpdateListener: async () => {
     await FlightControllerWrapper.startWaypointExecutionUpdateListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionExecutionProgress')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionExecutionProgress'));
   },
   stopAllWaypointMissionListeners: async () => {
     return await FlightControllerWrapper.stopAllWaypointMissionListeners();
@@ -103,7 +91,7 @@ const DJIFlightController = {
   },
   startOnboardSDKDeviceDataListener: async () => {
     await FlightControllerWrapper.startOnboardSDKDeviceDataListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'OnboardSDKDeviceData')).asObservable();
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'OnboardSDKDeviceData'));
   },
   stopOnboardSDKDeviceDataListener: async () => {
     await FlightControllerWrapper.stopOnboardSDKDeviceDataListener();
@@ -117,7 +105,7 @@ const DJIFlightController = {
   doesCompassNeedCalibrating: async () => {
     return await FlightControllerWrapper.doesCompassNeedCalibrating();
   },
-  getRemoteControllerFlightMode: async (): RemoteControllerFlightModes => {
+  getRemoteControllerFlightMode: async (): Promise<RemoteControllerFlightModes> => {
     return await FlightControllerWrapper.getRemoteControllerFlightMode();
   }
  };

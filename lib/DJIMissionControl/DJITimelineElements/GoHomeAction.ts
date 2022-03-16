@@ -1,14 +1,12 @@
-// @flow strict
-
 import CustomTimelineElement from './CustomTimelineElement';
 
-type Parameters = {|
+type Parameters = {
   autoConfirmLandingEnabled?: boolean,
-|}
+}
 
 class GoHomeAction extends CustomTimelineElement {
-  autoConfirmLandingEnabled: ?boolean;
-  constructor(parameters: ?Parameters) {
+  autoConfirmLandingEnabled?: boolean;
+  constructor(parameters?: Parameters) {
     super('GoHomeAction');
 
     if (parameters != null) {

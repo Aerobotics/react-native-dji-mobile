@@ -1,20 +1,13 @@
-// @flow strict
-
 import {
   NativeModules,
 } from 'react-native';
-
-import type {
-  CreateWaypointMissionParameters,
-  Waypoint,
-} from './DJIMissionControlTypes';
 
 import {
   DJIEventSubject,
 } from '../utilities';
 
 import {
-  type Observer,
+  Subscription,
 } from 'rxjs';
 
 import {
@@ -116,7 +109,7 @@ export const getCallbackFuncId = () => {
   return callbackFuncIdIncrementor++;
 };
 
-DJIEventSubject.subscribe(evt => {
+DJIEventSubject.subscribe((evt: any) => {
   if (evt.type === 'RunJSElementEvent') {
     const {
       callbackFuncId,
@@ -151,7 +144,8 @@ const DJIMissionControl = {
       elementName,
     } = element;
     const elementParameters = element.getElementParameters();
-
+    //FIXME: typing of CustomTimelineElement which is being used as an abstract class
+    //@ts-ignore
     if (elementName && elementParameters) {
 
       // This will return a rejected promise if the element is invalid, causing this function to return a rejected promise
@@ -168,6 +162,8 @@ const DJIMissionControl = {
         throw Error(
           'Missing Element Name: Element missing "elementName" parameter. Elements must have unique '
           + 'elementName string.');
+        //FIXME: typing of CustomTimelineElement which is being used as an abstract class
+        //@ts-ignore
       } else if (!elementParameters) {
         throw Error(
           'Missing Element Parameters: getElementParameters returns undefined. Elements must have valid parameters for correct '
@@ -193,10 +189,10 @@ const DJIMissionControl = {
   },
 
   stopTimeline: async () => {
-    let timelineObserver: Observer;
+    let timelineObserver: Subscription;
 
     try {
-      await new Promise(async (resolve, reject) => {
+      await new Promise<void>(async (resolve, reject) => {
 
         const timeoutId = setTimeout(() => { // Fail after a set timeout period
           reject();
@@ -255,7 +251,7 @@ const DJIMissionControl = {
         }
         return updatedEvent;
       })
-    ).asObservable();
+    );
   },
 
   // TODO: (Adam) should this be stopAllTimelineListeners ?

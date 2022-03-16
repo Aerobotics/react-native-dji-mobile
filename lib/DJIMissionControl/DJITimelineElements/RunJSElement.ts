@@ -1,5 +1,3 @@
-// @flow strict
-
 import CustomTimelineElement from './CustomTimelineElement';
 
 import DJIMissionControl, {
@@ -10,12 +8,12 @@ import DJIMissionControl, {
 
 class RunJSElement extends CustomTimelineElement {
   callbackfunc: () => void;
-  callbackFuncId: ?number;
+  callbackFuncId?: number;
 
   constructor(
-    parameters: {|
+    parameters: {
       callbackfunc: () => void,
-    |}
+    }
   ) {
     super('RunJSElement');
 
