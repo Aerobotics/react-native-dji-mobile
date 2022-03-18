@@ -21,12 +21,10 @@
   "license": "MIT",
   "licenseFilename": "LICENSE",
   "readmeFilename": "README.md",
-  "dependencies": {
-    "rxjs": "^6.6.7"
-  },
   "peerDependencies": {
     "react": "^17.0.2",
-    "react-native": "^0.66.4"
+    "react-native": "^0.66.4",
+    "rxjs": ">=7.0.0"
   },
   "devDependencies": {
     "chokidar": "^3.1.1",
