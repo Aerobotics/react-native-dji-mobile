@@ -22,11 +22,17 @@ import DJIGimbal from './lib/DJIGimbal';
 import {
   DJIEventSubject,
 } from './lib/utilities';
+import { Observable } from 'rxjs';
+import { DJIEvent, LatLngAlt } from './types';
 
-const startListener = (eventName: string) => async () => {
+const startListener = (eventName: string): () => Promise<Observable<DJIEvent>> => async () => {
   await DJIMobile.startEventListener(eventName);
   return DJIEventSubject.pipe($filter(evt => evt.type === eventName));
 };
+
+const observeEvent = <T>(eventName: string): Observable<T> => {
+  return DJIEventSubject.pipe($filter(evt =>  evt.type === eventName), $map(evt => evt.value));
+}
 
 const stopListener = (eventName: string) => async () => {
   await DJIMobile.stopEventListener(eventName);
@@ -107,12 +113,15 @@ const DJIMobileWrapper = {
 
   startProductConnectionListener: startListener(DJIMobile.ProductConnection),
   stopProductConnectionListener: stopListener(DJIMobile.ProductConnection),
+  observeProductionConnection: observeEvent<string>(DJIMobile.ProductConnection),
 
   startBatteryPercentChargeRemainingListener: startListener(DJIMobile.BatteryChargeRemaining),
   stopBatteryPercentChargeRemainingListener: stopListener(DJIMobile.BatteryChargeRemaining),
+  observeBatteryPercentChargeRemaining: observeEvent<number>(DJIMobile.BatteryChargeRemaining),
 
   startAircraftLocationListener: startListener(DJIMobile.AircraftLocation),
   stopAircraftLocationListener: stopListener(DJIMobile.AircraftLocation),
+  observeAircraftLocation: observeEvent<LatLngAlt>(DJIMobile.AircraftLocation),
 
   startAircraftVelocityListener: startListener(DJIMobile.AircraftVelocity),
   stopAircraftVelocityListener: stopListener(DJIMobile.AircraftVelocity),

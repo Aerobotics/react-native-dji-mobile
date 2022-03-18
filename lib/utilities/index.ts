@@ -5,8 +5,9 @@ import {
 } from 'rxjs';
 
 import PlatformEventEmitter from './platformEventEmitter';
+import { DJIEvent } from '../../types';
 
-const DJIEventSubject: Subject<any> = new Subject();
+const DJIEventSubject: Subject<DJIEvent> = new Subject();
 
 PlatformEventEmitter.addListener('DJIEvent', evt => {
   DJIEventSubject.next(evt);

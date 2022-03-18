@@ -18,6 +18,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.security.Key;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import dji.common.model.LocationCoordinate2D;
 import dji.common.product.Model;
 import dji.internal.diagnostics.DiagnosticsBaseHandler;
 import dji.keysdk.AirLinkKey;
+import dji.keysdk.BatteryKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
 import dji.keysdk.KeyManager;
@@ -357,6 +359,21 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   private void startProductConnectionListener() {
+    KeyManager keyManager = DJISDKManager.getInstance().getKeyManager();
+    if (keyManager != null) {
+      DJIKey productConnectedKey = ProductKey.create(ProductKey.CONNECTION);
+      keyManager.getValue(productConnectedKey, new GetCallback() {
+        @Override
+        public void onSuccess(@NonNull Object o) {
+          if (o instanceof Boolean) {
+            sendEvent(SDKEvent.ProductConnection, (boolean) o ? "connected" : "disconnected");
+          }
+        }
+
+        @Override
+        public void onFailure(@NonNull DJIError djiError) {}
+      });
+    }
     startEventListener(SDKEvent.ProductConnection, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
@@ -368,6 +385,23 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   private void startBatteryPercentChargeRemainingListener() {
+    KeyManager keyManager = DJISDKManager.getInstance().getKeyManager();
+    if (keyManager != null) {
+      DJIKey batteryKey = BatteryKey.create(BatteryKey.CHARGE_REMAINING_IN_PERCENT);
+      keyManager.getValue(batteryKey, new GetCallback() {
+        @Override
+        public void onSuccess(@NonNull Object o) {
+          if (o instanceof Integer) {
+            sendEvent(SDKEvent.BatteryChargeRemaining, o);
+          }
+        }
+
+        @Override
+        public void onFailure(@NonNull DJIError djiError) {
+
+        }
+      });
+    }
     startEventListener(SDKEvent.BatteryChargeRemaining, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
@@ -395,6 +429,30 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   private void startAircraftLocationListener() {
+    KeyManager keyManager = DJISDKManager.getInstance().getKeyManager();
+    if (keyManager != null) {
+      DJIKey key = FlightControllerKey.create(FlightControllerKey.AIRCRAFT_LOCATION);
+      keyManager.getValue(key, new GetCallback() {
+        @Override
+        public void onSuccess(@NonNull Object value) {
+          LocationCoordinate3D location = (LocationCoordinate3D) value;
+          double longitude = location.getLongitude();
+          double latitude = location.getLatitude();
+          double altitude = location.getAltitude();
+          if (!Double.isNaN(longitude) && !Double.isNaN(latitude)) {
+            WritableMap params = Arguments.createMap();
+            params.putDouble("longitude", longitude);
+            params.putDouble("latitude", latitude);
+            params.putDouble("altitude", altitude);
+            sendEvent(SDKEvent.AircraftLocation, params);
+          }
+        }
+
+        @Override
+        public void onFailure(@NonNull DJIError djiError) { }
+      });
+    }
+
     startEventListener(SDKEvent.AircraftLocation, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
