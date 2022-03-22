@@ -143,9 +143,13 @@ const DJIMobileWrapper = {
   stopAirLinkDownlinkSignalQualityListener: stopListener(DJIMobile.AirLinkDownlinkSignalQuality),
   observeAirlinkDownlinkSignalQuality: observeEvent<number>(DJIMobile.AirLinkDownlinkSignalQuality),
 
-  startHomeLocationListener: startListener<LocationCoordinate2D>(DJIMobile.AircraftHomeLocation),
+  startHomeLocationListener: startListener<LocationCoordinate3D>(DJIMobile.AircraftHomeLocation),
   stopHomeLocationListener: stopListener(DJIMobile.AircraftHomeLocation),
-  observeHomeLocation: observeEvent<LocationCoordinate2D>(DJIMobile.AircraftHomeLocation),
+  observeHomeLocation: observeEvent<LocationCoordinate3D>(DJIMobile.AircraftHomeLocation),
+
+  startIsHomeLocationSetListener: startListener<boolean>(DJIMobile.IsHomeLocationSet),
+  stopIsHomeLocationSetListener: stopListener(DJIMobile.IsHomeLocationSet),
+  observeIsHomeLocationSet: observeEvent<boolean>(DJIMobile.IsHomeLocationSet),
 
   startGpsSignalLevelListener: startListener<number | null>(DJIMobile.AircraftGpsSignalLevel),
   stopGpsSignalLevelListener: stopListener(DJIMobile.AircraftGpsSignalLevel),

@@ -33,6 +33,7 @@ public enum SDKEvent {
   AirLinkLightbridgeDownlinkSignalQuality(AirLinkKey.createLightbridgeLinkKey(AirLinkKey.DOWNLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
   AirLinkOcuSyncDownlinkSignalQuality(AirLinkKey.createOcuSyncLinkKey(AirLinkKey.DOWNLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftHomeLocation(FlightControllerKey.create(FlightControllerKey.HOME_LOCATION), EventType.DJI_KEY_MANAGER_EVENT),
+  IsHomeLocationSet(FlightControllerKey.create(FlightControllerKey.IS_HOME_LOCATION_SET), EventType.DJI_KEY_MANAGER_EVENT),
   TakeoffLocationAltitude(FlightControllerKey.create(FlightControllerKey.TAKEOFF_LOCATION_ALTITUDE), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftUltrasonicHeight(FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS), EventType.DJI_KEY_MANAGER_EVENT),
   CompassHasError(FlightControllerKey.create(FlightControllerKey.COMPASS_HAS_ERROR), EventType.DJI_KEY_MANAGER_EVENT),

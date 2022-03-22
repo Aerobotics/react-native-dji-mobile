@@ -344,6 +344,9 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         case VisionControlState:
           startVisionControlStateListener();
           break;
+        case IsHomeLocationSet:
+          startIsHomeLocationSetListener();
+          break;
 
         default:
           promise.reject("Invalid Key", "Invalid Key");
@@ -765,6 +768,34 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       homeLocation.putDouble("altitude", altitude);
     }
     sendEvent(SDKEvent.AircraftHomeLocation, homeLocation);
+  }
+
+  private void startIsHomeLocationSetListener() {
+    KeyManager keyManager = DJISDKManager.getInstance().getKeyManager();
+    if (keyManager != null) {
+      DJIKey isHomeLocationSetKey = FlightControllerKey.create(FlightControllerKey.IS_HOME_LOCATION_SET);
+      keyManager.getValue(isHomeLocationSetKey, new GetCallback() {
+        @Override
+        public void onSuccess(@NonNull Object o) {
+          if (o instanceof Boolean) {
+            sendRealTimeEvent(SDKEvent.IsHomeLocationSet, o);
+          }
+        }
+
+        @Override
+        public void onFailure(@NonNull DJIError djiError) {
+
+        }
+      });
+    }
+    startEventListener(SDKEvent.IsHomeLocationSet, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.IsHomeLocationSet, newValue);
+        }
+      }
+    });
   }
 
   private void startUltrasonicHeightListener() {
