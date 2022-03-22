@@ -23,11 +23,11 @@ import {
   DJIEventSubject,
 } from './lib/utilities';
 import { Observable } from 'rxjs';
-import { DJIEvent, LatLngAlt } from './types';
+import { Attitude, LocationCoordinate2D, LocationCoordinate3D, VelocityVector } from './types';
 
-const startListener = (eventName: string): () => Promise<Observable<DJIEvent>> => async () => {
+const startListener = <T>(eventName: string): () => Promise<Observable<T>> => async () => {
   await DJIMobile.startEventListener(eventName);
-  return DJIEventSubject.pipe($filter(evt => evt.type === eventName));
+  return observeEvent(eventName);
 };
 
 const observeEvent = <T>(eventName: string): Observable<T> => {
@@ -111,38 +111,45 @@ const DJIMobileWrapper = {
 
   // TODO: (Adam) What should happen if these functions are called and the SDK is not registered?
 
-  startProductConnectionListener: startListener(DJIMobile.ProductConnection),
+  startProductConnectionListener: startListener<string>(DJIMobile.ProductConnection),
   stopProductConnectionListener: stopListener(DJIMobile.ProductConnection),
   observeProductionConnection: observeEvent<string>(DJIMobile.ProductConnection),
 
-  startBatteryPercentChargeRemainingListener: startListener(DJIMobile.BatteryChargeRemaining),
+  startBatteryPercentChargeRemainingListener: startListener<number>(DJIMobile.BatteryChargeRemaining),
   stopBatteryPercentChargeRemainingListener: stopListener(DJIMobile.BatteryChargeRemaining),
   observeBatteryPercentChargeRemaining: observeEvent<number>(DJIMobile.BatteryChargeRemaining),
 
-  startAircraftLocationListener: startListener(DJIMobile.AircraftLocation),
+  startAircraftLocationListener: startListener<LocationCoordinate3D>(DJIMobile.AircraftLocation),
   stopAircraftLocationListener: stopListener(DJIMobile.AircraftLocation),
-  observeAircraftLocation: observeEvent<LatLngAlt>(DJIMobile.AircraftLocation),
+  observeAircraftLocation: observeEvent<LocationCoordinate3D>(DJIMobile.AircraftLocation),
 
-  startAircraftVelocityListener: startListener(DJIMobile.AircraftVelocity),
+  startAircraftVelocityListener: startListener<VelocityVector>(DJIMobile.AircraftVelocity),
   stopAircraftVelocityListener: stopListener(DJIMobile.AircraftVelocity),
+  observeAircraftVelocity: observeEvent<VelocityVector>(DJIMobile.AircraftVelocity),
 
-  startAircraftAttitudeListener: startListener(DJIMobile.AircraftAttitude),
+  startAircraftAttitudeListener: startListener<Attitude>(DJIMobile.AircraftAttitude),
   stopAircraftAttitudeListener: stopListener(DJIMobile.AircraftAttitude),
+  observeAircraftAttitude: observeEvent<Attitude>(DJIMobile.AircraftAttitude),
 
-  startAircraftCompassHeadingListener: startListener(DJIMobile.AircraftCompassHeading),
+  startAircraftCompassHeadingListener: startListener<number>(DJIMobile.AircraftCompassHeading),
   stopAircraftCompassHeadingListener: stopListener(DJIMobile.AircraftCompassHeading),
+  observeAircraftCompassHeading: observeEvent<number>(DJIMobile.AircraftCompassHeading),
 
-  startAirLinkUplinkSignalQualityListener: startListener(DJIMobile.AirLinkUplinkSignalQuality),
+  startAirLinkUplinkSignalQualityListener: startListener<number>(DJIMobile.AirLinkUplinkSignalQuality),
   stopAirLinkUplinkSignalQualityListener: stopListener(DJIMobile.AirLinkUplinkSignalQuality),
+  observeAirlinkUplinkSignalQuality: observeEvent<number>(DJIMobile.AirLinkUplinkSignalQuality),
 
-  startAirLinkDownlinkSignalQualityListener: startListener(DJIMobile.AirLinkDownlinkSignalQuality),
+  startAirLinkDownlinkSignalQualityListener: startListener<number>(DJIMobile.AirLinkDownlinkSignalQuality),
   stopAirLinkDownlinkSignalQualityListener: stopListener(DJIMobile.AirLinkDownlinkSignalQuality),
+  observeAirlinkDownlinkSignalQuality: observeEvent<number>(DJIMobile.AirLinkDownlinkSignalQuality),
 
-  startHomeLocationListener: startListener(DJIMobile.AircraftHomeLocation),
+  startHomeLocationListener: startListener<LocationCoordinate2D>(DJIMobile.AircraftHomeLocation),
   stopHomeLocationListener: stopListener(DJIMobile.AircraftHomeLocation),
+  observeHomeLocation: observeEvent<LocationCoordinate2D>(DJIMobile.AircraftHomeLocation),
 
-  startGpsSignalLevelListener: startListener(DJIMobile.AircraftGpsSignalLevel),
+  startGpsSignalLevelListener: startListener<number | null>(DJIMobile.AircraftGpsSignalLevel),
   stopGpsSignalLevelListener: stopListener(DJIMobile.AircraftGpsSignalLevel),
+  observeGpsSignalLevel: observeEvent<number | null>(DJIMobile.AircraftGpsSignalLevel),
 
   startUltrasonicHeightListener: startListener(DJIMobile.AircraftUltrasonicHeight),
   stopUltrasonicHeightListener: stopListener(DJIMobile.AircraftUltrasonicHeight),
@@ -289,3 +296,5 @@ export {
   DJIFlightController,
   DJIGimbal,
 };
+
+export * from './types'

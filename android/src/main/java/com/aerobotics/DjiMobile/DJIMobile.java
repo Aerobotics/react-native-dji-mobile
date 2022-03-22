@@ -444,7 +444,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
             params.putDouble("longitude", longitude);
             params.putDouble("latitude", latitude);
             params.putDouble("altitude", altitude);
-            sendEvent(SDKEvent.AircraftLocation, params);
+            sendEvent(SDKEvent.AircraftLocation, params); //TODO: send as realtime event
           }
         }
 
