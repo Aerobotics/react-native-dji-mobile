@@ -88,9 +88,11 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       }
       WritableMap progressMap = Arguments.createMap();
       WaypointExecutionProgress waypointExecutionProgress = waypointMissionExecutionEvent.getProgress();
+      WaypointMissionState waypointMissionState = waypointMissionExecutionEvent.getCurrentState();
       progressMap.putDouble("targetWaypointIndex", waypointExecutionProgress.targetWaypointIndex);
       progressMap.putBoolean("isWaypointReached", waypointExecutionProgress.isWaypointReached);
       progressMap.putString("executeState", waypointExecutionProgress.executeState.name());
+      progressMap.putString("waypointMissionState", waypointMissionState.getName());
       eventSender.processEvent(SDKEvent.WaypointMissionExecutionProgress, progressMap, true);
     }
 
@@ -122,11 +124,14 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     DJIError missionParametersError = checkMissionParameters(waypointMissionTimelineElement);
     if (missionParametersError == null) {
       WaypointMission waypointMission = waypointMissionTimelineElement.build();
-      if (loadMission(waypointMission)) {
+      DJIError loadMission = loadMission(waypointMission);
+      if (loadMission == null) {
         uploadMission();
+      } else {
+        startMissionPromise.reject(new Throwable("startWaypointMission error: loadMission " + loadMission));
       }
     } else {
-      startMissionPromise.reject(new Throwable("startWaypointMission error: " + missionParametersError.getDescription()));
+      startMissionPromise.reject(new Throwable("startWaypointMission error: missionParametersError " + missionParametersError.getDescription()));
     }
 
   }
@@ -137,12 +142,12 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
   }
 
   private DJIError checkMissionParameters(WaypointMissionTimelineElement waypointMissionTimelineElement) {
-    return waypointMissionTimelineElement.checkParameters();
+    return waypointMissionTimelineElement.checkValidity();
   }
 
-  private Boolean loadMission(WaypointMission mission){
+  private DJIError loadMission(WaypointMission mission){
     DJIError error = getWaypointMissionOperator().loadMission(mission);
-    return error == null;
+    return error;
   }
 
   private void uploadMission() {

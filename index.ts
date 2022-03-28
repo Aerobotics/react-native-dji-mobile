@@ -23,7 +23,7 @@ import {
   DJIEventSubject,
 } from './lib/utilities';
 import { Observable } from 'rxjs';
-import { Attitude, LocationCoordinate2D, LocationCoordinate3D, VelocityVector } from './types';
+import { Attitude, LocationCoordinate3D, VelocityVector } from './types';
 
 const startListener = <T>(eventName: string): () => Promise<Observable<T>> => async () => {
   await DJIMobile.startEventListener(eventName);

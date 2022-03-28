@@ -7,7 +7,7 @@ import {
 } from '../utilities';
 
 import {
-  filter as $filter,
+  filter as $filter, map as $map,
 } from 'rxjs/operators';
 
 const {
@@ -17,8 +17,33 @@ const {
 import {
   VirtualStickParameters,
 } from '../DJIMissionControl/DJITimelineElements/VirtualStickTimelineElement';
+import { LocationCoordinate3D } from '../../types';
 
 type RemoteControllerFlightModes = 'P' | 'A' | 'S' | 'G' | 'M' | 'F' | 'T' | 'UNKNOWN'
+type WaypointMissionHeadingMode = 'AUTO' | 'USING_INITIAL_DIRECTION' | 'CONTROL_BY_REMOTE_CONTROLLER' | 'USING_WAYPOINT_HEADING' | 'TOWARD_POINT_OF_INTEREST'
+type WaypointMissionGotoWaypointMode = 'SAFELY' | 'POINT_TO_POINT'
+type WaypointMissionFlightPathMode = 'NORMAL' | 'CURVED'
+type Waypoint = LocationCoordinate3D &
+  {
+    heading?: number,
+    speed?: number,
+    cornerRadiusInMeters?: number
+    actions?: [{
+      actionType: string,
+      actionParam: number,
+    }],
+    shootPhotoDistanceInterval?: number,
+    shootPhotoTimeInterval?: number,
+  }
+interface WaypointMissionParameters {
+  autoFlightSpeed: number,
+  maxFlightSpeed: number,
+  waypoints: Waypoint[],
+  headingMode?: WaypointMissionHeadingMode,
+  heading?: number,
+  goToWaypointMode?: WaypointMissionGotoWaypointMode,
+  flightPathMode?: WaypointMissionFlightPathMode,
+}
 
 const DJIFlightController = {
 
@@ -33,8 +58,8 @@ const DJIFlightController = {
     return FlightControllerWrapper.startYawAction(angle, isAbsolute, timeoutMs);
   },
 
-  startWaypointMission: async (parameters) => {
-    return await FlightControllerWrapper.startWaypointMission(parameters);
+  startWaypointMission: async (parameters: WaypointMissionParameters) => {
+    return FlightControllerWrapper.startWaypointMission(parameters);
   },
   stopWaypointMission: async () => {
     return await FlightControllerWrapper.stopWaypointMission();
@@ -56,8 +81,9 @@ const DJIFlightController = {
   },
   startWaypointExecutionUpdateListener: async () => {
     await FlightControllerWrapper.startWaypointExecutionUpdateListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionExecutionProgress'));
+    return DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionExecutionProgress'), $map(evt => evt.value));
   },
+  observeWaypointExecutionUpdateListener: DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionExecutionProgress'), $map(evt => evt.value)),
   stopAllWaypointMissionListeners: async () => {
     return await FlightControllerWrapper.stopAllWaypointMissionListeners();
   },
