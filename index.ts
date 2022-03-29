@@ -21,6 +21,7 @@ import DJIGimbal from './lib/DJIGimbal';
 
 import {
   DJIEventSubject,
+  observeEvent,
 } from './lib/utilities';
 import { Observable } from 'rxjs';
 import { Attitude, LocationCoordinate3D, VelocityVector } from './types';
@@ -29,10 +30,6 @@ const startListener = <T>(eventName: string): () => Promise<Observable<T>> => as
   await DJIMobile.startEventListener(eventName);
   return observeEvent(eventName);
 };
-
-const observeEvent = <T>(eventName: string): Observable<T> => {
-  return DJIEventSubject.pipe($filter(evt =>  evt.type === eventName), $map(evt => evt.value));
-}
 
 const stopListener = (eventName: string) => async () => {
   await DJIMobile.stopEventListener(eventName);

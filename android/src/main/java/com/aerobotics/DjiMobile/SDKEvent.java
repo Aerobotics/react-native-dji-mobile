@@ -50,6 +50,8 @@ public enum SDKEvent {
   WaypointMissionFinished(null, EventType.DJI_KEY_MANAGER_EVENT),
   WaypointMissionStarted(null, EventType.DJI_KEY_MANAGER_EVENT),
   WaypointMissionExecutionProgress(null, EventType.DJI_KEY_MANAGER_EVENT),
+  WaypointMissionUploadProgress(null, EventType.DJI_KEY_MANAGER_EVENT),
+  WaypointMissionState(null, EventType.DJI_KEY_MANAGER_EVENT),
 
   VirtualStickTimelineElementEvent(null, EventType.DJI_KEY_MANAGER_EVENT),
 

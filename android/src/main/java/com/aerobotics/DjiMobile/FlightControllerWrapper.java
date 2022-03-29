@@ -17,20 +17,18 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Vector;
-
 import javax.annotation.Nonnull;
 
 import dji.common.error.DJIError;
 import dji.common.flightcontroller.RemoteControllerFlightMode;
+import dji.common.mission.MissionState;
 import dji.common.mission.waypoint.WaypointExecutionProgress;
 import dji.common.mission.waypoint.WaypointMission;
 import dji.common.mission.waypoint.WaypointMissionDownloadEvent;
 import dji.common.mission.waypoint.WaypointMissionExecutionEvent;
 import dji.common.mission.waypoint.WaypointMissionState;
 import dji.common.mission.waypoint.WaypointMissionUploadEvent;
+import dji.common.mission.waypoint.WaypointUploadProgress;
 import dji.common.util.CommonCallbacks;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
@@ -55,17 +53,19 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
   private boolean enableWaypointExecutionFinishListener = false;
   private boolean enableWaypointExecutionUpdateListener = false;
+  private boolean enableWaypointMissionStateListener = false;
+  private boolean enableWaypointMissionUploadListener = false;
   private FlightController.OnboardSDKDeviceDataCallback onboardSDKDeviceDataCallback;
 
 
   private WaypointMissionOperatorListener waypointMissionOperatorListener = new WaypointMissionOperatorListener() {
     @Override
-    public void onDownloadUpdate(@NonNull WaypointMissionDownloadEvent waypointMissionDownloadEvent) {
-
-    }
+    public void onDownloadUpdate(@NonNull WaypointMissionDownloadEvent waypointMissionDownloadEvent) {}
 
     @Override
     public void onUploadUpdate(@NonNull WaypointMissionUploadEvent waypointMissionUploadEvent) {
+      sendWaypointMissionStateUpdate(waypointMissionUploadEvent.getCurrentState());
+      sendWaypointMissionUploadUpdate(waypointMissionUploadEvent.getProgress());
       if (waypointMissionUploadEvent.getCurrentState().equals(WaypointMissionState.READY_TO_EXECUTE)) {
         getWaypointMissionOperator().startMission(new CommonCallbacks.CompletionCallback() {
           @Override
@@ -83,30 +83,23 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
     @Override
     public void onExecutionUpdate(@NonNull WaypointMissionExecutionEvent waypointMissionExecutionEvent) {
-      if (!enableWaypointExecutionUpdateListener) { // Do not send events unnecessarily
-        return;
-      }
-      WritableMap progressMap = Arguments.createMap();
-      WaypointExecutionProgress waypointExecutionProgress = waypointMissionExecutionEvent.getProgress();
-      WaypointMissionState waypointMissionState = waypointMissionExecutionEvent.getCurrentState();
-      progressMap.putDouble("targetWaypointIndex", waypointExecutionProgress.targetWaypointIndex);
-      progressMap.putBoolean("isWaypointReached", waypointExecutionProgress.isWaypointReached);
-      progressMap.putString("executeState", waypointExecutionProgress.executeState.name());
-      progressMap.putString("waypointMissionState", waypointMissionState.getName());
-      eventSender.processEvent(SDKEvent.WaypointMissionExecutionProgress, progressMap, true);
+      sendWaypointMissionStateUpdate(waypointMissionExecutionEvent.getCurrentState());
+      sendWaypointMissionExecutionUpdate(waypointMissionExecutionEvent.getProgress());
     }
 
     @Override
     public void onExecutionStart() {
+      sendWaypointMissionStateUpdate(getWaypointMissionOperator().getCurrentState());
     }
 
     @Override
     public void onExecutionFinish(@Nullable DJIError djiError) {
+      sendWaypointMissionStateUpdate(getWaypointMissionOperator().getCurrentState());
       if (!enableWaypointExecutionFinishListener) {
         return;
       }
       eventSender.processEvent(SDKEvent.WaypointMissionFinished, true, true);
-//            getWaypointMissionOperator().removeListener(waypointMissionOperatorListener);
+      sendWaypointMissionStateUpdate(getWaypointMissionOperator().getCurrentState());
     }
   };
 
@@ -178,7 +171,8 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     if(waypointMissionOperator == null) {
       waypointMissionOperator = DJISDKManager.getInstance().getMissionControl().getWaypointMissionOperator();
     }
-    return waypointMissionOperator;    }
+    return waypointMissionOperator;
+  }
 
   @ReactMethod
   public void stopWaypointMission(final Promise promise) {
@@ -187,6 +181,10 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       public void onResult(DJIError djiError) {
         if (djiError == null) {
           promise.resolve(null);
+          // Hardcoded this state change because if you query the mission operator at this point it still
+          // returns EXECUTING even though the mission has been successfully stopped.
+          // https://developer.dji.com/api-reference/android-api/Components/Missions/DJIWaypointMissionOperator.html#djiwaypointmissionoperator_stopmission_inline
+          sendWaypointMissionStateUpdate(WaypointMissionState.READY_TO_UPLOAD);
         } else {
           promise.reject(new Throwable("stopWaypointMission error: " + djiError.getDescription()));
         }
@@ -275,6 +273,59 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
     enableWaypointExecutionUpdateListener = true;
     setWaypointMissionOperatorListener();
     promise.resolve("startWaypointExecutionUpdateListener");
+  }
+
+  private void sendWaypointMissionExecutionUpdate(WaypointExecutionProgress waypointExecutionProgress) {
+    if (enableWaypointExecutionUpdateListener) {
+      WritableMap progressMap = Arguments.createMap();
+      progressMap.putDouble("targetWaypointIndex", waypointExecutionProgress.targetWaypointIndex);
+      progressMap.putBoolean("isWaypointReached", waypointExecutionProgress.isWaypointReached);
+      progressMap.putString("executeState", waypointExecutionProgress.executeState.name());
+      eventSender.processEvent(SDKEvent.WaypointMissionExecutionProgress, progressMap, true);
+    }
+  }
+
+  @ReactMethod
+  public void startWaypointMissionStateListener(Promise promise) {
+    enableWaypointMissionStateListener = true;
+    setWaypointMissionOperatorListener();
+    sendWaypointMissionStateUpdate(getWaypointMissionOperator().getCurrentState());
+    promise.resolve("startWaypointMissionStateListener");
+  }
+
+  @ReactMethod
+  public void stopWaypointMissionStateListener(Promise promise) {
+    enableWaypointMissionStateListener = false;
+    promise.resolve("stopWaypointMissionStateListener");
+  }
+
+  private void sendWaypointMissionStateUpdate(MissionState missionState) {
+    if (enableWaypointMissionStateListener) {
+      eventSender.processEvent(SDKEvent.WaypointMissionState, missionState.getName(), true);
+    }
+  }
+
+  @ReactMethod
+  public void startWaypointMissionUploadListener(Promise promise) {
+    enableWaypointExecutionUpdateListener = true;
+    setWaypointMissionOperatorListener();
+    promise.resolve("startWaypointMissionUploadListener");
+  }
+
+  @ReactMethod
+  public void stopWaypointMissionUploadListener(Promise promise) {
+    enableWaypointExecutionUpdateListener = false;
+    promise.resolve("stopWaypointMissionUploadListener");
+  }
+
+  private void sendWaypointMissionUploadUpdate(WaypointUploadProgress waypointUploadProgress) {
+    if (enableWaypointMissionUploadListener) {
+      WritableMap progressMap = Arguments.createMap();
+      progressMap.putInt("uploadedWaypointIndex", waypointUploadProgress.uploadedWaypointIndex);
+      progressMap.putInt("totalWaypointCount", waypointUploadProgress.totalWaypointCount);
+      progressMap.putBoolean("isSummaryUploaded",  waypointUploadProgress.isSummaryUploaded);
+      eventSender.processEvent(SDKEvent.WaypointMissionUploadProgress, progressMap, true);
+    }
   }
 
   @ReactMethod

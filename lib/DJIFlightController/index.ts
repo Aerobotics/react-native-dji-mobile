@@ -3,11 +3,11 @@ import {
 } from 'react-native';
 
 import {
-  DJIEventSubject,
+  DJIEventSubject, observeEvent,
 } from '../utilities';
 
 import {
-  filter as $filter, map as $map,
+  filter as $filter,
 } from 'rxjs/operators';
 
 const {
@@ -17,7 +17,12 @@ const {
 import {
   VirtualStickParameters,
 } from '../DJIMissionControl/DJITimelineElements/VirtualStickTimelineElement';
-import { LocationCoordinate3D } from '../../types';
+import {
+  LocationCoordinate3D,
+  WaypointMissionExecutionProgressEvent,
+  WaypointMissionState,
+  WaypointMissionUploadEvent
+} from '../../types';
 
 type RemoteControllerFlightModes = 'P' | 'A' | 'S' | 'G' | 'M' | 'F' | 'T' | 'UNKNOWN'
 type WaypointMissionHeadingMode = 'AUTO' | 'USING_INITIAL_DIRECTION' | 'CONTROL_BY_REMOTE_CONTROLLER' | 'USING_WAYPOINT_HEADING' | 'TOWARD_POINT_OF_INTEREST'
@@ -48,10 +53,10 @@ interface WaypointMissionParameters {
 const DJIFlightController = {
 
   startVirtualStick: async (parameters: VirtualStickParameters) => {
-    return await FlightControllerWrapper.startVirtualStick(parameters);
+    return FlightControllerWrapper.startVirtualStick(parameters);
   },
   stopVirtualStick: async () => {
-    return await FlightControllerWrapper.stopVirtualStick();
+    return FlightControllerWrapper.stopVirtualStick();
   },
 
   startYawAction: (angle: number, isAbsolute: boolean, timeoutMs: number) => {
@@ -62,7 +67,7 @@ const DJIFlightController = {
     return FlightControllerWrapper.startWaypointMission(parameters);
   },
   stopWaypointMission: async () => {
-    return await FlightControllerWrapper.stopWaypointMission();
+    return FlightControllerWrapper.stopWaypointMission();
   },
 
   startVirtualStickTimelineElementEventListener: async () => {
@@ -81,39 +86,49 @@ const DJIFlightController = {
   },
   startWaypointExecutionUpdateListener: async () => {
     await FlightControllerWrapper.startWaypointExecutionUpdateListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionExecutionProgress'), $map(evt => evt.value));
+    return observeEvent<WaypointMissionExecutionProgressEvent>('WaypointMissionExecutionProgress');
   },
-  observeWaypointExecutionUpdateListener: DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionExecutionProgress'), $map(evt => evt.value)),
+  observeWaypointExecutionUpdate: observeEvent<WaypointMissionExecutionProgressEvent>('WaypointMissionExecutionProgress'),
+  startWaypointMissionStateListener: async () => {
+    await FlightControllerWrapper.startWaypointMissionStateListener();
+    return observeEvent<WaypointMissionState>('WaypointMissionState');
+  },
+  observeWaypointMissionState: observeEvent<WaypointMissionState>('WaypointMissionState'),
+  startWaypointMissionUploadListener: async () => {
+    await FlightControllerWrapper.startWaypointMissionUploadListener();
+    return observeEvent<WaypointMissionUploadEvent>('WaypointMissionUploadProgress')
+  },
+  observeWaypointMissionUpload: observeEvent<WaypointMissionUploadEvent>('WaypointMissionUploadProgress'),
   stopAllWaypointMissionListeners: async () => {
-    return await FlightControllerWrapper.stopAllWaypointMissionListeners();
+    return FlightControllerWrapper.stopAllWaypointMissionListeners();
   },
 
   startRecordFlightData: async (fileName: string) => {
-    return await FlightControllerWrapper.startRecordFlightData(fileName);
+    return FlightControllerWrapper.startRecordFlightData(fileName);
   },
   stopRecordFlightData: async () => {
-    return await FlightControllerWrapper.stopRecordFlightData();
+    return FlightControllerWrapper.stopRecordFlightData();
   },
   setAutoFlightSpeed: async (speed: number) => {
-    return await FlightControllerWrapper.setAutoFlightSpeed(speed);
+    return FlightControllerWrapper.setAutoFlightSpeed(speed);
   },
   setTerrainFollowModeEnabled: async (enabled: boolean) => {
-    return await FlightControllerWrapper.setTerrainFollowModeEnabled(enabled);
+    return FlightControllerWrapper.setTerrainFollowModeEnabled(enabled);
   },
   getUltrasonicHeight: async () => {
-    return await FlightControllerWrapper.getUltrasonicHeight();
+    return FlightControllerWrapper.getUltrasonicHeight();
   },
   setVirtualStickAdvancedModeEnabled: async (enabled: boolean) => {
-    return await FlightControllerWrapper.setVirtualStickAdvancedModeEnabled(enabled);
+    return FlightControllerWrapper.setVirtualStickAdvancedModeEnabled(enabled);
   },
   isVirtualStickAdvancedModeEnabled: async () => {
-    return await FlightControllerWrapper.isVirtualStickAdvancedModeEnabled();
+    return FlightControllerWrapper.isVirtualStickAdvancedModeEnabled();
   },
   isOnboardSDKDeviceAvailable: async () => {
-    return await FlightControllerWrapper.isOnboardSDKDeviceAvailable();
+    return FlightControllerWrapper.isOnboardSDKDeviceAvailable();
   },
   sendDataToOnboardSDKDevice: async (data: number[]) => {
-    return await FlightControllerWrapper.sendDataToOnboardSDKDevice(data);
+    return FlightControllerWrapper.sendDataToOnboardSDKDevice(data);
   },
   startOnboardSDKDeviceDataListener: async () => {
     await FlightControllerWrapper.startOnboardSDKDeviceDataListener();
@@ -123,16 +138,16 @@ const DJIFlightController = {
     await FlightControllerWrapper.stopOnboardSDKDeviceDataListener();
   },
   setPowerSupplyPortEnabled: async (enabled: boolean) => {
-    return await FlightControllerWrapper.setPowerSupplyPortEnabled(enabled);
+    return FlightControllerWrapper.setPowerSupplyPortEnabled(enabled);
   },
   getPowerSupplyPortEnabled: async () => {
-    return await FlightControllerWrapper.getPowerSupplyPortEnabled();
+    return FlightControllerWrapper.getPowerSupplyPortEnabled();
   },
   doesCompassNeedCalibrating: async () => {
-    return await FlightControllerWrapper.doesCompassNeedCalibrating();
+    return FlightControllerWrapper.doesCompassNeedCalibrating();
   },
   getRemoteControllerFlightMode: async (): Promise<RemoteControllerFlightModes> => {
-    return await FlightControllerWrapper.getRemoteControllerFlightMode();
+    return FlightControllerWrapper.getRemoteControllerFlightMode();
   }
  };
 
