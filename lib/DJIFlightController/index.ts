@@ -62,9 +62,11 @@ const DJIFlightController = {
   startYawAction: (angle: number, isAbsolute: boolean, timeoutMs: number) => {
     return FlightControllerWrapper.startYawAction(angle, isAbsolute, timeoutMs);
   },
-
-  startWaypointMission: async (parameters: WaypointMissionParameters) => {
-    return FlightControllerWrapper.startWaypointMission(parameters);
+  uploadWaypointMission: async (parameters: WaypointMissionParameters) => {
+    return FlightControllerWrapper.uploadWaypointMission(parameters);
+  },
+  startWaypointMission: async () => {
+    return FlightControllerWrapper.startWaypointMission();
   },
   stopWaypointMission: async () => {
     return FlightControllerWrapper.stopWaypointMission();
