@@ -75,6 +75,16 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
         waypointObject.cornerRadiusInMeters = (float)cornerRadiusInMeters;
       }
 
+      if (waypointParams.hasKey("shootPhotoDistanceInterval")) {
+        double shootPhotoDistanceInterval = waypointParams.getDouble("shootPhotoDistanceInterval");
+        waypointObject.shootPhotoDistanceInterval = (float) shootPhotoDistanceInterval;
+      }
+
+      if (waypointParams.hasKey("shootPhotoTimeInterval")) {
+        double shootPhotoTimeInterval = waypointParams.getDouble("shootPhotoTimeInterval");
+        waypointObject.shootPhotoTimeInterval = (float) shootPhotoTimeInterval;
+      }
+
       if (waypointParams.hasKey("actions")) {
         ReadableArray waypointActions = waypointParams.getArray("actions");
         for (int j = 0; j < waypointActions.size(); j++) {
