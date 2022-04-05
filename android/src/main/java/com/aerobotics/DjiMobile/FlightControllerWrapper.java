@@ -1,7 +1,6 @@
 package com.aerobotics.DjiMobile;
 
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +16,9 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.annotation.Nonnull;
 
@@ -111,18 +113,16 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
         @Override
         public void onUploadUpdate(@NonNull WaypointMissionUploadEvent waypointMissionUploadEvent) {
-          if (!waypointMissionUploadEvent.getCurrentState().equals(waypointMissionUploadEvent.getPreviousState())) {
-            sendWaypointMissionStateUpdate(waypointMissionUploadEvent.getCurrentState());
+          if(waypointMissionUploadEvent.getProgress() != null) {
+            sendWaypointMissionUploadUpdate(waypointMissionUploadEvent.getProgress());
           }
-          sendWaypointMissionUploadUpdate(waypointMissionUploadEvent.getProgress());
+          sendWaypointMissionStateUpdate(waypointMissionUploadEvent.getCurrentState());
         }
 
         @Override
         public void onExecutionUpdate(@NonNull WaypointMissionExecutionEvent waypointMissionExecutionEvent) {
-          if (!waypointMissionExecutionEvent.getCurrentState().equals(waypointMissionExecutionEvent.getPreviousState())) {
-            sendWaypointMissionStateUpdate(waypointMissionExecutionEvent.getCurrentState());
-          }
           sendWaypointMissionExecutionUpdate(waypointMissionExecutionEvent.getProgress());
+          sendWaypointMissionStateUpdate(waypointMissionExecutionEvent.getCurrentState());
         }
 
         @Override
@@ -157,6 +157,15 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       @Override
       public void onResult(DJIError error) {
         if (error == null) {
+          //Sending state update event after delay due to race condition bug in MSDK resulting in incorrect state sometimes being reported
+          new Timer().schedule(
+                  new TimerTask() {
+                    @Override
+                    public void run() {
+                      sendWaypointMissionStateUpdate(getWaypointMissionOperator().getCurrentState());
+                    }
+                  }, 300
+          );
           promise.resolve(null);
         } else {
           if (getWaypointMissionOperator().getCurrentState().equals(WaypointMissionState.READY_TO_UPLOAD)) {

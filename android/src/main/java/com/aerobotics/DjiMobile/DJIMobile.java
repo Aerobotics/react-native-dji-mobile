@@ -592,6 +592,19 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   private void startAircraftCompassHeadingListener() {
+    DJIKey aircraftCompassHeadingKey = (DJIKey) SDKEvent.AircraftCompassHeading.getKey();
+    DJISDKManager.getInstance().getKeyManager().getValue(aircraftCompassHeadingKey, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        if (value instanceof Float) {
+          sendEvent(SDKEvent.AircraftCompassHeading, value);
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {}
+    });
+
     startEventListener(SDKEvent.AircraftCompassHeading, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
@@ -707,6 +720,27 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   private void startAircraftHomeLocationListener() {
 
     final Double[] homeLocation = {null, null, null};
+
+    DJIKey aircraftHomeLocationKey = (DJIKey) SDKEvent.AircraftHomeLocation.getKey();
+    DJISDKManager.getInstance().getKeyManager().getValue(aircraftHomeLocationKey, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        if (value != null && value instanceof LocationCoordinate2D) {
+          LocationCoordinate2D location = (LocationCoordinate2D) value;
+          Double longitude = location.getLongitude();
+          Double latitude = location.getLatitude();
+          if (!latitude.isNaN() && !latitude.isInfinite() && !longitude.isNaN() && !longitude.isInfinite()) {
+            homeLocation[0] = latitude;
+            homeLocation[1] = longitude;
+            sendAircraftHomeLocationEvent(homeLocation[0], homeLocation[1], homeLocation[2]);
+          }
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {}
+    });
+
 
     startEventListener(SDKEvent.AircraftHomeLocation, new EventListener() {
       @Override
