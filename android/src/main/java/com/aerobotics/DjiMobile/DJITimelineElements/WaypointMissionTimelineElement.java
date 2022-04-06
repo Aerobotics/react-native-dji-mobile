@@ -12,6 +12,7 @@ import dji.common.mission.waypoint.Waypoint;
 import dji.common.mission.waypoint.WaypointAction;
 import dji.common.mission.waypoint.WaypointActionType;
 import dji.common.mission.waypoint.WaypointMission;
+import dji.common.mission.waypoint.WaypointMissionFinishedAction;
 import dji.common.mission.waypoint.WaypointMissionFlightPathMode;
 import dji.common.mission.waypoint.WaypointMissionGotoWaypointMode;
 import dji.common.mission.waypoint.WaypointMissionHeadingMode;
@@ -109,6 +110,10 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
 
     if(parameters.hasKey("flightPathMode")) {
       this.flightPathMode(WaypointMissionFlightPathMode.valueOf(parameters.getString("flightPathMode")));
+    }
+
+    if(parameters.hasKey("finishedAction")) {
+      this.finishedAction(WaypointMissionFinishedAction.valueOf(parameters.getString("finishedAction")));
     }
   }
 

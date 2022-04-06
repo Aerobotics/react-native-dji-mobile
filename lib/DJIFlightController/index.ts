@@ -28,6 +28,7 @@ type RemoteControllerFlightModes = 'P' | 'A' | 'S' | 'G' | 'M' | 'F' | 'T' | 'UN
 type WaypointMissionHeadingMode = 'AUTO' | 'USING_INITIAL_DIRECTION' | 'CONTROL_BY_REMOTE_CONTROLLER' | 'USING_WAYPOINT_HEADING' | 'TOWARD_POINT_OF_INTEREST'
 type WaypointMissionGotoWaypointMode = 'SAFELY' | 'POINT_TO_POINT'
 type WaypointMissionFlightPathMode = 'NORMAL' | 'CURVED'
+type WaypointMissionFinishedAction = 'NO_ACTION' | 'GO_HOME' | 'AUTO_LAND' | 'GO_FIRST_WAYPOINT' | 'CONTINUE_UNTIL_END'
 type Waypoint = LocationCoordinate3D &
   {
     heading?: number,
@@ -48,6 +49,7 @@ interface WaypointMissionParameters {
   heading?: number,
   goToWaypointMode?: WaypointMissionGotoWaypointMode,
   flightPathMode?: WaypointMissionFlightPathMode,
+  finishedAction?: WaypointMissionFinishedAction,
 }
 
 const DJIFlightController = {
