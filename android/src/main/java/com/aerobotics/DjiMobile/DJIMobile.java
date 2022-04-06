@@ -1099,28 +1099,30 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
     private void startAirlinkUplinkSignalQualityListener() {
       DJIKey isLightbridgeSupportedKey = AirLinkKey.create(AirLinkKey.IS_LIGHTBRIDGE_LINK_SUPPORTED);
-      KeyManager.getInstance().getValue(isLightbridgeSupportedKey, new GetCallback() {
-        @Override
-        public void onSuccess(@NonNull Object value) {
+      KeyManager keyManager = DJISDKManager.getInstance().getKeyManager();
+      if (keyManager != null) {
+        keyManager.getValue(isLightbridgeSupportedKey, new GetCallback() {
+          @Override
+          public void onSuccess(@NonNull Object value) {
             if (value instanceof Boolean) {
-                if ((Boolean) value) {
-                    startEventListener(SDKEvent.AirLinkLightbridgeUplinkSignalQuality, new EventListener() {
-                        @Override
-                        public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-                            if (newValue != null && newValue instanceof Integer) {
-                                sendEvent(SDKEvent.AirLinkUplinkSignalQuality, newValue);
-                            }
-                        }
-                    });
-                }
+              if ((Boolean) value) {
+                startEventListener(SDKEvent.AirLinkLightbridgeUplinkSignalQuality, new EventListener() {
+                  @Override
+                  public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+                    if (newValue != null && newValue instanceof Integer) {
+                      sendEvent(SDKEvent.AirLinkUplinkSignalQuality, newValue);
+                    }
+                  }
+                });
+              }
             }
-        }
+          }
 
-        @Override
-        public void onFailure(@NonNull DJIError djiError) {
+          @Override
+          public void onFailure(@NonNull DJIError djiError) {}
+        });
+      }
 
-        }
-      });
       if (product != null && product.getAirLink() != null) {
         boolean isOcuSyncLinkSupported = product.getAirLink().isOcuSyncLinkSupported();
         if (isOcuSyncLinkSupported) {
@@ -1138,28 +1140,30 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   private void startAirlinkDownlinkSignalQualityListener() {
     DJIKey isLightbridgeSupportedKey = AirLinkKey.create(AirLinkKey.IS_LIGHTBRIDGE_LINK_SUPPORTED);
-    KeyManager.getInstance().getValue(isLightbridgeSupportedKey, new GetCallback() {
-      @Override
-      public void onSuccess(@NonNull Object value) {
-        if (value instanceof Boolean) {
-          if ((Boolean) value) {
-            startEventListener(SDKEvent.AirLinkLightbridgeDownlinkSignalQuality, new EventListener() {
-              @Override
-              public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-                if (newValue != null && newValue instanceof Integer) {
-                  sendEvent(SDKEvent.AirLinkDownlinkSignalQuality, newValue);
+    KeyManager keyManager = DJISDKManager.getInstance().getKeyManager();
+    if (keyManager != null) {
+      keyManager.getValue(isLightbridgeSupportedKey, new GetCallback() {
+        @Override
+        public void onSuccess(@NonNull Object value) {
+          if (value instanceof Boolean) {
+            if ((Boolean) value) {
+              startEventListener(SDKEvent.AirLinkLightbridgeDownlinkSignalQuality, new EventListener() {
+                @Override
+                public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+                  if (newValue != null && newValue instanceof Integer) {
+                    sendEvent(SDKEvent.AirLinkDownlinkSignalQuality, newValue);
+                  }
                 }
-              }
-            });
+              });
+            }
           }
         }
-      }
 
-      @Override
-      public void onFailure(@NonNull DJIError djiError) {
+        @Override
+        public void onFailure(@NonNull DJIError djiError) {}
+      });
+    }
 
-      }
-    });
     if (product != null && product.getAirLink() != null) {
       boolean isOcuSyncLinkSupported = product.getAirLink().isOcuSyncLinkSupported();
       if (isOcuSyncLinkSupported) {
