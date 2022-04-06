@@ -45,6 +45,10 @@ public enum SDKEvent {
   SDCardIsInserted(CameraKey.create(CameraKey.SDCARD_IS_INSERTED), EventType.DJI_KEY_MANAGER_EVENT),
   SDCardIsReadOnly(CameraKey.create(CameraKey.SDCARD_IS_READ_ONLY), EventType.DJI_KEY_MANAGER_EVENT),
 
+  CameraIsShootingSinglePhoto(CameraKey.create(CameraKey.IS_SHOOTING_SINGLE_PHOTO), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraIsStoringPhoto(CameraKey.create(CameraKey.IS_STORING_PHOTO), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraIsShootingPhoto(CameraKey.create(CameraKey.IS_SHOOTING_PHOTO), EventType.DJI_KEY_MANAGER_EVENT),
+
   GimbalIsAtYawStop(GimbalKey.create(GimbalKey.IS_YAW_AT_STOP), EventType.DJI_KEY_MANAGER_EVENT),
 
   WaypointMissionFinished(null, EventType.DJI_KEY_MANAGER_EVENT),

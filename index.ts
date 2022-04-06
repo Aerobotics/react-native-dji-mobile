@@ -179,6 +179,18 @@ const DJIMobileWrapper = {
   startVisionControlStateListener: startListener(DJIMobile.VisionControlState),
   stopVisionControlStateListener: stopListener(DJIMobile.VisionControlState),
 
+  startIsShootingSinglePhotoListener: startListener<boolean>(DJIMobile.CameraIsShootingSinglePhoto),
+  stopIsShootingSinglePhotoListener: stopListener(DJIMobile.CameraIsShootingSinglePhoto),
+  observeIsShootingSinglePhotoListener: observeEvent<boolean>(DJIMobile.CameraIsShootingSinglePhoto),
+
+  startIsStoringPhotoListener: startListener<boolean>(DJIMobile.CameraIsStoringPhoto),
+  stopIsStoringPhotoListener: stopListener(DJIMobile.CameraIsStoringPhoto),
+  observeIsStoringPhotoListener: observeEvent<boolean>(DJIMobile.CameraIsStoringPhoto),
+
+  startIsShootingPhotoListener: startListener<boolean>(DJIMobile.CameraIsShootingPhoto),
+  stopIsShootingPhotoListener: stopListener(DJIMobile.CameraIsShootingPhoto),
+  observeIsShootingPhotoListener: observeEvent<boolean>(DJIMobile.CameraIsShootingPhoto),
+
   startDiagnosticsListener: async () => {
     return DJIEventSubject.pipe($filter(evt => evt.type === 'DJIDiagnostics'));
   },
@@ -215,6 +227,14 @@ const DJIMobileWrapper = {
     await DJIMobile.startNewMediaFileListener();
     return DJIEventSubject.pipe($filter(evt => evt.type === 'CameraDidGenerateNewMediaFile'));
   },
+  startNewMediaFileListenerV2: async () => {
+    await DJIMobile.startNewMediaFileListener();
+    return observeEvent<MediaFileData>('CameraDidGenerateNewMediaFile')
+  },
+  observeNewMediaFile: observeEvent<MediaFileData>('CameraDidGenerateNewMediaFile'),
+  // TODO: this is working, but hasn't been tested thoroughly or properly typed
+  observeCameraState: observeEvent<any>('CameraDidUpdateSystemState'),
+
   stopNewMediaFileListener: async () => {
     // TODO: (Adam) generalize & merge these!
     if (Platform.OS === 'ios') {

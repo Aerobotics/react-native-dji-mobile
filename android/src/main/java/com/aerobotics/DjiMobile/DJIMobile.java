@@ -25,6 +25,7 @@ import java.util.Map;
 
 import dji.common.camera.ExposureSettings;
 import dji.common.camera.SettingsDefinitions;
+import dji.common.camera.SystemState;
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
@@ -346,6 +347,15 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           break;
         case IsHomeLocationSet:
           startIsHomeLocationSetListener();
+          break;
+        case CameraIsShootingPhoto:
+          startCameraIsShootingPhotoListener();
+          break;
+        case CameraIsShootingSinglePhoto:
+          startCameraIsShootingSinglePhotoListener();
+          break;
+        case CameraIsStoringPhoto:
+          startCameraIsStoringPhotoListener();
           break;
 
         default:
@@ -714,6 +724,21 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
+    startEventListener(SDKEvent.CameraDidUpdateSystemState, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue != null && newValue instanceof HashMap) {
+          HashMap payload = (HashMap) newValue;
+          SystemState systemState = (SystemState) payload.get("value");
+          boolean isShootingSinglePhoto = systemState.isShootingSinglePhoto();
+          boolean isStoringPhoto = systemState.isStoringPhoto();
+          WritableMap params = Arguments.createMap();
+          params.putBoolean("isShootingPhoto", isShootingSinglePhoto);
+          params.putBoolean("isStoringPhoto", isStoringPhoto);
+          sendRealTimeEvent(SDKEvent.CameraDidUpdateSystemState, params);
+        }
+      }
+    });
     promise.resolve(null);
   }
 
@@ -860,6 +885,39 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue instanceof Boolean) {
           sendEvent(SDKEvent.CameraIsRecording, newValue);
+        }
+      }
+    });
+  }
+
+  private void startCameraIsShootingPhotoListener() {
+    startEventListener(SDKEvent.CameraIsShootingPhoto, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.CameraIsShootingPhoto, newValue);
+        }
+      }
+    });
+  }
+
+  private void startCameraIsShootingSinglePhotoListener() {
+    startEventListener(SDKEvent.CameraIsShootingSinglePhoto, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.CameraIsShootingSinglePhoto, newValue);
+        }
+      }
+    });
+  }
+
+  private void startCameraIsStoringPhotoListener() {
+    startEventListener(SDKEvent.CameraIsStoringPhoto, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Boolean) {
+          sendEvent(SDKEvent.CameraIsStoringPhoto, newValue);
         }
       }
     });
