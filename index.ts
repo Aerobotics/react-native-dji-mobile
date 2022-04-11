@@ -66,6 +66,13 @@ export type MediaFileData = {
   dateCreated: string,
 };
 
+export type DJIDiagnostic = {
+  type: string,
+  reason: string,
+  solution: string,
+  error: string,
+}
+
 const DJIMobileWrapper = {
 
   registerApp: async (bridgeIp?: string) => {
@@ -194,10 +201,15 @@ const DJIMobileWrapper = {
   startDiagnosticsListener: async () => {
     return DJIEventSubject.pipe($filter(evt => evt.type === 'DJIDiagnostics'));
   },
+  startDiagnosticsListenerV2: async () => {
+    return observeEvent<DJIDiagnostic[]>('DJIDiagnostics');
+  },
 
   stopDiagnosticsListener: async () => {
     await DJIMobile.stopEventListener('DJIDiagnostics');
   },
+
+  observeDiagnostics: observeEvent<DJIDiagnostic[]>('DJIDiagnostics'),
 
   startCameraExposureSettingsListener: async () => {
     await DJIMobile.startCameraExposureSettingsListener();
