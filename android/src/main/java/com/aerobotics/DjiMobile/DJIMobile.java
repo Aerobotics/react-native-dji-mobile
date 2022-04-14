@@ -5,6 +5,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
@@ -19,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.security.Key;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +74,8 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   private Handler handler;
   private FileObserver flightLogObserver;
   private EventSender eventSender;
+
+  private List<DJIDiagnostics> prevDiagnostics;
 
   private VisionControlState.Callback visionControlStateCallback = new VisionControlState.Callback() {
     @Override
@@ -626,13 +631,14 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   private void startDiagnosticsListener() {
+    prevDiagnostics = new ArrayList<DJIDiagnostics>();
     // Add product connection listener
     DJIDiagnostics.DiagnosticsInformationCallback diagnosticsInformationCallback = new DJIDiagnostics.DiagnosticsInformationCallback() {
       @Override
-      public void onUpdate(List<DJIDiagnostics> list) {
-        if (!list.isEmpty()) {
+      public void onUpdate(List<DJIDiagnostics> newDiagnostics) {
+        if (!areDiagnosticsEqual(newDiagnostics, prevDiagnostics)) {
           WritableArray diagnosticsToSend = Arguments.createArray();
-          for (DJIDiagnostics djiDiagnostics : list) {
+          for (DJIDiagnostics djiDiagnostics : newDiagnostics) {
             DiagnosticsBaseHandler.DJIDiagnosticsError error = DiagnosticsBaseHandler.DJIDiagnosticsError.find(djiDiagnostics.getCode());
             WritableMap params = Arguments.createMap();
             params.putString("type", djiDiagnostics.getType().name());
@@ -643,6 +649,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           }
           sendEvent(SDKEvent.DJIDiagnostics, diagnosticsToSend);
         }
+        prevDiagnostics = new ArrayList<DJIDiagnostics>(newDiagnostics);
       }
     };
     if (product != null) {
@@ -650,6 +657,32 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     } else {
       Log.d("REACT", "product null: could not set diag callback");
     }
+  }
+
+  @ReactMethod
+  private void resetPreviousDiagnostics(Promise promise) {
+    // ensures that when a new subscriber subscribes to the diagnostics events, the diagnostics are
+    // forced to update
+    prevDiagnostics = new ArrayList<DJIDiagnostics>();
+    promise.resolve(null);
+  }
+
+  private boolean areDiagnosticsEqual(List<DJIDiagnostics> diagA, List<DJIDiagnostics> diagB) {
+    if (diagA.size() != diagB.size()) {
+      return false;
+    }
+
+    String[] diagACodes = new String[diagA.size()];
+    String[] diagBCodes = new String[diagB.size()];
+    for (int i = 0; i < diagA.size(); i++) {
+      String tempA = String.valueOf(diagA.get(i).getCode()) + "_" + String.valueOf(diagA.get(i).getSubCode());
+      String tempB = String.valueOf(diagB.get(i).getCode()) + "_" + String.valueOf(diagB.get(i).getSubCode());
+      diagACodes[i] = String.valueOf(diagA.get(i).getCode()) + "_" + String.valueOf(diagA.get(i).getSubCode());
+      diagBCodes[i] = String.valueOf(diagB.get(i).getCode()) + "_" + String.valueOf(diagB.get(i).getSubCode());
+    }
+    Arrays.sort(diagACodes);
+    Arrays.sort(diagBCodes);
+    return Arrays.equals(diagACodes, diagBCodes);
   }
 
   @ReactMethod

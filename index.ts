@@ -202,6 +202,7 @@ const DJIMobileWrapper = {
     return DJIEventSubject.pipe($filter(evt => evt.type === 'DJIDiagnostics'));
   },
   startDiagnosticsListenerV2: async () => {
+    await DJIMobile.resetPreviousDiagnostics();
     return observeEvent<DJIDiagnostic[]>('DJIDiagnostics');
   },
 
