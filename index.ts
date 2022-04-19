@@ -24,7 +24,7 @@ import {
   observeEvent,
 } from './lib/utilities';
 import { Observable } from 'rxjs';
-import { Attitude, LocationCoordinate3D, VelocityVector } from './types';
+import { Attitude, LocationCoordinate3D, VelocityVector, HomeLocationCoordinate3D, FlightLogListenerEvent, MediaFileData, DJIDiagnostic } from './types';
 
 const startListener = <T>(eventName: string): () => Promise<Observable<T>> => async () => {
   await DJIMobile.startEventListener(eventName);
@@ -46,32 +46,6 @@ const throwIfSDKNotRegistered = () => {
     throw new Error('DJI SDK not registered!');
   }
 };
-
-export const FlightLogListenerEventNames = Object.freeze({
-  create: 'create',
-  modify: 'modify',
-});
-
-export type FlightLogListenerEvent = {
-  value: {
-    eventName: typeof FlightLogListenerEventNames,
-    fileName: string,
-  },
-  type: string,
-}
-
-export type MediaFileData = {
-  fileName: string,
-  fileSizeInBytes: number,
-  dateCreated: string,
-};
-
-export type DJIDiagnostic = {
-  type: string,
-  reason: string,
-  solution: string,
-  error: string,
-}
 
 const DJIMobileWrapper = {
 
@@ -147,9 +121,9 @@ const DJIMobileWrapper = {
   stopAirLinkDownlinkSignalQualityListener: stopListener(DJIMobile.AirLinkDownlinkSignalQuality),
   observeAirlinkDownlinkSignalQuality: observeEvent<number>(DJIMobile.AirLinkDownlinkSignalQuality),
 
-  startHomeLocationListener: startListener<LocationCoordinate3D>(DJIMobile.AircraftHomeLocation),
+  startHomeLocationListener: startListener<HomeLocationCoordinate3D>(DJIMobile.AircraftHomeLocation),
   stopHomeLocationListener: stopListener(DJIMobile.AircraftHomeLocation),
-  observeHomeLocation: observeEvent<LocationCoordinate3D>(DJIMobile.AircraftHomeLocation),
+  observeHomeLocation: observeEvent<HomeLocationCoordinate3D>(DJIMobile.AircraftHomeLocation),
 
   startIsHomeLocationSetListener: startListener<boolean>(DJIMobile.IsHomeLocationSet),
   stopIsHomeLocationSetListener: stopListener(DJIMobile.IsHomeLocationSet),

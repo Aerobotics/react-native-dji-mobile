@@ -796,7 +796,9 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       }
 
       @Override
-      public void onFailure(@NonNull DJIError djiError) {}
+      public void onFailure(@NonNull DJIError djiError) {
+        Log.e("REACT", "Could not set home location callback: " + djiError.getDescription());
+      }
     });
 
 
@@ -876,7 +878,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
         @Override
         public void onFailure(@NonNull DJIError djiError) {
-
+          Log.e("REACT", "Could not set is home location set callback: " + djiError.getDescription());
         }
       });
     }
