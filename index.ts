@@ -212,10 +212,6 @@ const DJIMobileWrapper = {
 
   startNewMediaFileListener: async () => {
     await DJIMobile.startNewMediaFileListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'CameraDidGenerateNewMediaFile'));
-  },
-  startNewMediaFileListenerV2: async () => {
-    await DJIMobile.startNewMediaFileListener();
     return observeEvent<MediaFileData>('CameraDidGenerateNewMediaFile')
   },
   observeNewMediaFile: observeEvent<MediaFileData>('CameraDidGenerateNewMediaFile'),

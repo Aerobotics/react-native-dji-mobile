@@ -52,7 +52,8 @@ export type WaypointMissionExecuteState =
   | 'DOING_ACTION'
   | 'FINISHED_ACTION'
   | 'RETURN_TO_FIRST_WAYPOINT'
-  | 'PAUSED';
+  | 'PAUSED'
+  | 'UNKNOWN'; // this will never be returned by DJI, but is used as the initial value
 
 export interface WaypointMissionExecutionProgressEvent {
   targetWaypointIndex: number;
