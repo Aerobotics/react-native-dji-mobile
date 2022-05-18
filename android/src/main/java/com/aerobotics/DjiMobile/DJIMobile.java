@@ -29,14 +29,18 @@ import java.util.Map;
 import dji.common.camera.ExposureSettings;
 import dji.common.camera.SettingsDefinitions;
 import dji.common.camera.SystemState;
+import dji.common.camera.WhiteBalance;
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
+import dji.common.flightcontroller.RemoteControllerFlightMode;
 import dji.common.flightcontroller.VisionControlState;
 import dji.common.flightcontroller.VisionDetectionState;
 import dji.common.flightcontroller.VisionSensorPosition;
 import dji.common.flightcontroller.VisionSystemWarning;
+import dji.common.flightcontroller.imu.IMUState;
+import dji.common.flightcontroller.imu.SensorState;
 import dji.common.model.LocationCoordinate2D;
 import dji.common.product.Model;
 import dji.internal.diagnostics.DiagnosticsBaseHandler;
@@ -303,6 +307,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startGPSSignalLevelListener();
           break;
 
+        case SatelliteCount:
+          startSatelliteCountListener();
+          break;
+
         case AirLinkUplinkSignalQuality:
           startAirlinkUplinkSignalQualityListener();
           break;
@@ -319,6 +327,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startUltrasonicHeightListener();
           break;
 
+        case RemoteControllerFlightMode:
+          startRemoteControllerFlightModeListener();
+          break;
+
         case CompassHasError:
           startCompassHasErrorListener();
           break;
@@ -333,6 +345,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
         case SDCardIsReadOnly:
           startSDCardIsReadOnlyListener();
+          break;
+
+        case SDCardAvailableCaptureCount:
+          startSDCardAvailableCaptureCountListener();
           break;
 
         case GimbalIsAtYawStop:
@@ -362,7 +378,9 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         case CameraIsStoringPhoto:
           startCameraIsStoringPhotoListener();
           break;
-
+        case CameraWhiteBalance:
+          startCameraWhiteBalanceListener();
+          break;
         default:
           promise.reject("Invalid Key", "Invalid Key");
           break;
@@ -445,6 +463,18 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       }
     });
   }
+
+  private void startSatelliteCountListener() {
+    startEventListener(SDKEvent.SatelliteCount, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue != null && newValue instanceof Integer) {
+          sendEvent(SDKEvent.SatelliteCount, newValue);
+        }
+      }
+    });
+  }
+
 
   private void startAircraftLocationListener() {
     KeyManager keyManager = DJISDKManager.getInstance().getKeyManager();
@@ -894,12 +924,23 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
   private void startUltrasonicHeightListener() {
     startEventListener(SDKEvent.AircraftUltrasonicHeight, new EventListener() {
-          @Override
-          public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-      if (newValue != null && newValue instanceof Float) {
-        sendEvent(SDKEvent.AircraftUltrasonicHeight, newValue);
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue != null && newValue instanceof Float) {
+          sendEvent(SDKEvent.AircraftUltrasonicHeight, newValue);
+        }
       }
-          }
+    });
+  }
+
+  private void startRemoteControllerFlightModeListener() {
+    startEventListener(SDKEvent.RemoteControllerFlightMode, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue != null && newValue instanceof RemoteControllerFlightMode) {
+          sendEvent(SDKEvent.RemoteControllerFlightMode, ((RemoteControllerFlightMode)newValue).name());
+        }
+      }
     });
   }
 
@@ -958,6 +999,19 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     });
   }
 
+  private void startCameraWhiteBalanceListener() {
+    startEventListener(SDKEvent.CameraWhiteBalance, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof WhiteBalance) {
+          WhiteBalance whiteBalance = (WhiteBalance)newValue;
+          SettingsDefinitions.WhiteBalancePreset preset = whiteBalance.getWhiteBalancePreset();
+          sendEvent(SDKEvent.CameraWhiteBalance, preset.name());
+        }
+      }
+    });
+  }
+
   private void startVirtualStickEnabledListener() {
     startEventListener(SDKEvent.AircraftVirtualStickEnabled, new EventListener() {
       @Override
@@ -986,6 +1040,17 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
         if (newValue instanceof Boolean) {
           sendEvent(SDKEvent.SDCardIsReadOnly, newValue);
+        }
+      }
+    });
+  }
+
+  private void startSDCardAvailableCaptureCountListener() {
+    startEventListener(SDKEvent.SDCardAvailableCaptureCount, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        if (newValue instanceof Long) {
+          sendEvent(SDKEvent.SDCardAvailableCaptureCount, newValue);
         }
       }
     });
@@ -1311,6 +1376,37 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         @Override
         public void onFailure(@NonNull DJIError djiError) {
           promise.reject(new Throwable("getModelName error: " + djiError.getDescription()));
+        }
+      });
+    }
+
+    @ReactMethod
+    public void startIMUSensorStateListener(final Promise promise) {
+      Aircraft product = (Aircraft) DJISDKManager.getInstance().getProduct();
+      if (product == null) {
+        promise.reject(new Throwable("startIMUSensorStateListener error: product is null"));
+        return;
+      }
+      FlightController flightController = product.getFlightController();
+      if (flightController == null) {
+        promise.reject(new Throwable("startIMUSensorStateListener error: flightController is null"));
+        return;
+      }
+      flightController.setIMUStateCallback(new IMUState.Callback() {
+        @Override
+        public void onUpdate(@NonNull IMUState imuState) {
+          // This update method fires every ~2s, even when the values don't seem to be updating
+          // Handling this at the JS level with rxjs
+          SensorState accelerometerState = imuState.getAccelerometerState();
+          SensorState gyroscopeState = imuState.getGyroscopeState();
+          // Handle null `SensorState` values which occur every few updates
+          if (accelerometerState == null || gyroscopeState == null) {
+            return;
+          }
+          WritableMap params = Arguments.createMap();
+          params.putString("accelerometerState", accelerometerState.name());
+          params.putString("gyroscopeState", gyroscopeState.name());
+          sendEvent(SDKEvent.IMUSensorState, params);
         }
       });
     }

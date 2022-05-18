@@ -92,3 +92,48 @@ export interface DJIDiagnostic {
   solution: string;
   error: string;
 }
+
+export type SensorState =
+  | "UNKNOWN"
+  | "DISCONNECTED"
+  | "CALIBRATING"
+  | "CALIBRATION_FAILED"
+  | "DATA_EXCEPTION"
+  | "WARMING_UP"
+  | "IN_MOTION"
+  | "NORMAL_BIAS"
+  | "MEDIUM_BIAS"
+  | "LARGE_BIAS"
+
+export interface IMUState {
+  accelerometerState: SensorState;
+  gyroscopeState: SensorState;
+}
+
+export type WhiteBalancePresets =
+  | "AUTO"
+  | "SUNNY"
+  | "CLOUDY"
+  | "WATER_SURFACE"
+  | "INDOOR_INCANDESCENT"
+  | "INDOOR_FLUORESCENT"
+  | "CUSTOM"
+  | "PRESET_NEUTRAL"
+  | "UNKNOWN"
+
+export type CameraExposureSettings = {
+  aperture?: number;
+  iso?: number;
+  shutterSpeed?: number;
+  exposureValue?: number;
+};
+
+export type RemoteControllerFlightMode =
+  | "F"
+  | "A"
+  | "P"
+  | "S"
+  | "G"
+  | "M"
+  | "T"
+  | "UNKNOWN"
