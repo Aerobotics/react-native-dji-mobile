@@ -934,25 +934,50 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   private void startRemoteControllerFlightModeListener() {
+    getInitialSDKEventValue(SDKEvent.RemoteControllerFlightMode, new GetCallbackWrapper() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        handleRemoteControllerFlightModeUpdate(o, true);
+      }
+    });
     startEventListener(SDKEvent.RemoteControllerFlightMode, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue != null && newValue instanceof RemoteControllerFlightMode) {
-          sendEvent(SDKEvent.RemoteControllerFlightMode, ((RemoteControllerFlightMode)newValue).name());
-        }
+        handleRemoteControllerFlightModeUpdate(newValue, false);
       }
     });
   }
 
+  private void handleRemoteControllerFlightModeUpdate(@Nullable Object newValue, Boolean realtime) {
+    if (newValue != null && newValue instanceof RemoteControllerFlightMode) {
+      this.eventSender.processEvent(
+        SDKEvent.RemoteControllerFlightMode,
+        ((RemoteControllerFlightMode)newValue).name(),
+        realtime
+      );
+    }
+  }
+
   private void startCompassHasErrorListener() {
+    getInitialSDKEventValue(SDKEvent.CompassHasError, new GetCallbackWrapper() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        handleCompassHasErrorUpdate(o, true);
+      }
+    });
+
     startEventListener(SDKEvent.CompassHasError, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue instanceof Boolean) {
-          sendEvent(SDKEvent.CompassHasError, newValue);
-        }
+        handleCompassHasErrorUpdate(newValue, false);
       }
     });
+  }
+
+  private void handleCompassHasErrorUpdate(@Nullable Object newValue, Boolean realtime) {
+    if (newValue != null && newValue instanceof Boolean) {
+      this.eventSender.processEvent(SDKEvent.CompassHasError, newValue, realtime);
+    }
   }
 
   private void startIsRecordingListener() {
@@ -1000,16 +1025,26 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   private void startCameraWhiteBalanceListener() {
+    getInitialSDKEventValue(SDKEvent.CameraWhiteBalance, new GetCallbackWrapper() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        handleCameraWhiteBalanceUpdate(o, true);
+      }
+    });
     startEventListener(SDKEvent.CameraWhiteBalance, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue instanceof WhiteBalance) {
-          WhiteBalance whiteBalance = (WhiteBalance)newValue;
-          SettingsDefinitions.WhiteBalancePreset preset = whiteBalance.getWhiteBalancePreset();
-          sendEvent(SDKEvent.CameraWhiteBalance, preset.name());
-        }
+        handleCameraWhiteBalanceUpdate(newValue, false);
       }
     });
+  }
+
+  private void handleCameraWhiteBalanceUpdate(@Nullable Object newValue, Boolean realtime) {
+    if (newValue != null && newValue instanceof WhiteBalance) {
+      WhiteBalance whiteBalance = (WhiteBalance)newValue;
+      SettingsDefinitions.WhiteBalancePreset preset = whiteBalance.getWhiteBalancePreset();
+      this.eventSender.processEvent(SDKEvent.CameraWhiteBalance, preset.name(), realtime);
+    }
   }
 
   private void startVirtualStickEnabledListener() {
@@ -1046,14 +1081,24 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   private void startSDCardAvailableCaptureCountListener() {
+    getInitialSDKEventValue(SDKEvent.SDCardAvailableCaptureCount, new GetCallbackWrapper() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        handleSDCardAvailableCaptureCountUpdate(o, true);
+      }
+    });
     startEventListener(SDKEvent.SDCardAvailableCaptureCount, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue instanceof Long) {
-          sendEvent(SDKEvent.SDCardAvailableCaptureCount, newValue);
-        }
+        handleSDCardAvailableCaptureCountUpdate(newValue, false);
       }
     });
+  }
+
+  private void handleSDCardAvailableCaptureCountUpdate(@Nullable Object newValue, Boolean realtime) {
+    if (newValue != null && newValue instanceof Long) {
+      this.eventSender.processEvent(SDKEvent.SDCardAvailableCaptureCount, newValue, realtime);
+    }
   }
 
   private void startGimbalIsAtYawStopListener() {
@@ -1337,7 +1382,26 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     }
   }
 
-    @ReactMethod
+  interface GetCallbackWrapper {
+    void onSuccess(@NonNull Object o);
+  }
+
+  private void getInitialSDKEventValue(final SDKEvent sdkEvent,final GetCallbackWrapper callback) {
+    DJIKey key = (DJIKey) sdkEvent.getKey();
+    DJISDKManager.getInstance().getKeyManager().getValue(key, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        callback.onSuccess(o);
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        Log.e("REACT", "Could not get inital value of " + sdkEvent.name() + ": " + djiError.getDescription());
+      }
+    });
+  }
+
+  @ReactMethod
     public void limitEventFrequency(double newEventSendFrequencyInHz, Promise promise) {
       int milliSecs = (int) Math.round((1/newEventSendFrequencyInHz) * 1000);
       this.eventSender.setNewEventSendFrequency(milliSecs);
