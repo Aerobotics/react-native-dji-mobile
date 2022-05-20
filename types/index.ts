@@ -59,6 +59,7 @@ export interface WaypointMissionExecutionProgressEvent {
   targetWaypointIndex: number;
   isWaypointReached: boolean;
   executeState: WaypointMissionExecuteState;
+  totalWaypointCount: number;
 }
 
 export interface WaypointMissionUploadEvent {
