@@ -7,11 +7,12 @@ import {
 import {
   filter as $filter,
   map as $map,
+  distinctUntilChanged
 } from 'rxjs/operators';
 
 import DJIMissionControl from './lib/DJIMissionControl';
 
-import CameraControl, { exposureCompensationValues } from './lib/CameraControl';
+import CameraControl from './lib/CameraControl';
 
 import DJIMediaControl from './lib/DJIMedia';
 
@@ -23,8 +24,11 @@ import {
   DJIEventSubject,
   observeEvent,
 } from './lib/utilities';
+import {
+  parseExposureSettings
+} from './lib/utilities/parseExposureSettings';
 import { Observable } from 'rxjs';
-import { Attitude, LocationCoordinate3D, VelocityVector, HomeLocationCoordinate3D, FlightLogListenerEvent, MediaFileData, DJIDiagnostic } from './types';
+import { Attitude, LocationCoordinate3D, VelocityVector, HomeLocationCoordinate3D, FlightLogListenerEvent, MediaFileData, DJIDiagnostic, IMUState, WhiteBalancePresets, CameraExposureSettings, RemoteControllerFlightMode } from './types';
 
 const startListener = <T>(eventName: string): () => Promise<Observable<T>> => async () => {
   await DJIMobile.startEventListener(eventName);
@@ -133,11 +137,16 @@ const DJIMobileWrapper = {
   stopGpsSignalLevelListener: stopListener(DJIMobile.AircraftGpsSignalLevel),
   observeGpsSignalLevel: observeEvent<number | null>(DJIMobile.AircraftGpsSignalLevel),
 
+  startSatelliteCountListener: startListener<number | null>(DJIMobile.SatelliteCount),
+  stopSatelliteCountListener: stopListener(DJIMobile.SatelliteCount),
+  observeSatelliteCount: observeEvent<number | null>(DJIMobile.SatelliteCount),
+
   startUltrasonicHeightListener: startListener(DJIMobile.AircraftUltrasonicHeight),
   stopUltrasonicHeightListener: stopListener(DJIMobile.AircraftUltrasonicHeight),
 
-  startCompassHasErrorListener: startListener(DJIMobile.CompassHasError),
+  startCompassHasErrorListener: startListener<boolean>(DJIMobile.CompassHasError),
   stopCompassHasErrorListener: stopListener(DJIMobile.CompassHasError),
+  observeCompassHasError: observeEvent<boolean>(DJIMobile.CompassHasError),
 
   startCameraIsRecordingListener: startListener(DJIMobile.CameraIsRecording),
   stopCameraIsRecordingListener: stopListener(DJIMobile.CameraIsRecording),
@@ -147,6 +156,14 @@ const DJIMobileWrapper = {
 
   startSDCardIsReadOnlyListener: startListener(DJIMobile.SDCardIsReadOnly),
   stopSDCardIsReadOnlyListener: stopListener(DJIMobile.SDCardIsReadOnly),
+
+  startSDCardAvailableCaptureCountListener: startListener<number | null>(DJIMobile.SDCardAvailableCaptureCount),
+  stopSDCardAvailableCaptureCountListener: stopListener(DJIMobile.SDCardAvailableCaptureCount),
+  observeSDCardAvailableCaptureCount: observeEvent<number | null>(DJIMobile.SDCardAvailableCaptureCount),
+
+  startCameraWhiteBalanceListener: startListener<WhiteBalancePresets>(DJIMobile.CameraWhiteBalance),
+  stopCameraWhiteBalanceListener: stopListener(DJIMobile.CameraWhiteBalance),
+  observeCameraWhiteBalance: observeEvent<WhiteBalancePresets>(DJIMobile.CameraWhiteBalance),
 
   startGimbalIsAtYawStopListener: startListener(DJIMobile.GimbalIsAtYawStop),
   stopGimbalIsAtYawStopListener: stopListener(DJIMobile.GimbalIsAtYawStop),
@@ -172,35 +189,24 @@ const DJIMobileWrapper = {
   stopIsShootingPhotoListener: stopListener(DJIMobile.CameraIsShootingPhoto),
   observeIsShootingPhotoListener: observeEvent<boolean>(DJIMobile.CameraIsShootingPhoto),
 
+  startRemoteControllerFlightModeListener: startListener<RemoteControllerFlightMode>(DJIMobile.RemoteControllerFlightMode),
+  stopRemoteControllerFlightModeListener: stopListener(DJIMobile.RemoteControllerFlightMode),
+  observeRemoteControllerFlightMode: observeEvent<RemoteControllerFlightMode>(DJIMobile.RemoteControllerFlightMode),
+
   startDiagnosticsListener: async () => {
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'DJIDiagnostics'));
-  },
-  startDiagnosticsListenerV2: async () => {
     await DJIMobile.resetPreviousDiagnostics();
     return observeEvent<DJIDiagnostic[]>('DJIDiagnostics');
   },
-
   stopDiagnosticsListener: async () => {
     await DJIMobile.stopEventListener('DJIDiagnostics');
   },
-
   observeDiagnostics: observeEvent<DJIDiagnostic[]>('DJIDiagnostics'),
 
   startCameraExposureSettingsListener: async () => {
     await DJIMobile.startCameraExposureSettingsListener();
-    return DJIEventSubject.pipe(
-        $filter(evt => evt.type === 'CameraExposureSettings'),
-        $map(evt => {
-          // Get exposure value from lookup. The possible values should only be
-          // string representations of floats.
-          evt.value = {
-            ...evt.value,
-            exposureValue: parseFloat(Object.keys(exposureCompensationValues).find(key => exposureCompensationValues[key] === evt.value.exposureValue)),
-          }
-          return evt;
-        }),
-      );
+    return observeEvent<CameraExposureSettings>(DJIMobile.CameraExposureSettings).pipe($map(value => parseExposureSettings(value)));
   },
+  observeCameraExposureSettings: observeEvent<CameraExposureSettings>(DJIMobile.CameraExposureSettings).pipe($map(value => parseExposureSettings(value))),
 
   stopCameraExposureSettingsListener: async () => {
     await DJIMobile.stopEventListener('CameraExposureSettings');
@@ -226,6 +232,15 @@ const DJIMobileWrapper = {
       await DJIMobile.stopEventListener('CameraDidGenerateNewMediaFile');
     }
   },
+
+  startIMUSensorStateListener: async () => {
+    await DJIMobile.startIMUSensorStateListener();
+    return observeEvent<IMUState>(DJIMobile.IMUSensorState)
+  },
+  observeIMUSensorState: observeEvent<IMUState>(DJIMobile.IMUSensorState).pipe(
+    distinctUntilChanged((prev, curr) => prev.accelerometerState === curr.accelerometerState && prev.gyroscopeState === curr.gyroscopeState)
+  ),
+
   /**
    * ANDROID ONLY
    */
