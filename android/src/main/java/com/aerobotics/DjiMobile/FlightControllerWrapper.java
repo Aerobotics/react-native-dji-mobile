@@ -1,6 +1,7 @@
 package com.aerobotics.DjiMobile;
 
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -116,13 +117,21 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
           if(waypointMissionUploadEvent.getProgress() != null) {
             sendWaypointMissionUploadUpdate(waypointMissionUploadEvent.getProgress());
           }
-          sendWaypointMissionStateUpdate(waypointMissionUploadEvent.getCurrentState());
+          /*
+           * The `waypointMissionUploadEvent` state differs from the mission operator state at times.
+           * Choosing to use the mission operator state as the source of truth.
+           */
+          sendWaypointMissionStateUpdate(getWaypointMissionOperator().getCurrentState());
         }
 
         @Override
         public void onExecutionUpdate(@NonNull WaypointMissionExecutionEvent waypointMissionExecutionEvent) {
           sendWaypointMissionExecutionUpdate(waypointMissionExecutionEvent.getProgress());
-          sendWaypointMissionStateUpdate(waypointMissionExecutionEvent.getCurrentState());
+          /*
+           * The `waypointMissionExecutionEvent` state differs from the mission operator state at times.
+           * Choosing to use the mission operator state as the source of truth.
+           */
+          sendWaypointMissionStateUpdate(getWaypointMissionOperator().getCurrentState());
         }
 
         @Override
@@ -157,15 +166,6 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       @Override
       public void onResult(DJIError error) {
         if (error == null) {
-          //Sending state update event after delay due to race condition bug in MSDK resulting in incorrect state sometimes being reported
-          new Timer().schedule(
-                  new TimerTask() {
-                    @Override
-                    public void run() {
-                      sendWaypointMissionStateUpdate(getWaypointMissionOperator().getCurrentState());
-                    }
-                  }, 300
-          );
           promise.resolve(null);
         } else {
           if (getWaypointMissionOperator().getCurrentState().equals(WaypointMissionState.READY_TO_UPLOAD)) {
@@ -201,10 +201,6 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       public void onResult(DJIError djiError) {
         if (djiError == null) {
           promise.resolve(null);
-          // Hardcoded this state change because if you query the mission operator at this point it still
-          // returns EXECUTING even though the mission has been successfully stopped.
-          // https://developer.dji.com/api-reference/android-api/Components/Missions/DJIWaypointMissionOperator.html#djiwaypointmissionoperator_stopmission_inline
-          sendWaypointMissionStateUpdate(WaypointMissionState.READY_TO_UPLOAD);
         } else {
           promise.reject(new Throwable("stopWaypointMission error: " + djiError.getDescription()));
         }
@@ -298,7 +294,8 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
   private void sendWaypointMissionExecutionUpdate(WaypointExecutionProgress waypointExecutionProgress) {
     if (enableWaypointExecutionUpdateListener) {
       WritableMap progressMap = Arguments.createMap();
-      progressMap.putDouble("targetWaypointIndex", waypointExecutionProgress.targetWaypointIndex);
+      progressMap.putInt("targetWaypointIndex", waypointExecutionProgress.targetWaypointIndex);
+      progressMap.putInt("totalWaypointCount", waypointExecutionProgress.totalWaypointCount);
       progressMap.putBoolean("isWaypointReached", waypointExecutionProgress.isWaypointReached);
       progressMap.putString("executeState", waypointExecutionProgress.executeState.name());
       eventSender.processEvent(SDKEvent.WaypointMissionExecutionProgress, progressMap, true);
