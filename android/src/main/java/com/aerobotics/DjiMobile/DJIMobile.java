@@ -449,19 +449,29 @@ public class DJIMobile extends ReactContextBaseJavaModule {
   }
 
   private void startGPSSignalLevelListener() {
+    getInitialSDKEventValue(SDKEvent.AircraftGpsSignalLevel, new GetCallbackWrapper() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        handleGpsSignalLevelUpdate(o, true);
+      }
+    });
     startEventListener(SDKEvent.AircraftGpsSignalLevel, new EventListener() {
       @Override
       public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-        if (newValue != null && newValue instanceof GPSSignalLevel) {
-          GPSSignalLevel gpsSignalLevel = (GPSSignalLevel) newValue;
-          Integer signalValue = gpsSignalLevel.value();
-          if (gpsSignalLevel == GPSSignalLevel.NONE) {
-            signalValue = null;
-          }
-          sendEvent(SDKEvent.AircraftGpsSignalLevel, signalValue);
-        }
+        handleGpsSignalLevelUpdate(newValue, false);
       }
     });
+  }
+
+  private void handleGpsSignalLevelUpdate(@Nullable Object newValue, final Boolean realtime) {
+    if (newValue != null && newValue instanceof GPSSignalLevel) {
+      GPSSignalLevel gpsSignalLevel = (GPSSignalLevel) newValue;
+      Integer signalValue = gpsSignalLevel.value();
+      if (gpsSignalLevel == GPSSignalLevel.NONE) {
+        signalValue = null;
+      }
+      this.eventSender.processEvent(SDKEvent.AircraftGpsSignalLevel, signalValue, realtime);
+    }
   }
 
   private void startSatelliteCountListener() {
