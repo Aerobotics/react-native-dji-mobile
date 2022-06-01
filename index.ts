@@ -28,7 +28,7 @@ import {
   parseExposureSettings
 } from './lib/utilities/parseExposureSettings';
 import { Observable } from 'rxjs';
-import { Attitude, LocationCoordinate3D, VelocityVector, HomeLocationCoordinate3D, FlightLogListenerEvent, MediaFileData, DJIDiagnostic, IMUState, WhiteBalancePresets, CameraExposureSettings, RemoteControllerFlightMode } from './types';
+import { Attitude, LocationCoordinate3D, VelocityVector, HomeLocationCoordinate3D, FlightLogListenerEvent, MediaFileData, DJIDiagnostic, IMUState, WhiteBalancePresets, CameraExposureSettings, RemoteControllerFlightMode, AircraftFlightMode } from './types';
 
 const startListener = <T>(eventName: string): () => Promise<Observable<T>> => async () => {
   await DJIMobile.startEventListener(eventName);
@@ -192,6 +192,10 @@ const DJIMobileWrapper = {
   startRemoteControllerFlightModeListener: startListener<RemoteControllerFlightMode>(DJIMobile.RemoteControllerFlightMode),
   stopRemoteControllerFlightModeListener: stopListener(DJIMobile.RemoteControllerFlightMode),
   observeRemoteControllerFlightMode: observeEvent<RemoteControllerFlightMode>(DJIMobile.RemoteControllerFlightMode),
+
+  startAircraftFlightModeListener: startListener<AircraftFlightMode>(DJIMobile.AircraftFlightMode),
+  stopAircraftFlightModeListener: stopListener(DJIMobile.AircraftFlightMode),
+  observeAircraftFlightMode: observeEvent<AircraftFlightMode>(DJIMobile.AircraftFlightMode),
 
   startDiagnosticsListener: async () => {
     await DJIMobile.resetPreviousDiagnostics();

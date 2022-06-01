@@ -44,6 +44,7 @@ public enum SDKEvent {
   LandingProtectionEnabled(FlightControllerKey.create(FlightControllerKey.LANDING_PROTECTION_ENABLED), EventType.DJI_KEY_MANAGER_EVENT),
   VisionAssistedPositioningEnabled(FlightControllerKey.create(FlightControllerKey.VISION_ASSISTED_POSITIONING_ENABLED), EventType.DJI_KEY_MANAGER_EVENT),
   RemoteControllerFlightMode(FlightControllerKey.create(FlightControllerKey.CURRENT_MODE), EventType.DJI_KEY_MANAGER_EVENT),
+  AircraftFlightMode(FlightControllerKey.create(FlightControllerKey.FLIGHT_MODE), EventType.DJI_KEY_MANAGER_EVENT),
 
   // Camera & SD Card Events
   SDCardIsInserted(CameraKey.create(CameraKey.SDCARD_IS_INSERTED), EventType.DJI_KEY_MANAGER_EVENT),
