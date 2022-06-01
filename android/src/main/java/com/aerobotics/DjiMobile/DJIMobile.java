@@ -32,6 +32,7 @@ import dji.common.camera.SystemState;
 import dji.common.camera.WhiteBalance;
 import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
+import dji.common.flightcontroller.FlightMode;
 import dji.common.flightcontroller.GPSSignalLevel;
 import dji.common.flightcontroller.LocationCoordinate3D;
 import dji.common.flightcontroller.RemoteControllerFlightMode;
@@ -329,6 +330,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
         case RemoteControllerFlightMode:
           startRemoteControllerFlightModeListener();
+          break;
+
+        case AircraftFlightMode:
+          startAircraftFlightModeListener();
           break;
 
         case CompassHasError:
@@ -964,6 +969,31 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         SDKEvent.RemoteControllerFlightMode,
         ((RemoteControllerFlightMode)newValue).name(),
         realtime
+      );
+    }
+  }
+
+  private void startAircraftFlightModeListener() {
+    getInitialSDKEventValue(SDKEvent.AircraftFlightMode, new GetCallbackWrapper() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        handleAircraftFlightModeUpdate(o, true);
+      }
+    });
+    startEventListener(SDKEvent.AircraftFlightMode, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        handleAircraftFlightModeUpdate(newValue, false);
+      }
+    });
+  }
+
+  private void handleAircraftFlightModeUpdate(@Nullable Object newValue, Boolean realtime) {
+    if (newValue != null && newValue instanceof FlightMode) {
+      this.eventSender.processEvent(
+              SDKEvent.AircraftFlightMode,
+              ((FlightMode)newValue).name(),
+              realtime
       );
     }
   }
