@@ -1,9 +1,8 @@
-import { NativeModules, } from 'react-native';
+import { NativeModules } from 'react-native';
 
-const {
-  CameraControlNative,
-} = NativeModules;
+import { PhotoFileFormat } from './types';
 
+const { CameraControlNative } = NativeModules;
 
 type PhotoAspectRatio = '4_3' | '16_9' | '3_2';
 
@@ -14,9 +13,18 @@ const photoAspectRatios = Object.freeze({
 });
 
 export type WhiteBalanceParameters = {
-  preset?: 'auto' | 'sunny' | 'cloudy' | 'waterSurface' | 'indoorIncandescent' | 'indoorFluorescent',
-  colorTemperature?: number, // in range [20, 100]
-}
+  preset?:
+    | 'auto'
+    | 'sunny'
+    | 'cloudy'
+    | 'waterSurface'
+    | 'indoorIncandescent'
+    | 'indoorFluorescent'
+    | 'custom'
+    | 'presetNeutral'
+    | 'unknown';
+  colorTemperature?: number; // in range [20, 100]
+};
 
 const whiteBalancePresets = Object.freeze({
   auto: 'AUTO',
@@ -25,31 +33,41 @@ const whiteBalancePresets = Object.freeze({
   waterSurface: 'WATER_SURFACE',
   indoorIncandescent: 'INDOOR_INCANDESCENT',
   indoorFluorescent: 'INDOOR_FLUORESCENT',
+  custom: 'CUSTOM',
+  presetNeutral: 'PRESET_NEUTRAL',
+  unknown: 'UNKNOWN',
 });
 
-type ExposureMode = 'program' | 'shutterPriority' | 'aperturePriority' | 'manual';
+type WhiteBalancePresetKeys = keyof typeof whiteBalancePresets;
+type WhiteBalancePreset = typeof whiteBalancePresets[WhiteBalancePresetKeys];
+
+type ExposureMode =
+  | 'program'
+  | 'shutterPriority'
+  | 'aperturePriority'
+  | 'manual';
 
 const exposureModes = Object.freeze({
-  'program': 'PROGRAM',
-  'shutterPriority': 'SHUTTER_PRIORITY',
-  'aperturePriority': 'APERTURE_PRIORITY',
-  'manual': 'MANUAL',
+  program: 'PROGRAM',
+  shutterPriority: 'SHUTTER_PRIORITY',
+  aperturePriority: 'APERTURE_PRIORITY',
+  manual: 'MANUAL',
 });
 
 type VideoFileFormat = 'mov' | 'mp4' | 'tiffSequence' | 'seq';
 
 const videoFileFormats = Object.freeze({
-  'mov': 'MOV',
-  'mp4': 'MP4',
-  'tiffSequence': 'TIFF_SEQ',
-  'seq': 'SEQ',
+  mov: 'MOV',
+  mp4: 'MP4',
+  tiffSequence: 'TIFF_SEQ',
+  seq: 'SEQ',
 });
 
 type VideoFileCompressionStandard = 'H264' | 'H265';
 
 const videoFileCompressionStandards = Object.freeze({
-  'H264': 'H264',
-  'H265': 'H265',
+  H264: 'H264',
+  H265: 'H265',
 });
 
 type VideoResolutions = '4096x2160' | '4608x2160' | '4608x2592' | '3840x2160';
@@ -66,11 +84,22 @@ type VideoFrameRates = '60' | '59.94' | '30' | '29.97';
 const videoFrameRates = Object.freeze({
   '60': 'FRAME_RATE_60_FPS',
   '59.94': 'FRAME_RATE_59_DOT_940_FPS',
-  '30' : 'FRAME_RATE_30_FPS',
-  '29.97' : 'FRAME_RATE_29_DOT_970_FPS',
+  '30': 'FRAME_RATE_30_FPS',
+  '29.97': 'FRAME_RATE_29_DOT_970_FPS',
 });
 
-type ISOValues = 'AUTO' | '100' | '200' | '400' | '800' | '1600' | '3200' | '6400' | '12800' | '25600' | 'FIXED';
+type ISOValues =
+  | 'AUTO'
+  | '100'
+  | '200'
+  | '400'
+  | '800'
+  | '1600'
+  | '3200'
+  | '6400'
+  | '12800'
+  | '25600'
+  | 'FIXED';
 
 const isoValues = Object.freeze({
   '100': 'ISO_100',
@@ -83,16 +112,30 @@ const isoValues = Object.freeze({
   '6400': 'ISO_6400',
   '12800': 'ISO_12800',
   '25600': 'ISO_25600',
-  'FIXED': 'FIXED',
-  'AUTO': 'AUTO',
+  FIXED: 'FIXED',
+  AUTO: 'AUTO',
 });
 
-type ShutterSpeeds = '1/400' | '1/500' | '1/640' | '1/725' | '1/800' | '1/1000' | '1/1250' | '1/1500' | '1/1600' | '1/2000' | '1/2500' | '1/3000' | '1/3200' | '1/4000';
+type ShutterSpeeds =
+  | '1/400'
+  | '1/500'
+  | '1/640'
+  | '1/725'
+  | '1/800'
+  | '1/1000'
+  | '1/1250'
+  | '1/1500'
+  | '1/1600'
+  | '1/2000'
+  | '1/2500'
+  | '1/3000'
+  | '1/3200'
+  | '1/4000';
 
 const shutterSpeeds = Object.freeze({
   '1/400': 'SHUTTER_SPEED_1_400',
   '1/500': 'SHUTTER_SPEED_1_500',
-  '1/640' : 'SHUTTER_SPEED_1_640',
+  '1/640': 'SHUTTER_SPEED_1_640',
   '1/725': 'SHUTTER_SPEED_1_725',
   '1/800': 'SHUTTER_SPEED_1_800',
   '1/1000': 'SHUTTER_SPEED_1_1000',
@@ -106,41 +149,78 @@ const shutterSpeeds = Object.freeze({
   '1/4000': 'SHUTTER_SPEED_1_4000',
 });
 
-type CameraModes = 'shootPhoto' | 'recordVideo' | 'playback' | 'mediaDownload' | 'broadcast' | 'unknown';
+type CameraModes =
+  | 'shootPhoto'
+  | 'recordVideo'
+  | 'playback'
+  | 'mediaDownload'
+  | 'broadcast'
+  | 'unknown';
 
 const cameraModes = Object.freeze({
-  'shootPhoto': 'SHOOT_PHOTO',
-  'recordVideo': 'RECORD_VIDEO',
-  'playback': 'PLAYBACK',
-  'mediaDownload': 'MEDIA_DOWNLOAD',
-  'broadcast': 'BROADCAST',
-  'unknown': 'UNKNOWN',
+  shootPhoto: 'SHOOT_PHOTO',
+  recordVideo: 'RECORD_VIDEO',
+  playback: 'PLAYBACK',
+  mediaDownload: 'MEDIA_DOWNLOAD',
+  broadcast: 'BROADCAST',
+  unknown: 'UNKNOWN',
 });
 
-type CameraColors = 'DLOG' | 'DCINELIKE'
+type CameraColors = 'DLOG' | 'DCINELIKE';
 
 const cameraColors = Object.freeze({
-  'DLog': 'D_LOG',
-  'DCinelike': 'D_CINELIKE'
+  DLog: 'D_LOG',
+  DCinelike: 'D_CINELIKE',
 });
 
-type FocusModes = 'manual' | 'auto' | 'afc'
+type FocusModes = 'manual' | 'auto' | 'afc';
 
 const focusModes = Object.freeze({
-  'manual': 'MANUAL',
-  'auto': 'AUTO',
-  'afc': 'AFC',
+  manual: 'MANUAL',
+  auto: 'AUTO',
+  afc: 'AFC',
 });
 
-type VideoStandard = 'pal' | 'ntsc' | 'unknown'
+type VideoStandard = 'pal' | 'ntsc' | 'unknown';
 
 const videoStandards = Object.freeze({
-  'pal': 'PAL',
-  'ntsc': 'NTSC',
-  'unknown': 'UNKNOWN',
+  pal: 'PAL',
+  ntsc: 'NTSC',
+  unknown: 'UNKNOWN',
 });
 
-type ExposureCompensationValues = '-5.0' | '-4.7' | '-4.3' | '-4.0' | '-3.7' | '-3.3' | '-3.0' | '-2.7' | '-2.3' | '-2.0' | '-1.7' | '-1.3' | '-1.0' | '-0.7' | '-0.3' | '0.0' | '0.3' | '0.7' | '1.0' | '1.3' | '1.7' | '2.0' | '2.3' | '2.7' | '3.0' | '3.3' | '3.7' | '4.0' | '5.0' | 'FIXED'
+type ExposureCompensationValues =
+  | '-5.0'
+  | '-4.7'
+  | '-4.3'
+  | '-4.0'
+  | '-3.7'
+  | '-3.3'
+  | '-3.0'
+  | '-2.7'
+  | '-2.3'
+  | '-2.0'
+  | '-1.7'
+  | '-1.3'
+  | '-1.0'
+  | '-0.7'
+  | '-0.3'
+  | '0.0'
+  | '0.3'
+  | '0.7'
+  | '1.0'
+  | '1.3'
+  | '1.7'
+  | '2.0'
+  | '2.3'
+  | '2.7'
+  | '3.0'
+  | '3.3'
+  | '3.7'
+  | '4.0'
+  | '5.0'
+  | 'FIXED';
+
 export const exposureCompensationValues = Object.freeze({
   '-5.0': 'N_5_0',
   '-4.7': 'N_4_7',
@@ -157,7 +237,7 @@ export const exposureCompensationValues = Object.freeze({
   '-1.0': 'N_1_0',
   '-0.7': 'N_0_7',
   '-0.3': 'N_0_3',
-  '0.0':  'N_0_0',
+  '0.0': 'N_0_0',
   '0.3': 'P_0_3',
   '0.7': 'P_0_7',
   '1.0': 'P_1_0',
@@ -171,36 +251,46 @@ export const exposureCompensationValues = Object.freeze({
   '3.7': 'P_3_7',
   '4.0': 'P_4_0',
   '5.0': 'P_5_0',
-  'FIXED': 'FIXED'
-})
+  FIXED: 'FIXED',
+});
 
 const CameraControl = {
-
   setPhotoAspectRatio: async (photoAspectRatio: PhotoAspectRatio) => {
-    return await CameraControlNative.setPhotoAspectRatio(photoAspectRatios[photoAspectRatio]);
+    return await CameraControlNative.setPhotoAspectRatio(
+      photoAspectRatios[photoAspectRatio],
+    );
   },
 
   setWhiteBalance: async (parameters: WhiteBalanceParameters) => {
     if (parameters.preset != null) {
       if (!(parameters.preset in whiteBalancePresets)) {
-        throw new Error(`White balance value ${parameters.preset} is not recognised`);
+        throw new Error(
+          `White balance value ${parameters.preset} is not recognised`,
+        );
       }
     } else if (parameters.colorTemperature != null) {
-      if (parameters.colorTemperature < 20 || parameters.colorTemperature > 100) {
-        throw new Error(`White balance value ${parameters.colorTemperature} is outside of range 20 to 100`);
+      if (
+        parameters.colorTemperature < 20 ||
+        parameters.colorTemperature > 100
+      ) {
+        throw new Error(
+          `White balance value ${parameters.colorTemperature} is outside of range 20 to 100`,
+        );
       }
     } else {
-      throw new Error("Cannot set white balance with null values");
+      throw new Error('Cannot set white balance with null values');
     }
     const newParameters = {
-      preset:  whiteBalancePresets[parameters.preset],
+      preset: whiteBalancePresets[parameters.preset],
       colorTemperature: parameters.colorTemperature,
-    }
+    };
     return await CameraControlNative.setWhiteBalance(newParameters);
   },
 
   setExposureMode: async (exposureMode: ExposureMode) => {
-    return await CameraControlNative.setExposureMode(exposureModes[exposureMode]);
+    return await CameraControlNative.setExposureMode(
+      exposureModes[exposureMode],
+    );
   },
 
   startRecording: async () => {
@@ -212,14 +302,26 @@ const CameraControl = {
   },
 
   setVideoFileFormat: async (videoFileFormat: VideoFileFormat) => {
-    return await CameraControlNative.setVideoFileFormat(videoFileFormats[videoFileFormat]);
+    return await CameraControlNative.setVideoFileFormat(
+      videoFileFormats[videoFileFormat],
+    );
   },
 
-  setVideoFileCompressionStandard: async (videoFileCompressionStandard: VideoFileCompressionStandard) => {
-    return await CameraControlNative.setVideoFileCompressionStandard(videoFileCompressionStandards[videoFileCompressionStandard]);
+  setVideoFileCompressionStandard: async (
+    videoFileCompressionStandard: VideoFileCompressionStandard,
+  ) => {
+    return await CameraControlNative.setVideoFileCompressionStandard(
+      videoFileCompressionStandards[videoFileCompressionStandard],
+    );
   },
-  setVideoResolutionAndFrameRate: async (videoResolution: VideoResolutions, videoFrameRate: VideoFrameRates) => {
-    return await CameraControlNative.setVideoResolutionAndFrameRate(videoResolutions[videoResolution], videoFrameRates[videoFrameRate]);
+  setVideoResolutionAndFrameRate: async (
+    videoResolution: VideoResolutions,
+    videoFrameRate: VideoFrameRates,
+  ) => {
+    return await CameraControlNative.setVideoResolutionAndFrameRate(
+      videoResolutions[videoResolution],
+      videoFrameRates[videoFrameRate],
+    );
   },
   getVideoResolutionAndFrameRateRange: async () => {
     return await CameraControlNative.getVideoResolutionAndFrameRateRange();
@@ -231,7 +333,9 @@ const CameraControl = {
     return await CameraControlNative.setISO(isoValues[isoValue]);
   },
   setShutterSpeed: async (shutterSpeed: ShutterSpeeds) => {
-    return await CameraControlNative.setShutterSpeed(shutterSpeeds[shutterSpeed]);
+    return await CameraControlNative.setShutterSpeed(
+      shutterSpeeds[shutterSpeed],
+    );
   },
   setCameraMode: async (cameraMode: CameraModes) => {
     return await CameraControlNative.setCameraMode(cameraModes[cameraMode]);
@@ -258,7 +362,9 @@ const CameraControl = {
     return await CameraControlNative.setFocusTarget(x, y);
   },
   setVideoStandard: async (videoStandard: VideoStandard) => {
-    return await CameraControlNative.setVideoStandard(videoStandards[videoStandard]);
+    return await CameraControlNative.setVideoStandard(
+      videoStandards[videoStandard],
+    );
   },
   getVideoStandard: async () => {
     return await CameraControlNative.getVideoStandard();
@@ -275,18 +381,33 @@ const CameraControl = {
   isRecording: async () => {
     return await CameraControlNative.isRecording();
   },
-  setExposureCompensation: async (exposureCompensationValue: ExposureCompensationValues) => {
-    return await CameraControlNative.setExposureCompensation(exposureCompensationValues[exposureCompensationValue]);
+  setExposureCompensation: async (
+    exposureCompensationValue: ExposureCompensationValues,
+  ) => {
+    return await CameraControlNative.setExposureCompensation(
+      exposureCompensationValues[exposureCompensationValue],
+    );
   },
   getExposureCompensation: async (): Promise<ExposureCompensationValues> => {
-    const djiExposureCompensationValue = await CameraControlNative.getExposureCompensation();
+    const djiExposureCompensationValue =
+      await CameraControlNative.getExposureCompensation();
     // map the DJI exposure value string to a ExposureCompensationValues type
-    return Object.keys(exposureCompensationValues).find(key => exposureCompensationValues[key] === djiExposureCompensationValue) as ExposureCompensationValues;
+    return Object.keys(exposureCompensationValues).find(
+      key => exposureCompensationValues[key] === djiExposureCompensationValue,
+    ) as ExposureCompensationValues;
   },
   getCameraMode: async (): Promise<CameraModes> => {
     const djiCameraMode = await CameraControlNative.getCameraMode();
-    return Object.keys(cameraModes).find(key => cameraModes[key] === djiCameraMode) as CameraModes;
-  }
+    return Object.keys(cameraModes).find(
+      key => cameraModes[key] === djiCameraMode,
+    ) as CameraModes;
+  },
+  setPhotoFileFormat: async (format: PhotoFileFormat) => {
+    return CameraControlNative.setPhotoFileFormat(format);
+  },
+  getWhiteBalancePreset: async (): Promise<WhiteBalancePreset> => {
+    return CameraControlNative.getWhiteBalancePreset();
+  },
 };
 
 export default CameraControl;
