@@ -47,6 +47,7 @@ import dji.common.product.Model;
 import dji.internal.diagnostics.DiagnosticsBaseHandler;
 import dji.keysdk.AirLinkKey;
 import dji.keysdk.BatteryKey;
+import dji.keysdk.CameraKey;
 import dji.keysdk.DJIKey;
 import dji.keysdk.FlightControllerKey;
 import dji.keysdk.KeyManager;
@@ -284,6 +285,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startProductConnectionListener();
           break;
 
+        case CameraConnection:
+          startCameraConnectionListener();
+          break;
+
         case BatteryChargeRemaining:
           startBatteryPercentChargeRemainingListener();
           break;
@@ -386,6 +391,15 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         case CameraWhiteBalance:
           startCameraWhiteBalanceListener();
           break;
+        case CameraPhotoFileFormat:
+          startCameraPhotoFileFormatListener();
+          break;
+        case CameraPhotoAspectRatio:
+          startCameraPhotoAspectRatioListener();
+          break;
+        case CameraExposureMode:
+          startCameraExposureModeListener();
+          break;
         default:
           promise.reject("Invalid Key", "Invalid Key");
           break;
@@ -423,6 +437,27 @@ public class DJIMobile extends ReactContextBaseJavaModule {
         }
       }
     });
+  }
+
+  private void startCameraConnectionListener() {
+    getInitialSDKEventValue(SDKEvent.CameraConnection, new GetCallbackWrapper() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        handleCameraConnectionUpdate(o, true);
+      }
+    });
+    startEventListener(SDKEvent.CameraConnection, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        handleCameraConnectionUpdate(newValue, false);
+      }
+    });
+  }
+
+  private void handleCameraConnectionUpdate(@Nullable Object newValue, final Boolean realtime) {
+    if (newValue != null && newValue instanceof Boolean) {
+      this.eventSender.processEvent(SDKEvent.CameraConnection, (boolean) newValue, realtime);
+    }
   }
 
   private void startBatteryPercentChargeRemainingListener() {
@@ -1084,6 +1119,72 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       WhiteBalance whiteBalance = (WhiteBalance)newValue;
       SettingsDefinitions.WhiteBalancePreset preset = whiteBalance.getWhiteBalancePreset();
       this.eventSender.processEvent(SDKEvent.CameraWhiteBalance, preset.name(), realtime);
+    }
+  }
+
+  private void startCameraPhotoFileFormatListener() {
+    getInitialSDKEventValue(SDKEvent.CameraPhotoFileFormat, new GetCallbackWrapper() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        handleCameraPhotoFileFormatUpdate(o, true);
+      }
+    });
+    startEventListener(SDKEvent.CameraPhotoFileFormat, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        handleCameraPhotoFileFormatUpdate(newValue, false);
+      }
+    });
+  }
+
+  private void handleCameraPhotoFileFormatUpdate(@Nullable Object newValue, Boolean realtime) {
+    if (newValue != null && newValue instanceof SettingsDefinitions.PhotoFileFormat) {
+      SettingsDefinitions.PhotoFileFormat format = (SettingsDefinitions.PhotoFileFormat)newValue;
+      this.eventSender.processEvent(SDKEvent.CameraPhotoFileFormat, format.name(), realtime);
+    }
+  }
+
+  private void startCameraPhotoAspectRatioListener() {
+    getInitialSDKEventValue(SDKEvent.CameraPhotoAspectRatio, new GetCallbackWrapper() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        handleCameraPhotoAspectRatioUpdate(o, true);
+      }
+    });
+    startEventListener(SDKEvent.CameraPhotoAspectRatio, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        handleCameraPhotoAspectRatioUpdate(newValue, false);
+      }
+    });
+  }
+
+  private void handleCameraPhotoAspectRatioUpdate(@Nullable Object newValue, Boolean realtime) {
+    if (newValue != null && newValue instanceof SettingsDefinitions.PhotoAspectRatio) {
+      SettingsDefinitions.PhotoAspectRatio format = (SettingsDefinitions.PhotoAspectRatio)newValue;
+      this.eventSender.processEvent(SDKEvent.CameraPhotoAspectRatio, format.name(), realtime);
+    }
+  }
+
+  private void startCameraExposureModeListener() {
+    getInitialSDKEventValue(SDKEvent.CameraExposureMode, new GetCallbackWrapper() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        handleCameraExposureModeUpdate(o, true);
+      }
+    });
+    startEventListener(SDKEvent.CameraExposureMode, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        handleCameraExposureModeUpdate(newValue, false);
+      }
+    });
+  }
+
+  private void handleCameraExposureModeUpdate(@Nullable Object newValue, Boolean realtime) {
+    if (newValue != null && newValue instanceof SettingsDefinitions.ExposureMode) {
+      SettingsDefinitions.ExposureMode format = (SettingsDefinitions.ExposureMode)newValue;
+      this.eventSender.processEvent(SDKEvent.CameraExposureMode, format.name(), realtime);
     }
   }
 

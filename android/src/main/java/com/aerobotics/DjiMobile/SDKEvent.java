@@ -9,6 +9,7 @@ import dji.keysdk.ProductKey;
 
 public enum SDKEvent {
   ProductConnection(ProductKey.create(ProductKey.CONNECTION), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraConnection(CameraKey.create(CameraKey.CONNECTION), EventType.DJI_KEY_MANAGER_EVENT),
   BatteryChargeRemaining(BatteryKey.create(BatteryKey.CHARGE_REMAINING_IN_PERCENT), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftCompassHeading(FlightControllerKey.create(FlightControllerKey.COMPASS_HEADING), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftLocation(FlightControllerKey.create(FlightControllerKey.AIRCRAFT_LOCATION), EventType.DJI_KEY_MANAGER_EVENT),
@@ -58,6 +59,9 @@ public enum SDKEvent {
   CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
   CameraExposureSettings(CameraKey.create(CameraKey.EXPOSURE_SETTINGS), EventType.DJI_KEY_MANAGER_EVENT),
   CameraWhiteBalance(CameraKey.create(CameraKey.WHITE_BALANCE), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraPhotoFileFormat(CameraKey.create(CameraKey.PHOTO_FILE_FORMAT), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraPhotoAspectRatio(CameraKey.create(CameraKey.PHOTO_ASPECT_RATIO), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraExposureMode(CameraKey.create(CameraKey.EXPOSURE_MODE), EventType.DJI_KEY_MANAGER_EVENT),
 
   GimbalIsAtYawStop(GimbalKey.create(GimbalKey.IS_YAW_AT_STOP), EventType.DJI_KEY_MANAGER_EVENT),
 

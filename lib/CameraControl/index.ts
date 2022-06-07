@@ -1,16 +1,21 @@
 import { NativeModules } from 'react-native';
 
-import { PhotoFileFormat } from './types';
+import { PhotoFileFormat, DjiPhotoAspectRatio, PhotoAspectRatio } from './types';
+import { swapKeysAndValues } from '../utilities/swapKeysAndValues'
 
 const { CameraControlNative } = NativeModules;
 
-type PhotoAspectRatio = '4_3' | '16_9' | '3_2';
-
-const photoAspectRatios = Object.freeze({
-  '4_3': 'RATIO_4_3',
-  '16_9': 'RATIO_16_9',
-  '3_2': 'RATIO_3_2',
+export const photoAspectRatios: Record<PhotoAspectRatio, DjiPhotoAspectRatio> = Object.freeze({
+  '4:3': 'RATIO_4_3',
+  '16:9': 'RATIO_16_9',
+  '3:2': 'RATIO_3_2',
+  '1:1': 'RATIO_1_1',
+  '18:9': 'RATIO_18_9',
+  '5:4': 'RATIO_5_4',
+  'Unknown': 'UNKNOWN',
 });
+
+export const photoAspectRatioLookup= swapKeysAndValues(photoAspectRatios) as Record<DjiPhotoAspectRatio, PhotoAspectRatio>;
 
 export type WhiteBalanceParameters = {
   preset?:
@@ -39,7 +44,7 @@ const whiteBalancePresets = Object.freeze({
 });
 
 type WhiteBalancePresetKeys = keyof typeof whiteBalancePresets;
-type WhiteBalancePreset = typeof whiteBalancePresets[WhiteBalancePresetKeys];
+export type WhiteBalancePreset = typeof whiteBalancePresets[WhiteBalancePresetKeys];
 
 type ExposureMode =
   | 'program'
@@ -52,6 +57,15 @@ const exposureModes = Object.freeze({
   shutterPriority: 'SHUTTER_PRIORITY',
   aperturePriority: 'APERTURE_PRIORITY',
   manual: 'MANUAL',
+});
+
+export const readableExposureModes = Object.freeze({
+  PROGRAM: "Auto",
+  SHUTTER_PRIORITY: "Shutter priority",
+  APERTURE_PRIORITY: "Aperture priority",
+  MANUAL: "Manual",
+  CINE: "Cine",
+  UNKNOWN: "Unknown",
 });
 
 type VideoFileFormat = 'mov' | 'mp4' | 'tiffSequence' | 'seq';
