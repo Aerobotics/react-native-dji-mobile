@@ -71,17 +71,17 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getWhiteBalance(final Promise promise) {
+    public void getWhiteBalancePreset(final Promise promise) {
         DJIKey whiteBalanceKey = CameraKey.create(CameraKey.WHITE_BALANCE);
         DJISDKManager.getInstance().getKeyManager().getValue(whiteBalanceKey, new GetCallback() {
             @Override
             public void onSuccess(@NonNull Object value) {
-                if (value instanceof SettingsDefinitions.WhiteBalancePreset) {
-                    promise.resolve(value.toString());
+                if (!(value instanceof WhiteBalance)) {
+                    promise.reject(new Throwable("getWhiteBalance error: Unexpected whitebalance returned"));
                 }
-                if (value instanceof Integer) {
-                    promise.resolve(value);
-                }
+
+                WhiteBalance whiteBalance = (WhiteBalance) value;
+                promise.resolve(whiteBalance.getWhiteBalancePreset().toString());
             }
 
             @Override
@@ -629,6 +629,24 @@ public class CameraControlNative extends ReactContextBaseJavaModule {
                     @Override
                     public void onFailure(DJIError djiError) {
                         promise.reject(new Throwable("getCameraMode error: " + djiError.getDescription()));
+                    }
+                });
+    }
+
+    @ReactMethod
+    public void setPhotoFileFormat(String format, final Promise promise) {
+        DJIKey key = CameraKey.create(CameraKey.PHOTO_FILE_FORMAT);
+        DJISDKManager.getInstance().getKeyManager().setValue(key,
+                SettingsDefinitions.PhotoFileFormat.valueOf((format)),
+                new SetCallback() {
+                    @Override
+                    public void onSuccess() {
+                        promise.resolve("setPhotoFileFormat: photo file format set successfully");
+                    }
+
+                    @Override
+                    public void onFailure(DJIError djiError) {
+                        promise.reject(new Throwable("setPhotoFileFormat error: " + djiError.getDescription()));
                     }
                 });
     }

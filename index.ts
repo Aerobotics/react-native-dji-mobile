@@ -12,7 +12,7 @@ import {
 
 import DJIMissionControl from './lib/DJIMissionControl';
 
-import CameraControl from './lib/CameraControl';
+import CameraControl, { photoAspectRatioLookup, readableExposureModes  } from './lib/CameraControl';
 
 import DJIMediaControl from './lib/DJIMedia';
 
@@ -29,10 +29,11 @@ import {
 } from './lib/utilities/parseExposureSettings';
 import { Observable } from 'rxjs';
 import { Attitude, LocationCoordinate3D, VelocityVector, HomeLocationCoordinate3D, FlightLogListenerEvent, MediaFileData, DJIDiagnostic, IMUState, WhiteBalancePresets, CameraExposureSettings, RemoteControllerFlightMode, AircraftFlightMode } from './types';
+import { PhotoFileFormat, PhotoAspectRatio, DjiExposureModes, DjiPhotoAspectRatio } from './lib/CameraControl/types';
 
-const startListener = <T>(eventName: string): () => Promise<Observable<T>> => async () => {
+const startListener = <T>(eventName: string) => async () => {
   await DJIMobile.startEventListener(eventName);
-  return observeEvent(eventName);
+  return observeEvent<T>(eventName);
 };
 
 const stopListener = (eventName: string) => async () => {
@@ -96,6 +97,10 @@ const DJIMobileWrapper = {
   startProductConnectionListener: startListener<string>(DJIMobile.ProductConnection),
   stopProductConnectionListener: stopListener(DJIMobile.ProductConnection),
   observeProductionConnection: observeEvent<string>(DJIMobile.ProductConnection),
+
+  startCameraConnectionListener: startListener<boolean>(DJIMobile.CameraConnection),
+  stopCameraConnectionListener: stopListener(DJIMobile.CameraConnection),
+  observeCameraConnection: observeEvent<boolean>(DJIMobile.CameraConnection),
 
   startBatteryPercentChargeRemainingListener: startListener<number>(DJIMobile.BatteryChargeRemaining),
   stopBatteryPercentChargeRemainingListener: stopListener(DJIMobile.BatteryChargeRemaining),
@@ -164,6 +169,20 @@ const DJIMobileWrapper = {
   startCameraWhiteBalanceListener: startListener<WhiteBalancePresets>(DJIMobile.CameraWhiteBalance),
   stopCameraWhiteBalanceListener: stopListener(DJIMobile.CameraWhiteBalance),
   observeCameraWhiteBalance: observeEvent<WhiteBalancePresets>(DJIMobile.CameraWhiteBalance),
+
+  startPhotoFileFormatListener: startListener<PhotoFileFormat>(DJIMobile.CameraPhotoFileFormat),
+  stopPhotoFileFormatListener: stopListener(DJIMobile.CameraPhotoFileFormat),
+  observePhotoFileFormat: observeEvent<PhotoFileFormat>(DJIMobile.CameraPhotoFileFormat),
+
+  // FIXME: this start listener function will actually return a DjiPhotoAspectRatio
+  startPhotoAspectRatioListener: startListener<PhotoAspectRatio>(DJIMobile.CameraPhotoAspectRatio),
+  stopPhotoAspectRatioListener: stopListener(DJIMobile.CameraPhotoAspectRatio),
+  observePhotoAspectRatio: observeEvent<DjiPhotoAspectRatio>(DJIMobile.CameraPhotoAspectRatio)
+    .pipe($map(ratio => photoAspectRatioLookup[ratio])),
+
+  startCameraExposureModeListener: startListener<DjiExposureModes>(DJIMobile.CameraExposureMode),
+  stopCameraExposureModeListener: stopListener(DJIMobile.CameraExposureMode),
+  observeCameraExposureMode: observeEvent<DjiExposureModes>(DJIMobile.CameraExposureMode),
 
   startGimbalIsAtYawStopListener: startListener(DJIMobile.GimbalIsAtYawStop),
   stopGimbalIsAtYawStopListener: stopListener(DJIMobile.GimbalIsAtYawStop),
@@ -320,4 +339,9 @@ export {
   DJIGimbal,
 };
 
+export {
+  readableExposureModes,
+}
+
 export * from './types'
+export * from './lib/CameraControl/types'
