@@ -341,6 +341,22 @@ public class DJIMissionControlWrapper extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void cancelGoHome(final Promise promise) {
+    DJIKey key = FlightControllerKey.create(FlightControllerKey.CANCEL_GO_HOME);
+    DJISDKManager.getInstance().getKeyManager().performAction(key, new ActionCallback() {
+      @Override
+      public void onSuccess() {
+        promise.resolve("DJI Mission Control: Cancel go home");
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable("cancelGoHome error: " + djiError.getDescription()));
+      }
+    });
+  }
+
+  @ReactMethod
   public void unscheduleEverything(Promise promise) {
     DJISDKManager.getInstance().getMissionControl().unscheduleEverything();
     promise.resolve("DJI Mission Control: Unschedule Everything");

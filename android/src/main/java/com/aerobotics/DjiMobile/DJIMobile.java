@@ -341,6 +341,10 @@ public class DJIMobile extends ReactContextBaseJavaModule {
           startAircraftFlightModeListener();
           break;
 
+        case AircraftIsFlying:
+          startAircraftIsFlyingListener();
+          break;
+
         case CompassHasError:
           startCompassHasErrorListener();
           break;
@@ -1028,6 +1032,31 @@ public class DJIMobile extends ReactContextBaseJavaModule {
       this.eventSender.processEvent(
               SDKEvent.AircraftFlightMode,
               ((FlightMode)newValue).name(),
+              realtime
+      );
+    }
+  }
+
+  private void startAircraftIsFlyingListener() {
+    getInitialSDKEventValue(SDKEvent.AircraftIsFlying, new GetCallbackWrapper() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        handleIsFlyingUpdate(o, true);
+      }
+    });
+    startEventListener(SDKEvent.AircraftIsFlying, new EventListener() {
+      @Override
+      public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
+        handleIsFlyingUpdate(newValue, false);
+      }
+    });
+  }
+
+  private void handleIsFlyingUpdate(@Nullable Object newValue, Boolean realtime) {
+    if (newValue != null && newValue instanceof Boolean) {
+      this.eventSender.processEvent(
+              SDKEvent.AircraftIsFlying,
+              newValue,
               realtime
       );
     }

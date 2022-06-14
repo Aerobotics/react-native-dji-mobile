@@ -230,6 +230,10 @@ const DJIMissionControl = {
     await DJIMissionControlWrapper.startGoHome();
   },
 
+  cancelGoHome: async () => {
+    await DJIMissionControlWrapper.cancelGoHome();
+  },
+
   startTimelineListener: async () => {
     await DJIMissionControlWrapper.startTimelineListener();
     // TODO: (Adam) need to change eventType (int value) to a readable string value

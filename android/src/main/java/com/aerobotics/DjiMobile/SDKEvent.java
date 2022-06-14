@@ -41,6 +41,7 @@ public enum SDKEvent {
   AircraftUltrasonicHeight(FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS), EventType.DJI_KEY_MANAGER_EVENT),
   CompassHasError(FlightControllerKey.create(FlightControllerKey.COMPASS_HAS_ERROR), EventType.DJI_KEY_MANAGER_EVENT),
   IMUSensorState(FlightControllerKey.create(FlightControllerKey.IMU_STATE), EventType.DJI_KEY_MANAGER_EVENT),
+  AircraftIsFlying(FlightControllerKey.create(FlightControllerKey.IS_FLYING), EventType.DJI_KEY_MANAGER_EVENT),
 
   LandingProtectionEnabled(FlightControllerKey.create(FlightControllerKey.LANDING_PROTECTION_ENABLED), EventType.DJI_KEY_MANAGER_EVENT),
   VisionAssistedPositioningEnabled(FlightControllerKey.create(FlightControllerKey.VISION_ASSISTED_POSITIONING_ENABLED), EventType.DJI_KEY_MANAGER_EVENT),
