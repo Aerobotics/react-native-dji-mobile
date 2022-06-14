@@ -216,6 +216,10 @@ const DJIMobileWrapper = {
   stopAircraftFlightModeListener: stopListener(DJIMobile.AircraftFlightMode),
   observeAircraftFlightMode: observeEvent<AircraftFlightMode>(DJIMobile.AircraftFlightMode),
 
+  startAircraftIsFlyingListener: startListener<boolean>(DJIMobile.AircraftIsFlying),
+  stopAircraftIsFlyingListener: stopListener(DJIMobile.AircraftIsFlying),
+  observeAircraftIsFlying: observeEvent<boolean>(DJIMobile.AircraftIsFlying),
+
   startDiagnosticsListener: async () => {
     await DJIMobile.resetPreviousDiagnostics();
     return observeEvent<DJIDiagnostic[]>('DJIDiagnostics');
