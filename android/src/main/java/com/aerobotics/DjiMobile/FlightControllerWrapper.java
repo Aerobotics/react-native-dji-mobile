@@ -1,7 +1,6 @@
 package com.aerobotics.DjiMobile;
 
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -109,7 +108,6 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
       @Override
       public void onUploadUpdate(@NonNull WaypointMissionUploadEvent event) {
-        Log.d("REACT", "onUploadUpdate: Uh oh, I'm the V1 Mission update!");
         handlePossibleErrorUpdate(event.getError());
 
         if (event.getProgress() != null) {
@@ -125,7 +123,6 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
 
       @Override
       public void onExecutionUpdate(@NonNull WaypointMissionExecutionEvent event) {
-        Log.d("REACT", "onExecutionUpdate: Uh oh, I'm the V1 Mission update!");
         handlePossibleErrorUpdate(event.getError());
         sendWaypointMissionExecutionUpdate(event.getProgress());
         /*

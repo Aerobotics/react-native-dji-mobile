@@ -15,7 +15,6 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -106,9 +105,7 @@ public class WaypointMissionV2Wrapper extends ReactContextBaseJavaModule {
     }
 
     public void startListenersOnProductConnection() {
-        Log.d("REACT", "startListenersOnProductConnection!");
         if (startListenersOnProductConnection) {
-            Log.d("REACT", "startListenersOnProductConnection true!");
             setWaypointMissionOperatorListener();
             setWaypointActionListener();
         }
@@ -136,7 +133,7 @@ public class WaypointMissionV2Wrapper extends ReactContextBaseJavaModule {
                         // Since action state updates and mission state updates are merged, use the "action"
                         // state update to send the READY_TO_EXECUTE message
                         if (event.getCurrentState().equals(WaypointV2MissionState.READY_TO_EXECUTE)) {
-                            Log.i("REACT", "Current state is READY_TO_EXECUTE, ignoring");
+                            Log.i("REACT", "Current mission state is READY_TO_EXECUTE, waiting for action state to be ready");
                             return;
                         }
                         /*
@@ -152,9 +149,6 @@ public class WaypointMissionV2Wrapper extends ReactContextBaseJavaModule {
                 @Override
                 public void onExecutionUpdate(@NonNull WaypointV2MissionExecutionEvent event) {
                     try {
-                        Log.i("REACT", "onExecutionUpdate: " + event.getCurrentState().name());
-                        Log.i("REACT", "onExecutionUpdate2: " + getWaypointMissionOperator().getCurrentState().name());
-
                         handlePossibleErrorUpdate(event.getError());
                         sendWaypointMissionExecutionUpdate(event.getProgress());
                         /*
@@ -179,7 +173,6 @@ public class WaypointMissionV2Wrapper extends ReactContextBaseJavaModule {
                 @Override
                 public void onExecutionFinish(@Nullable DJIWaypointV2Error error) {
                     try {
-                        Log.i("REACT", "onExecutionFinish2: " + getWaypointMissionOperator().getCurrentState().name());
                         handlePossibleErrorUpdate(error);
                         if (enableWaypointExecutionFinishListener) {
                             eventSender.processEvent(SDKEvent.WaypointMissionFinished, true, true);
@@ -203,12 +196,10 @@ public class WaypointMissionV2Wrapper extends ReactContextBaseJavaModule {
     }
 
     private void setWaypointActionListener() {
-        Log.d("REACT", "setWaypointActionListener");
         try {
             if (waypointActionListener != null) {
                 return;
             }
-            Log.d("REACT", "setWaypointActionListener start...");
             waypointActionListener = new WaypointV2ActionListener() {
                 @Override
                 public void onDownloadUpdate(@NonNull ActionDownloadEvent event) {
@@ -216,7 +207,6 @@ public class WaypointMissionV2Wrapper extends ReactContextBaseJavaModule {
 
                 @Override
                 public void onUploadUpdate(@NonNull ActionUploadEvent event) {
-                    Log.d("REACT", "onUploadUpdate: event " + event.getCurrentState().name());
                     try {
                         handlePossibleErrorUpdate(event.getError());
                         if (event.getCurrentState().equals(ActionState.READY_TO_UPLOAD)) {
@@ -230,7 +220,7 @@ public class WaypointMissionV2Wrapper extends ReactContextBaseJavaModule {
                             sendWaypointMissionActionUploadUpdate(event.getProgress());
                         }
                         if (event.getPreviousState() == ActionState.UPLOADING && event.getCurrentState() == ActionState.READY_TO_EXECUTE) {
-                            Log.i("REACT", "Action state is READY_TO_EXECUTE, sending!");
+                            Log.i("REACT", "Action state is READY_TO_EXECUTE, sending mission READY_TO_EXECUTE!");
                             sendWaypointMissionStateUpdate(WaypointV2MissionState.READY_TO_EXECUTE);
                         }
                         /*
@@ -335,7 +325,6 @@ public class WaypointMissionV2Wrapper extends ReactContextBaseJavaModule {
     }
 
     private void uploadWaypointActions() throws Exception {
-        Log.d("REACT", "Uploading actions...");
         getWaypointMissionOperator().uploadWaypointActions(waypointActionsList, new CommonCallbacks.CompletionCallback<DJIWaypointV2Error>() {
             @Override
             public void onResult(DJIWaypointV2Error error) {
@@ -420,15 +409,13 @@ public class WaypointMissionV2Wrapper extends ReactContextBaseJavaModule {
             progressMap.putBoolean("isWaypointReached", progress.isWaypointReached());
             progressMap.putString("executeState", progress.getExecuteState().name());
 
-            Log.i("REACT", "Progress: " + progress.toString());
-
             try {
                 WaypointV2Mission waypointMission = getWaypointMissionOperator().getLoadedMission();
                 if (waypointMission != null) {
                     progressMap.putInt("totalWaypointCount", waypointMission.getWaypointCount());
                 }
             } catch (Exception exception) {
-                Log.w("React", "sendWaypointMissionExecutionUpdate: " + exception.getMessage());
+                Log.w("REACT", "sendWaypointMissionExecutionUpdate: " + exception.getMessage());
             }
 
             eventSender.processEvent(SDKEvent.WaypointMissionExecutionProgress, progressMap, true);
@@ -516,7 +503,6 @@ public class WaypointMissionV2Wrapper extends ReactContextBaseJavaModule {
             keyManager.getValue(productConnectedKey, new GetCallback() {
                 @Override
                 public void onSuccess(@NonNull Object o) {
-                    Log.d("REACT", "startProductConnectionListener onSuccess!");
                     if (o instanceof Boolean && (Boolean) o) {
                         Boolean isProductConnected = (Boolean) o;
                         if (isProductConnected) {
@@ -533,7 +519,6 @@ public class WaypointMissionV2Wrapper extends ReactContextBaseJavaModule {
         DJISDKManager.getInstance().getKeyManager().addListener((DJIKey) SDKEvent.ProductConnection.getKey(), new KeyListener() {
             @Override
             public void onValueChange(@Nullable Object oldValue, @Nullable Object newValue) {
-                Log.d("REACT", "startProductConnectionListener onValueChange!");
                 if (newValue != null && newValue instanceof Boolean) {
                     Boolean isProductConnected = (Boolean) newValue;
                     if (isProductConnected) {
