@@ -1,5 +1,6 @@
 package com.aerobotics.DjiMobile;
 
+import com.aerobotics.DjiMobile.WaypointMissionV2.WaypointMissionV2Wrapper;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -1370,7 +1371,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     promise.resolve(null);
   }
 
-  private void startEventListener(SDKEvent SDKEvent, EventListener eventListener) {
+  public void startEventListener(SDKEvent SDKEvent, EventListener eventListener) {
 
     Object existingEventListener = eventListeners.get(SDKEvent);
     if (sdkEventHandler == null) {

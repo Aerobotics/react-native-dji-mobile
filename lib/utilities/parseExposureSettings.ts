@@ -1,9 +1,22 @@
-import { CameraExposureSettings } from '../../types'
-import { exposureCompensationValues } from '../CameraControl'
+import { CameraExposureSettings } from '../../types';
+import {
+  ExposureCompensationValues,
+  exposureCompensationValues,
+} from '../CameraControl';
 
-export const parseExposureSettings = (value: CameraExposureSettings) => {
+export const parseExposureSettings = (settings: CameraExposureSettings) => {
+  const newExposureValueString = Object.keys(exposureCompensationValues).find(
+    key =>
+      exposureCompensationValues[key as ExposureCompensationValues] ===
+      `${settings.exposureValue}`,
+  );
+  const exposureValue =
+    newExposureValueString == null
+      ? undefined
+      : parseFloat(newExposureValueString);
+
   return {
-    ...value,
-    exposureValue: parseFloat(Object.keys(exposureCompensationValues).find(key => exposureCompensationValues[key] === value.exposureValue)),
-  }
-}
+    ...settings,
+    exposureValue,
+  };
+};

@@ -1,37 +1,46 @@
 import { NativeModules } from 'react-native';
 
-import { PhotoFileFormat, DjiPhotoAspectRatio, PhotoAspectRatio } from './types';
-import { swapKeysAndValues } from '../utilities/swapKeysAndValues'
+import {
+  PhotoFileFormat,
+  DjiPhotoAspectRatio,
+  PhotoAspectRatio,
+} from './types';
+import { swapKeysAndValues } from '../utilities/swapKeysAndValues';
 
 const { CameraControlNative } = NativeModules;
 
-export const photoAspectRatios: Record<PhotoAspectRatio, DjiPhotoAspectRatio> = Object.freeze({
-  '4:3': 'RATIO_4_3',
-  '16:9': 'RATIO_16_9',
-  '3:2': 'RATIO_3_2',
-  '1:1': 'RATIO_1_1',
-  '18:9': 'RATIO_18_9',
-  '5:4': 'RATIO_5_4',
-  'Unknown': 'UNKNOWN',
-});
+export const photoAspectRatios: Record<PhotoAspectRatio, DjiPhotoAspectRatio> =
+  Object.freeze({
+    '4:3': 'RATIO_4_3',
+    '16:9': 'RATIO_16_9',
+    '3:2': 'RATIO_3_2',
+    '1:1': 'RATIO_1_1',
+    '18:9': 'RATIO_18_9',
+    '5:4': 'RATIO_5_4',
+    Unknown: 'UNKNOWN',
+  });
 
-export const photoAspectRatioLookup= swapKeysAndValues(photoAspectRatios) as Record<DjiPhotoAspectRatio, PhotoAspectRatio>;
+export const photoAspectRatioLookup = swapKeysAndValues(
+  photoAspectRatios,
+) as Record<DjiPhotoAspectRatio, PhotoAspectRatio>;
 
-export type WhiteBalanceParameters = {
-  preset?:
-    | 'auto'
-    | 'sunny'
-    | 'cloudy'
-    | 'waterSurface'
-    | 'indoorIncandescent'
-    | 'indoorFluorescent'
-    | 'custom'
-    | 'presetNeutral'
-    | 'unknown';
+type WBPreset =
+  | 'auto'
+  | 'sunny'
+  | 'cloudy'
+  | 'waterSurface'
+  | 'indoorIncandescent'
+  | 'indoorFluorescent'
+  | 'custom'
+  | 'presetNeutral'
+  | 'unknown';
+
+export interface WhiteBalanceParameters {
+  preset?: WBPreset;
   colorTemperature?: number; // in range [20, 100]
-};
+}
 
-const whiteBalancePresets = Object.freeze({
+const whiteBalancePresets: Record<WBPreset, string> = {
   auto: 'AUTO',
   sunny: 'SUNNY',
   cloudy: 'CLOUDY',
@@ -41,10 +50,11 @@ const whiteBalancePresets = Object.freeze({
   custom: 'CUSTOM',
   presetNeutral: 'PRESET_NEUTRAL',
   unknown: 'UNKNOWN',
-});
+} as const;
 
 type WhiteBalancePresetKeys = keyof typeof whiteBalancePresets;
-export type WhiteBalancePreset = typeof whiteBalancePresets[WhiteBalancePresetKeys];
+export type WhiteBalancePreset =
+  typeof whiteBalancePresets[WhiteBalancePresetKeys];
 
 type ExposureMode =
   | 'program'
@@ -60,12 +70,12 @@ const exposureModes = Object.freeze({
 });
 
 export const readableExposureModes = Object.freeze({
-  PROGRAM: "Auto",
-  SHUTTER_PRIORITY: "Shutter priority",
-  APERTURE_PRIORITY: "Aperture priority",
-  MANUAL: "Manual",
-  CINE: "Cine",
-  UNKNOWN: "Unknown",
+  PROGRAM: 'Auto',
+  SHUTTER_PRIORITY: 'Shutter priority',
+  APERTURE_PRIORITY: 'Aperture priority',
+  MANUAL: 'Manual',
+  CINE: 'Cine',
+  UNKNOWN: 'Unknown',
 });
 
 type VideoFileFormat = 'mov' | 'mp4' | 'tiffSequence' | 'seq';
@@ -171,21 +181,21 @@ type CameraModes =
   | 'broadcast'
   | 'unknown';
 
-const cameraModes = Object.freeze({
+const cameraModes: Record<CameraModes, string> = {
   shootPhoto: 'SHOOT_PHOTO',
   recordVideo: 'RECORD_VIDEO',
   playback: 'PLAYBACK',
   mediaDownload: 'MEDIA_DOWNLOAD',
   broadcast: 'BROADCAST',
   unknown: 'UNKNOWN',
-});
+} as const;
 
-type CameraColors = 'DLOG' | 'DCINELIKE';
+type CameraColors = 'DLog' | 'DCinelike';
 
-const cameraColors = Object.freeze({
+const cameraColors = {
   DLog: 'D_LOG',
   DCinelike: 'D_CINELIKE',
-});
+} as const;
 
 type FocusModes = 'manual' | 'auto' | 'afc';
 
@@ -203,7 +213,7 @@ const videoStandards = Object.freeze({
   unknown: 'UNKNOWN',
 });
 
-type ExposureCompensationValues =
+export type ExposureCompensationValues =
   | '-5.0'
   | '-4.7'
   | '-4.3'
@@ -235,7 +245,10 @@ type ExposureCompensationValues =
   | '5.0'
   | 'FIXED';
 
-export const exposureCompensationValues = Object.freeze({
+export const exposureCompensationValues: Record<
+  ExposureCompensationValues,
+  string
+> = {
   '-5.0': 'N_5_0',
   '-4.7': 'N_4_7',
   '-4.3': 'N_4_3',
@@ -266,7 +279,7 @@ export const exposureCompensationValues = Object.freeze({
   '4.0': 'P_4_0',
   '5.0': 'P_5_0',
   FIXED: 'FIXED',
-});
+} as const;
 
 const CameraControl = {
   setPhotoAspectRatio: async (photoAspectRatio: PhotoAspectRatio) => {
@@ -295,7 +308,10 @@ const CameraControl = {
       throw new Error('Cannot set white balance with null values');
     }
     const newParameters = {
-      preset: whiteBalancePresets[parameters.preset],
+      preset:
+        parameters.preset != null
+          ? whiteBalancePresets[parameters.preset]
+          : undefined,
       colorTemperature: parameters.colorTemperature,
     };
     return await CameraControlNative.setWhiteBalance(newParameters);
@@ -407,13 +423,15 @@ const CameraControl = {
       await CameraControlNative.getExposureCompensation();
     // map the DJI exposure value string to a ExposureCompensationValues type
     return Object.keys(exposureCompensationValues).find(
-      key => exposureCompensationValues[key] === djiExposureCompensationValue,
+      key =>
+        exposureCompensationValues[key as ExposureCompensationValues] ===
+        djiExposureCompensationValue,
     ) as ExposureCompensationValues;
   },
   getCameraMode: async (): Promise<CameraModes> => {
     const djiCameraMode = await CameraControlNative.getCameraMode();
     return Object.keys(cameraModes).find(
-      key => cameraModes[key] === djiCameraMode,
+      key => cameraModes[key as CameraModes] === djiCameraMode,
     ) as CameraModes;
   },
   setPhotoFileFormat: async (format: PhotoFileFormat) => {
