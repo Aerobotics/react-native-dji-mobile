@@ -1,59 +1,27 @@
-import {
-  NativeModules,
-} from 'react-native';
+import { NativeModules } from 'react-native';
 
-import {
-  DJIEventSubject, observeEvent,
-} from '../utilities';
+import { DJIEventSubject, observeEvent } from '../utilities';
 
-import {
-  filter as $filter,
-} from 'rxjs/operators';
+import { filter as $filter } from 'rxjs/operators';
 
-const {
-  FlightControllerWrapper,
-} = NativeModules;
-
+import { VirtualStickParameters } from '../DJIMissionControl/DJITimelineElements/VirtualStickTimelineElement';
 import {
-  VirtualStickParameters,
-} from '../DJIMissionControl/DJITimelineElements/VirtualStickTimelineElement';
-import {
-  LocationCoordinate3D,
   WaypointMissionExecutionProgressEvent,
   WaypointMissionState,
-  WaypointMissionUploadEvent
+  WaypointMissionUploadEvent,
 } from '../../types';
 
-type RemoteControllerFlightModes = 'P' | 'A' | 'S' | 'G' | 'M' | 'F' | 'T' | 'UNKNOWN'
-type WaypointMissionHeadingMode = 'AUTO' | 'USING_INITIAL_DIRECTION' | 'CONTROL_BY_REMOTE_CONTROLLER' | 'USING_WAYPOINT_HEADING' | 'TOWARD_POINT_OF_INTEREST'
-type WaypointMissionGotoWaypointMode = 'SAFELY' | 'POINT_TO_POINT'
-type WaypointMissionFlightPathMode = 'NORMAL' | 'CURVED'
-type WaypointMissionFinishedAction = 'NO_ACTION' | 'GO_HOME' | 'AUTO_LAND' | 'GO_FIRST_WAYPOINT' | 'CONTINUE_UNTIL_END'
-type Waypoint = LocationCoordinate3D &
-  {
-    heading?: number,
-    speed?: number,
-    cornerRadiusInMeters?: number
-    actions?: [{
-      actionType: string,
-      actionParam: number,
-    }],
-    shootPhotoDistanceInterval?: number,
-    shootPhotoTimeInterval?: number,
-  }
-interface WaypointMissionParameters {
-  autoFlightSpeed: number,
-  maxFlightSpeed: number,
-  waypoints: Waypoint[],
-  headingMode?: WaypointMissionHeadingMode,
-  heading?: number,
-  goToWaypointMode?: WaypointMissionGotoWaypointMode,
-  flightPathMode?: WaypointMissionFlightPathMode,
-  finishedAction?: WaypointMissionFinishedAction,
-}
+import {
+  RemoteControllerFlightModes,
+  WaypointMissionParameters,
+  WaypointMissionV2Parameters,
+} from './types';
+import { modelSupportsWaypointV2 } from './utils/modelSupportsWaypointV2';
+
+const { FlightControllerWrapper, WaypointMissionV2Wrapper, DJIMobile } =
+  NativeModules;
 
 const DJIFlightController = {
-
   startVirtualStick: async (parameters: VirtualStickParameters) => {
     return FlightControllerWrapper.startVirtualStick(parameters);
   },
@@ -64,47 +32,204 @@ const DJIFlightController = {
   startYawAction: (angle: number, isAbsolute: boolean, timeoutMs: number) => {
     return FlightControllerWrapper.startYawAction(angle, isAbsolute, timeoutMs);
   },
+
   uploadWaypointMission: async (parameters: WaypointMissionParameters) => {
+    const modelName = await DJIMobile.getModelName();
+    if (modelSupportsWaypointV2(modelName)) {
+      throw new Error(
+        `Attempted to start waypoint V1 mission with incompatible drone model ${modelName}`,
+      );
+    }
     return FlightControllerWrapper.uploadWaypointMission(parameters);
   },
+  uploadWaypointV2Mission: async (parameters: WaypointMissionV2Parameters) => {
+    const modelName = await DJIMobile.getModelName();
+    if (!modelSupportsWaypointV2(modelName)) {
+      throw new Error(
+        `Attempted to start waypoint V2 mission with incompatible drone model ${modelName}`,
+      );
+    }
+    return WaypointMissionV2Wrapper.uploadWaypointMission(parameters);
+  },
   startWaypointMission: async () => {
+    const modelName = await DJIMobile.getModelName();
+    if (modelSupportsWaypointV2(modelName)) {
+      return WaypointMissionV2Wrapper.startWaypointMission();
+    }
     return FlightControllerWrapper.startWaypointMission();
   },
   stopWaypointMission: async () => {
+    const modelName = await DJIMobile.getModelName();
+    if (modelSupportsWaypointV2(modelName)) {
+      return WaypointMissionV2Wrapper.stopWaypointMission();
+    }
     return FlightControllerWrapper.stopWaypointMission();
   },
 
+  /**
+   * Waypoint Mission V2
+   *
+   * You should not need to call these V2 methods explicitly since calling
+   * startWaypointMission, etc. should choose the appropriate waypoint mission method
+   */
+  uploadWaypointMissionV2: async (parameters: WaypointMissionParameters) => {
+    return WaypointMissionV2Wrapper.uploadWaypointMission(parameters);
+  },
+  startWaypointMissionV2: async () => {
+    return WaypointMissionV2Wrapper.startWaypointMission();
+  },
+  stopWaypointMissionV2: async () => {
+    return WaypointMissionV2Wrapper.stopWaypointMission();
+  },
+
   startVirtualStickTimelineElementEventListener: async () => {
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'VirtualStickTimelineElementEvent'));
+    return DJIEventSubject.pipe(
+      $filter(evt => evt.type === 'VirtualStickTimelineElementEvent'),
+    );
   },
   stopVirtualStickTimelineElementEventListener: async () => {
     return; // The events are sent automatically when a virtual stick timeline event is running, so no listener needs to be started or stopped
   },
 
+  // Waypoint mission started/stopped listeners
+  // TODO: add to V2 mission if useful
   startWaypointMissionFinishedListener: async () => {
     await FlightControllerWrapper.startWaypointMissionFinishedListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionFinished'));
+    return DJIEventSubject.pipe(
+      $filter(evt => evt.type === 'WaypointMissionFinished'),
+    );
   },
   startWaypointMissionStartedListener: async () => {
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'WaypointMissionStarted'));
+    return DJIEventSubject.pipe(
+      $filter(evt => evt.type === 'WaypointMissionStarted'),
+    );
   },
+
+  // Waypoint mission execution state listeners
   startWaypointExecutionUpdateListener: async () => {
-    await FlightControllerWrapper.startWaypointExecutionUpdateListener();
-    return observeEvent<WaypointMissionExecutionProgressEvent>('WaypointMissionExecutionProgress');
+    const modelName = await DJIMobile.getModelName();
+    if (modelSupportsWaypointV2(modelName)) {
+      await WaypointMissionV2Wrapper.startWaypointExecutionUpdateListener();
+    } else {
+      await FlightControllerWrapper.startWaypointExecutionUpdateListener();
+    }
+    return observeEvent<WaypointMissionExecutionProgressEvent>(
+      'WaypointMissionExecutionProgress',
+    );
   },
-  observeWaypointExecutionUpdate: observeEvent<WaypointMissionExecutionProgressEvent>('WaypointMissionExecutionProgress'),
+  startWaypointV1ExecutionUpdateListener: async () => {
+    await FlightControllerWrapper.startWaypointExecutionUpdateListener();
+    return observeEvent<WaypointMissionExecutionProgressEvent>(
+      'WaypointMissionExecutionProgress',
+    );
+  },
+  startWaypointV2ExecutionUpdateListener: async () => {
+    await WaypointMissionV2Wrapper.startWaypointExecutionUpdateListener();
+    return observeEvent<WaypointMissionExecutionProgressEvent>(
+      'WaypointMissionExecutionProgress',
+    );
+  },
+  observeWaypointExecutionUpdate:
+    observeEvent<WaypointMissionExecutionProgressEvent>(
+      'WaypointMissionExecutionProgress',
+    ),
+
+  // Waypoint mission state listeners
   startWaypointMissionStateListener: async () => {
+    const modelName = await DJIMobile.getModelName();
+    if (modelSupportsWaypointV2(modelName)) {
+      await WaypointMissionV2Wrapper.startWaypointMissionStateListener();
+    } else {
+      await FlightControllerWrapper.startWaypointMissionStateListener();
+    }
+    return observeEvent<WaypointMissionExecutionProgressEvent>(
+      'WaypointMissionExecutionProgress',
+    );
+  },
+  startWaypointMissionV1StateListener: async () => {
     await FlightControllerWrapper.startWaypointMissionStateListener();
     return observeEvent<WaypointMissionState>('WaypointMissionState');
   },
-  observeWaypointMissionState: observeEvent<WaypointMissionState>('WaypointMissionState'),
-  startWaypointMissionUploadListener: async () => {
-    await FlightControllerWrapper.startWaypointMissionUploadListener();
-    return observeEvent<WaypointMissionUploadEvent>('WaypointMissionUploadProgress')
+  startWaypointMissionV2StateListener: async () => {
+    await WaypointMissionV2Wrapper.startWaypointMissionStateListener();
+    return observeEvent<WaypointMissionState>('WaypointMissionState');
   },
-  observeWaypointMissionUpload: observeEvent<WaypointMissionUploadEvent>('WaypointMissionUploadProgress'),
+  observeWaypointMissionState: observeEvent<WaypointMissionState>(
+    'WaypointMissionState',
+  ),
+
+  // Waypoint mission upload listeners
+  startWaypointMissionUploadListener: async () => {
+    const modelName = await DJIMobile.getModelName();
+    if (modelSupportsWaypointV2(modelName)) {
+      await WaypointMissionV2Wrapper.startWaypointMissionUploadListener();
+    } else {
+      await FlightControllerWrapper.startWaypointMissionUploadListener();
+    }
+    return observeEvent<WaypointMissionUploadEvent>(
+      'WaypointMissionUploadProgress',
+    );
+  },
+  startWaypointMissionV1UploadListener: async () => {
+    await FlightControllerWrapper.startWaypointMissionUploadListener();
+    return observeEvent<WaypointMissionUploadEvent>(
+      'WaypointMissionUploadProgress',
+    );
+  },
+  startWaypointMissionV2UploadListener: async () => {
+    await WaypointMissionV2Wrapper.startWaypointMissionUploadListener();
+    return observeEvent<WaypointMissionUploadEvent>(
+      'WaypointMissionUploadProgress',
+    );
+  },
+  observeWaypointMissionUpload: observeEvent<WaypointMissionUploadEvent>(
+    'WaypointMissionUploadProgress',
+  ),
+
+  // Waypoint mission error listeners
+  startWaypointMissionErrorListener: async () => {
+    const modelName = await DJIMobile.getModelName();
+    if (modelSupportsWaypointV2(modelName)) {
+      await WaypointMissionV2Wrapper.startWaypointMissionStateListener();
+    } else {
+      await FlightControllerWrapper.startWaypointMissionStateListener();
+    }
+    return observeEvent<string>('WaypointMissionError');
+  },
+  startWaypointMissionV1ErrorListener: async () => {
+    await FlightControllerWrapper.startWaypointMissionStateListener();
+    return observeEvent<string>('WaypointMissionError');
+  },
+  startWaypointMissionV2ErrorListener: async () => {
+    await WaypointMissionV2Wrapper.startWaypointMissionStateListener();
+    return observeEvent<string>('WaypointMissionError');
+  },
+  observeWaypointMissionError: observeEvent<string>('WaypointMissionError'),
+
+  // Waypoint mission action listeners - V2 only
+  startWaypointMissionActionStateListener: async () => {
+    const modelName = await DJIMobile.getModelName();
+    if (modelSupportsWaypointV2(modelName)) {
+      await WaypointMissionV2Wrapper.startWaypointMissionStateListener();
+    }
+    return observeEvent<string>('WaypointMissionActionState');
+  },
+  observeWaypointMissionActionState: observeEvent<string>(
+    'WaypointMissionActionState',
+  ),
+  observeWaypointMissionActionUploadProgress: observeEvent<any>(
+    'WaypointMissionActionUploadProgress',
+  ),
+
+  // Stop waypoint mission listeners
   stopAllWaypointMissionListeners: async () => {
     return FlightControllerWrapper.stopAllWaypointMissionListeners();
+  },
+  stopAllWaypointMissionV1Listeners: async () => {
+    return FlightControllerWrapper.stopAllWaypointMissionListeners();
+  },
+  stopAllWaypointMissionV2Listeners: async () => {
+    return WaypointMissionV2Wrapper.stopAllWaypointMissionListeners();
   },
 
   startRecordFlightData: async (fileName: string) => {
@@ -136,7 +261,9 @@ const DJIFlightController = {
   },
   startOnboardSDKDeviceDataListener: async () => {
     await FlightControllerWrapper.startOnboardSDKDeviceDataListener();
-    return DJIEventSubject.pipe($filter(evt => evt.type === 'OnboardSDKDeviceData'));
+    return DJIEventSubject.pipe(
+      $filter(evt => evt.type === 'OnboardSDKDeviceData'),
+    );
   },
   stopOnboardSDKDeviceDataListener: async () => {
     await FlightControllerWrapper.stopOnboardSDKDeviceDataListener();
@@ -150,9 +277,10 @@ const DJIFlightController = {
   doesCompassNeedCalibrating: async () => {
     return FlightControllerWrapper.doesCompassNeedCalibrating();
   },
-  getRemoteControllerFlightMode: async (): Promise<RemoteControllerFlightModes> => {
-    return FlightControllerWrapper.getRemoteControllerFlightMode();
-  }
- };
+  getRemoteControllerFlightMode:
+    async (): Promise<RemoteControllerFlightModes> => {
+      return FlightControllerWrapper.getRemoteControllerFlightMode();
+    },
+};
 
 export default DJIFlightController;

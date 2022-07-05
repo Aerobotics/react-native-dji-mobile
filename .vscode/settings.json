@@ -1,7 +1,12 @@
 {
-  "javascript.validate.enable": false,
-  "typescript.validate.enable": false,
-  "flow.enabled": true,
+  "javascript.validate.enable": true,
+  "typescript.validate.enable": true,
+  "editor.formatOnSave": true,
+  "eslint.format.enable": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
   "eslint.enable": true,
-  "flow.pathToFlow": "${workspaceFolder}/node_modules/.bin/flow"
+  "eslint.validate": ["javascript", "typescript"],
+  "cSpell.words": ["ADSB", "ATTI", "DCINELIKE", "DLOG", "PANO"]
 }

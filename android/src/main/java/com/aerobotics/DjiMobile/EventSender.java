@@ -25,7 +25,7 @@ public class EventSender {
         }
     };
 
-    EventSender(ReactContext reactContext) {
+    public EventSender(ReactContext reactContext) {
         this.reactContext = reactContext;
         if (eventSendLimiterTimer == null) {
             eventSendLimiterTimer = new Timer();
