@@ -13,7 +13,7 @@
   "author": "Aerobotics",
   "license": "MIT",
   "peerDependencies": {
-    "react-native": "^0.57.8"
+    "react-native": "^0.70.2"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.1",
@@ -23,7 +23,7 @@
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-react-native": "^3.6.0",
     "flow-bin": "^0.91.0",
-    "react-native": "^0.57.8"
+    "react-native": "^0.70.2"
   },
   "dependencies": {
     "rxjs": "^6.4.0"
