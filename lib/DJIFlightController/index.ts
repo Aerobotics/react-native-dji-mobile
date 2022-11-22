@@ -12,7 +12,9 @@ import {
 } from '../../types';
 
 import {
+  AircraftLEDsState,
   RemoteControllerFlightModes,
+  SetAircraftLEDsState,
   WaypointMissionParameters,
   WaypointMissionV2Parameters,
 } from './types';
@@ -281,6 +283,12 @@ const DJIFlightController = {
     async (): Promise<RemoteControllerFlightModes> => {
       return FlightControllerWrapper.getRemoteControllerFlightMode();
     },
+  setAircraftLEDsState: async (settings: SetAircraftLEDsState) => {
+    return FlightControllerWrapper.setAircraftLEDsState(settings);
+  },
+  getAircraftLEDsState: async (): Promise<AircraftLEDsState> => {
+    return FlightControllerWrapper.getAircraftLEDsState();
+  },
 };
 
 export default DJIFlightController;

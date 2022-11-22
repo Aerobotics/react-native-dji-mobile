@@ -20,6 +20,7 @@ import com.facebook.react.bridge.WritableMap;
 import javax.annotation.Nonnull;
 
 import dji.common.error.DJIError;
+import dji.common.flightcontroller.LEDsSettings;
 import dji.common.flightcontroller.RemoteControllerFlightMode;
 import dji.common.mission.MissionState;
 import dji.common.mission.waypoint.WaypointExecutionProgress;
@@ -641,6 +642,65 @@ public class FlightControllerWrapper extends ReactContextBaseJavaModule {
       @Override
       public void onFailure(DJIError djiError) {
         promise.reject(new Throwable("getRemoteControllerFlightMode error: " + djiError.getDescription()));
+      }
+    });
+  }
+
+  @ReactMethod
+  public void setAircraftLEDsState(final ReadableMap ledSettingsMap, final Promise promise) {
+    LEDsSettings.Builder builder = new LEDsSettings.Builder();
+    try {
+      Boolean frontLEDsOn = ledSettingsMap.getBoolean("frontLEDsOn");
+      builder.frontLEDsOn(frontLEDsOn);
+    } catch (Exception e) {}
+    try {
+      Boolean rearLEDsOn = ledSettingsMap.getBoolean("rearLEDsOn");
+      builder.rearLEDsOn(rearLEDsOn);
+    } catch (Exception e) {}
+    try {
+      Boolean statusIndicatorOn = ledSettingsMap.getBoolean("statusIndicatorOn");
+      builder.statusIndicatorOn(statusIndicatorOn);
+    } catch (Exception e) {}
+    try {
+      Boolean beaconsOn = ledSettingsMap.getBoolean("beaconsOn");
+      builder.beaconsOn(beaconsOn);
+    } catch (Exception e) {}
+
+    LEDsSettings ledSettings = builder.build();
+    DJIKey key = FlightControllerKey.create(FlightControllerKey.LEDS_ENABLED_SETTINGS);
+    DJISDKManager.getInstance().getKeyManager().setValue(key, ledSettings, new SetCallback() {
+      @Override
+      public void onSuccess() {
+        promise.resolve(null);
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable("setAircraftLEDsState error: " + djiError.getDescription()));
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getAircraftLEDsState(final Promise promise) {
+    DJIKey key = FlightControllerKey.create(FlightControllerKey.LEDS_ENABLED_SETTINGS);
+    DJISDKManager.getInstance().getKeyManager().getValue(key, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object o) {
+        if (o instanceof LEDsSettings) {
+          LEDsSettings ledSettings = (LEDsSettings)o;
+          WritableMap settings = Arguments.createMap();
+          settings.putBoolean("areFrontLEDsOn", ledSettings.areFrontLEDsOn());
+          settings.putBoolean("areRearLEDsOn", ledSettings.areRearLEDsOn());
+          settings.putBoolean("areBeaconsOn", ledSettings.areBeaconsOn());
+          settings.putBoolean("isStatusIndicatorOn", ledSettings.isStatusIndicatorOn());
+          promise.resolve(settings);
+        }
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        promise.reject(new Throwable("getAircraftLEDsState error: " + djiError.getDescription()));
       }
     });
   }
