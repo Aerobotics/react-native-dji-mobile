@@ -87,3 +87,17 @@ export interface WaypointMissionV2Parameters {
   flightPathMode?: WaypointMissionV2FlightPathMode;
   finishedAction?: WaypointMissionFinishedAction; // Same as V1 mission
 }
+
+export interface SetAircraftLEDsState {
+  frontLEDsOn?: boolean;
+  rearLEDsOn?: boolean;
+  beaconsOn?: boolean;
+  statusIndicatorOn?: boolean;
+}
+
+export interface AircraftLEDsState {
+  areFrontLEDsOn: boolean;
+  areRearLEDsOn: boolean;
+  areBeaconsOn: boolean;
+  isStatusIndicatorOn: boolean;
+}
