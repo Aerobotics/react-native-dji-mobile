@@ -1,23 +1,21 @@
-// @flow strict
-
 import CustomTimelineElement from './CustomTimelineElement';
 
-type Parameters = {|
-  coordinate?: {|
+type Parameters = {
+  coordinate?: {
     longitude: number,
     latitude: number,
-  |},
+  },
   altitude?: number,
   flightSpeed?: number,
-|}
+}
 
 class GoToAction extends CustomTimelineElement {
-  coordinate: ?{|
+  coordinate?: {
     longitude: number,
     latitude: number,
-  |};
-  altitude: ?number;
-  flightSpeed: ?number;
+  };
+  altitude?: number;
+  flightSpeed?: number;
 
   constructor(
     parameters: Parameters

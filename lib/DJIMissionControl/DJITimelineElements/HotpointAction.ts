@@ -1,9 +1,7 @@
-// @flow strict
-
 import CustomTimelineElement from './CustomTimelineElement';
-import type {
+import {
   Hotpoint,
-} from '../DJIMissionControlTypes.js';
+} from '../DJIMissionControlTypes';
 
 const validHeadings = ['ALONG_CIRCLE_LOOKING_FORWARDS', 'ALONG_CIRCLE_LOOKING_BACKWARDS',
       'TOWARDS_HOT_POINT', 'AWAY_FROM_HOT_POINT', 'CONTROLLED_BY_REMOTE_CONTROLLER', 'USING_INITIAL_HEADING'];
@@ -20,7 +18,7 @@ class HotpointAction extends CustomTimelineElement {
   clockwise: boolean;
 
   constructor(
-    parameters?: {|
+    parameters?: {
       hotpoint: Hotpoint,
       angle: number,
       radius: number,
@@ -28,7 +26,7 @@ class HotpointAction extends CustomTimelineElement {
       startPoint: string,
       heading: string,
       clockwise: boolean,
-    |}
+    }
   ) {
     super('HotpointAction');
 

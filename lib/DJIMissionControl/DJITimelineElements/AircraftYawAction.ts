@@ -1,5 +1,3 @@
-// @flow strict
-
 import CustomTimelineElement from './CustomTimelineElement';
 
 class AircraftYawAction extends CustomTimelineElement {
@@ -8,11 +6,11 @@ class AircraftYawAction extends CustomTimelineElement {
   isAbsolute: boolean;
 
   constructor(
-    parameters?: {|
+    parameters?: {
       angle: number,
       velocity?: number,
       isAbsolute?: boolean,
-    |}
+    }
   ) {
     super('AircraftYawAction');
 

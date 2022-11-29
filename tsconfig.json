@@ -1,0 +1,30 @@
+{
+  // Change this to match your project
+  "include": ["lib/**/*", "index.ts"],
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "target": "esnext" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */,
+    "module": "commonjs" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */,
+    "lib": [
+      "es2019"
+    ] /* Specify library files to be included in the compilation. */,
+    "strict": false /* Enable all strict type-checking options. */,
+    "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
+    "allowSyntheticDefaultImports": true /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */,
+    "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
+
+    // Tells TypeScript to read JS files, as normally they are ignored as source files
+    "allowJs": true,
+    // Generate d.ts files
+    "declaration": true,
+    // This compiler run should only output d.ts files
+    "emitDeclarationOnly": true,
+    // Types should go into this directory. Removing this would place the .d.ts files next to the .js files
+    "outDir": "dist",
+    // go to js file when using IDE functions like "Go to Definition" in VSCode
+    "declarationMap": true,
+    "skipLibCheck": false /* Skip type checking of declaration files. */,
+    "types": ["react-native"]
+  },
+  "exclude": ["node_modules"]
+}

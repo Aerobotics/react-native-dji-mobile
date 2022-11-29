@@ -1,5 +1,3 @@
-// @flow strict
-
 import CustomTimelineElement from './CustomTimelineElement';
 
 type Parameters = {
@@ -17,12 +15,12 @@ class GimbalAttitudeAction extends CustomTimelineElement {
   // gimbalMode; // TODO:
 
   constructor(
-    parameters?: {|
+    parameters?: {
       pitch?: number,
       roll?: number,
       yaw?: number,
       completionTime?: number,
-    |}
+    }
   ) {
     super('GimbalAttitudeAction');
 

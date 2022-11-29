@@ -3,9 +3,11 @@
   "title": "React Native DJI Mobile",
   "version": "0.3.17",
   "description": "A React Native wrapper for DJI's Mobile SDK.",
-  "main": "index.js",
+  "main": "index.ts",
+  "typings": "dist/index",
   "scripts": {
-    "dev": "node ./scripts/make.js"
+    "dev": "node ./scripts/make.js",
+    "prepare": "tsc"
   },
   "keywords": [
     "react-native",
@@ -19,17 +21,17 @@
   "license": "MIT",
   "licenseFilename": "LICENSE",
   "readmeFilename": "README.md",
-  "dependencies": {
-    "rxjs": "^6.5.3"
-  },
   "peerDependencies": {
     "react": "^17.0.2",
-    "react-native": "^0.66.4"
+    "react-native": "^0.66.4",
+    "rxjs": ">=7.0.0"
   },
   "devDependencies": {
+    "@types/react-native": "^0.69.1",
     "chokidar": "^3.1.1",
     "react": "^17.0.2",
-    "react-native": "^0.66.4"
+    "react-native": "^0.66.4",
+    "typescript": "^4.6.2"
   },
   "directories": {
     "doc": "docs",

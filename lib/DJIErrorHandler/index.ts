@@ -1,4 +1,3 @@
-// @flow strict
 
 const DJIGimbalAttitudeActionErrorDomain = {
   name: 'DJIGimbalAttitudeActionErrorDomain',
@@ -35,7 +34,7 @@ export const handleSdkError = (err) => {
       errorDomainIndex = index;
     }
   });
-  
-  // if 
+
+  // if
 
 };

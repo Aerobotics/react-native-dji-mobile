@@ -9,12 +9,12 @@ class ShootPhotoAction extends CustomTimelineElement {
   stopShoot: boolean;
 
   constructor(
-    parameters?: {|
+    parameters?: {
       count?: number,
       interval?: number,
       wait?: boolean,
       stopShoot?: boolean,
-    |}
+    }
   ) {
     super('ShootPhotoAction');
 

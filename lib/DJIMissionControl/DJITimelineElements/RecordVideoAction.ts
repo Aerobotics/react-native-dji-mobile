@@ -1,16 +1,14 @@
-// @flow strict
-
 import CustomTimelineElement from './CustomTimelineElement';
 
 class RecordVideoAction extends CustomTimelineElement {
-  duration: ?number;
-  stopRecord: ?boolean;
+  duration?: number;
+  stopRecord?: boolean;
 
   constructor(
-    parameters?: {|
+    parameters?: {
       duration?: number,
       stopRecord?: boolean,
-    |}
+    }
   ) {
     super('RecordVideoAction');
 

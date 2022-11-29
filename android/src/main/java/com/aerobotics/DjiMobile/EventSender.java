@@ -25,7 +25,7 @@ public class EventSender {
         }
     };
 
-    EventSender(ReactContext reactContext) {
+    public EventSender(ReactContext reactContext) {
         this.reactContext = reactContext;
         if (eventSendLimiterTimer == null) {
             eventSendLimiterTimer = new Timer();
@@ -74,6 +74,8 @@ public class EventSender {
             params.putInt("value", (Integer)value);
         } else if (value instanceof Double) {
             params.putDouble("value", (Double) value);
+        } else if (value instanceof Long) {
+            params.putDouble("value", ((Long) value).doubleValue());
         } else if (value instanceof String) {
             params.putString("value", (String)value);
         } else if (value instanceof Boolean) {

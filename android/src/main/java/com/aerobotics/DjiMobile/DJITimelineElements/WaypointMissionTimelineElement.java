@@ -12,9 +12,12 @@ import dji.common.mission.waypoint.Waypoint;
 import dji.common.mission.waypoint.WaypointAction;
 import dji.common.mission.waypoint.WaypointActionType;
 import dji.common.mission.waypoint.WaypointMission;
+import dji.common.mission.waypoint.WaypointMissionFinishedAction;
 import dji.common.mission.waypoint.WaypointMissionFlightPathMode;
 import dji.common.mission.waypoint.WaypointMissionGotoWaypointMode;
 import dji.common.mission.waypoint.WaypointMissionHeadingMode;
+
+import static dji.common.mission.waypoint.WaypointMissionFlightPathMode.CURVED;
 
 public class WaypointMissionTimelineElement extends WaypointMission.Builder {
 
@@ -42,37 +45,58 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
       this.headingMode(WaypointMissionHeadingMode.valueOf(parameters.getString("headingMode")));
     }
 
+    if (parameters.hasKey("goToWaypointMode")) {
+      this.gotoFirstWaypointMode(WaypointMissionGotoWaypointMode.valueOf(parameters.getString("goToWaypointMode")));
+    }
+
+    if(parameters.hasKey("flightPathMode")) {
+      this.flightPathMode(WaypointMissionFlightPathMode.valueOf(parameters.getString("flightPathMode")));
+    }
+
+    if(parameters.hasKey("finishedAction")) {
+      this.finishedAction(WaypointMissionFinishedAction.valueOf(parameters.getString("finishedAction")));
+    }
+
     ReadableArray waypointsParameter = parameters.getArray("waypoints");
     for (int i = 0, n = waypointsParameter.size(); i < n; i++) {
       ReadableMap waypointParams = waypointsParameter.getMap(i);
       double longitude = waypointParams.getDouble("longitude");
       double latitude = waypointParams.getDouble("latitude");
       double altitude = waypointParams.getDouble("altitude");
-      Integer heading = null;
-      Double speed = null;
-      try {
-        heading = waypointParams.getInt("heading");
-      } catch (Exception e) {}
-      try {
-        speed = waypointParams.getDouble("speed");
-      } catch (Exception e) {}
 
       Waypoint waypointObject = new Waypoint(
         latitude,
         longitude,
         (float) altitude
       );
-
-      if (heading != null) {
+      try {
+        int heading = waypointParams.getInt("heading");
         waypointObject.heading = heading;
-      }
-      if (speed != null) {
-        waypointObject.speed = speed.floatValue();
+      } catch (Exception e) {}
+      try {
+        double speed = waypointParams.getDouble("speed");
+        waypointObject.speed = (float) speed;
+      } catch (Exception e) {}
+
+      if (waypointParams.hasKey("cornerRadiusInMeters") && this.flightPathMode == CURVED) {
+        // First and last waypoints should have a corner radius of 0.2 according to the DJI docs
+        if (i == 0 || i == n - 1) {
+          waypointObject.cornerRadiusInMeters = Waypoint.MIN_CORNER_RADIUS;
+        } else {
+          double cornerRadiusInMeters = waypointParams.getDouble("cornerRadiusInMeters");
+          // Ensure corner radius >= min corner radius (0.2m)
+          waypointObject.cornerRadiusInMeters = Math.max((float) cornerRadiusInMeters,  Waypoint.MIN_CORNER_RADIUS);
+        }
       }
 
-      if (waypointParams.hasKey("cornerRadiusInMeters")) {
-        double cornerRadiusInMeters = waypointParams.getDouble("cornerRadiusInMeters");
-        waypointObject.cornerRadiusInMeters = (float)cornerRadiusInMeters;
+      if (waypointParams.hasKey("shootPhotoDistanceInterval")) {
+        double shootPhotoDistanceInterval = waypointParams.getDouble("shootPhotoDistanceInterval");
+        waypointObject.shootPhotoDistanceInterval = (float) shootPhotoDistanceInterval;
+      }
+
+      if (waypointParams.hasKey("shootPhotoTimeInterval")) {
+        double shootPhotoTimeInterval = waypointParams.getDouble("shootPhotoTimeInterval");
+        waypointObject.shootPhotoTimeInterval = (float) shootPhotoTimeInterval;
       }
 
       if (waypointParams.hasKey("actions")) {
@@ -91,14 +115,6 @@ public class WaypointMissionTimelineElement extends WaypointMission.Builder {
       }
 
       this.addWaypoint(waypointObject);
-    }
-
-    if (parameters.hasKey("goToWaypointMode")) {
-      this.gotoFirstWaypointMode(WaypointMissionGotoWaypointMode.valueOf(parameters.getString("goToWaypointMode")));
-    }
-
-    if(parameters.hasKey("flightPathMode")) {
-      this.flightPathMode(WaypointMissionFlightPathMode.valueOf(parameters.getString("flightPathMode")));
     }
   }
 

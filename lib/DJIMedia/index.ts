@@ -1,5 +1,3 @@
-// @flow strict
-
 import {
   NativeModules,
 } from 'react-native';
@@ -16,16 +14,16 @@ const {
 
 
 const DJIMediaControl = {
-  startFullResMediaFileDownload:  async (fileName: string, newFileName: ?string) => {
+  startFullResMediaFileDownload:  async (fileName: string, newFileName?: string) => {
     await DJIMedia.startFullResMediaFileDownload(fileName, newFileName);
     return DJIEventSubject.pipe(
       $filter(evt => evt.type === 'mediaFileDownloadEvent'),
-    ).asObservable();
+    );
   },
   startFullResMediaFileDownloadListener: async () => {
     return DJIEventSubject.pipe(
       $filter(evt => evt.type === 'mediaFileDownloadEvent'),
-    ).asObservable();
+    );
   },
 };
 

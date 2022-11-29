@@ -9,6 +9,7 @@ import dji.keysdk.ProductKey;
 
 public enum SDKEvent {
   ProductConnection(ProductKey.create(ProductKey.CONNECTION), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraConnection(CameraKey.create(CameraKey.CONNECTION), EventType.DJI_KEY_MANAGER_EVENT),
   BatteryChargeRemaining(BatteryKey.create(BatteryKey.CHARGE_REMAINING_IN_PERCENT), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftCompassHeading(FlightControllerKey.create(FlightControllerKey.COMPASS_HEADING), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftLocation(FlightControllerKey.create(FlightControllerKey.AIRCRAFT_LOCATION), EventType.DJI_KEY_MANAGER_EVENT),
@@ -26,6 +27,8 @@ public enum SDKEvent {
   AircraftAttitudeRoll(FlightControllerKey.create(FlightControllerKey.ATTITUDE_ROLL), EventType.DJI_KEY_MANAGER_EVENT),
 
   AircraftGpsSignalLevel(FlightControllerKey.create(FlightControllerKey.GPS_SIGNAL_LEVEL), EventType.DJI_KEY_MANAGER_EVENT),
+  SatelliteCount(FlightControllerKey.create(FlightControllerKey.SATELLITE_COUNT), EventType.DJI_KEY_MANAGER_EVENT),
+
   AirLinkUplinkSignalQuality(null, EventType.DJI_KEY_MANAGER_EVENT),
   AirLinkLightbridgeUplinkSignalQuality(AirLinkKey.createLightbridgeLinkKey(AirLinkKey.UPLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
   AirLinkOcuSyncUplinkSignalQuality(AirLinkKey.createOcuSyncLinkKey(AirLinkKey.UPLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
@@ -33,32 +36,50 @@ public enum SDKEvent {
   AirLinkLightbridgeDownlinkSignalQuality(AirLinkKey.createLightbridgeLinkKey(AirLinkKey.DOWNLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
   AirLinkOcuSyncDownlinkSignalQuality(AirLinkKey.createOcuSyncLinkKey(AirLinkKey.DOWNLINK_SIGNAL_QUALITY), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftHomeLocation(FlightControllerKey.create(FlightControllerKey.HOME_LOCATION), EventType.DJI_KEY_MANAGER_EVENT),
+  IsHomeLocationSet(FlightControllerKey.create(FlightControllerKey.IS_HOME_LOCATION_SET), EventType.DJI_KEY_MANAGER_EVENT),
   TakeoffLocationAltitude(FlightControllerKey.create(FlightControllerKey.TAKEOFF_LOCATION_ALTITUDE), EventType.DJI_KEY_MANAGER_EVENT),
   AircraftUltrasonicHeight(FlightControllerKey.create(FlightControllerKey.ULTRASONIC_HEIGHT_IN_METERS), EventType.DJI_KEY_MANAGER_EVENT),
   CompassHasError(FlightControllerKey.create(FlightControllerKey.COMPASS_HAS_ERROR), EventType.DJI_KEY_MANAGER_EVENT),
+  IMUSensorState(FlightControllerKey.create(FlightControllerKey.IMU_STATE), EventType.DJI_KEY_MANAGER_EVENT),
+  AircraftIsFlying(FlightControllerKey.create(FlightControllerKey.IS_FLYING), EventType.DJI_KEY_MANAGER_EVENT),
 
   LandingProtectionEnabled(FlightControllerKey.create(FlightControllerKey.LANDING_PROTECTION_ENABLED), EventType.DJI_KEY_MANAGER_EVENT),
   VisionAssistedPositioningEnabled(FlightControllerKey.create(FlightControllerKey.VISION_ASSISTED_POSITIONING_ENABLED), EventType.DJI_KEY_MANAGER_EVENT),
+  RemoteControllerFlightMode(FlightControllerKey.create(FlightControllerKey.CURRENT_MODE), EventType.DJI_KEY_MANAGER_EVENT),
+  AircraftFlightMode(FlightControllerKey.create(FlightControllerKey.FLIGHT_MODE), EventType.DJI_KEY_MANAGER_EVENT),
 
-  CameraIsRecording(CameraKey.create(CameraKey.IS_RECORDING), EventType.DJI_KEY_MANAGER_EVENT),
+  // Camera & SD Card Events
   SDCardIsInserted(CameraKey.create(CameraKey.SDCARD_IS_INSERTED), EventType.DJI_KEY_MANAGER_EVENT),
   SDCardIsReadOnly(CameraKey.create(CameraKey.SDCARD_IS_READ_ONLY), EventType.DJI_KEY_MANAGER_EVENT),
+  SDCardAvailableCaptureCount(CameraKey.create(CameraKey.SDCARD_AVAILABLE_CAPTURE_COUNT), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraIsRecording(CameraKey.create(CameraKey.IS_RECORDING), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraIsShootingSinglePhoto(CameraKey.create(CameraKey.IS_SHOOTING_SINGLE_PHOTO), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraIsStoringPhoto(CameraKey.create(CameraKey.IS_STORING_PHOTO), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraIsShootingPhoto(CameraKey.create(CameraKey.IS_SHOOTING_PHOTO), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraDidUpdateSystemState(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
+  CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
+  CameraExposureSettings(CameraKey.create(CameraKey.EXPOSURE_SETTINGS), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraWhiteBalance(CameraKey.create(CameraKey.WHITE_BALANCE), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraPhotoFileFormat(CameraKey.create(CameraKey.PHOTO_FILE_FORMAT), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraPhotoAspectRatio(CameraKey.create(CameraKey.PHOTO_ASPECT_RATIO), EventType.DJI_KEY_MANAGER_EVENT),
+  CameraExposureMode(CameraKey.create(CameraKey.EXPOSURE_MODE), EventType.DJI_KEY_MANAGER_EVENT),
 
   GimbalIsAtYawStop(GimbalKey.create(GimbalKey.IS_YAW_AT_STOP), EventType.DJI_KEY_MANAGER_EVENT),
 
   WaypointMissionFinished(null, EventType.DJI_KEY_MANAGER_EVENT),
   WaypointMissionStarted(null, EventType.DJI_KEY_MANAGER_EVENT),
   WaypointMissionExecutionProgress(null, EventType.DJI_KEY_MANAGER_EVENT),
+  WaypointMissionUploadProgress(null, EventType.DJI_KEY_MANAGER_EVENT),
+  WaypointMissionError(null, EventType.DJI_KEY_MANAGER_EVENT),
+  WaypointMissionActionUploadProgress(null, EventType.DJI_KEY_MANAGER_EVENT),
+  WaypointMissionState(null, EventType.DJI_KEY_MANAGER_EVENT),
+  WaypointMissionActionState(null, EventType.DJI_KEY_MANAGER_EVENT),
 
   VirtualStickTimelineElementEvent(null, EventType.DJI_KEY_MANAGER_EVENT),
 
   AircraftVirtualStickEnabled(FlightControllerKey.create(FlightControllerKey.VIRTUAL_STICK_CONTROL_MODE_ENABLED), EventType.DJI_KEY_MANAGER_EVENT),
 
   OnboardSDKDeviceData(null, EventType.DJI_ONBOARD_SDK_DEVICE_DATA_EVENT),
-
-  CameraDidUpdateSystemState(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
-  CameraDidGenerateNewMediaFile(null, EventType.DJI_CAMERA_DELEGATE_EVENT),
-  CameraExposureSettings(CameraKey.create(CameraKey.EXPOSURE_SETTINGS), EventType.DJI_KEY_MANAGER_EVENT),
 
   VisionDetectionState(FlightControllerKey.createFlightAssistantKey(FlightControllerKey.VISION_DETECTION_STATE), EventType.DJI_KEY_MANAGER_EVENT),
   VisionControlState(null, EventType.DJI_CALLBACK_EVENT),
