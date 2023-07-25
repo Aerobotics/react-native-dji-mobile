@@ -865,6 +865,7 @@ public class DJIMobile extends ReactContextBaseJavaModule {
     final Double[] homeLocation = {null, null, null};
 
     DJIKey aircraftHomeLocationKey = (DJIKey) SDKEvent.AircraftHomeLocation.getKey();
+    DJIKey takeoffLocationAltitudeKey = (DJIKey) SDKEvent.TakeoffLocationAltitude.getKey();
     DJISDKManager.getInstance().getKeyManager().getValue(aircraftHomeLocationKey, new GetCallback() {
       @Override
       public void onSuccess(@NonNull Object value) {
@@ -882,7 +883,24 @@ public class DJIMobile extends ReactContextBaseJavaModule {
 
       @Override
       public void onFailure(@NonNull DJIError djiError) {
-        Log.e("REACT", "Could not set home location callback: " + djiError.getDescription());
+        Log.e("REACT", "Could not get home location: " + djiError.getDescription());
+      }
+    });
+
+    DJISDKManager.getInstance().getKeyManager().getValue(takeoffLocationAltitudeKey, new GetCallback() {
+      @Override
+      public void onSuccess(@NonNull Object value) {
+        if (!isObjectValidFloatValue(value)) {
+          return;
+        }
+        Float takeoffLocationAltitude = (Float) value;
+        homeLocation[2] = Double.valueOf(takeoffLocationAltitude);
+        sendAircraftHomeLocationEvent(homeLocation[0], homeLocation[1], homeLocation[2]);
+      }
+
+      @Override
+      public void onFailure(@NonNull DJIError djiError) {
+        Log.e("REACT", "Could not get home location altitude: " + djiError.getDescription());
       }
     });
 
